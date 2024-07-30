@@ -22,7 +22,13 @@
 namespace ttg = mlir::triton::gpu;
 namespace mlir {
 
-using namespace triton;
+// We only "import" the symbols that we need to avoid name conflicts.
+using triton::AxisInfo;
+using triton::DialectInferLayoutInterface;
+using triton::JoinOp;
+using triton::ModuleAxisInfoAnalysis;
+using triton::PointerType;
+using triton::SplitOp;
 
 SmallVector<unsigned, 3> mmaVersionToInstrShape(int version,
                                                 const ArrayRef<int64_t> &shape,
@@ -463,7 +469,7 @@ Attribute inferSrcEncoding(Operation *op, Attribute encoding) {
       op->hasTrait<mlir::OpTrait::SameLoadStoreOperandsAndResultEncoding>() ||
       op->hasTrait<mlir::OpTrait::Elementwise>() ||
       isa<scf::WhileOp, scf::YieldOp, scf::ConditionOp,
-          nvidia_gpu::WarpGroupDotWaitOp>(op)) {
+          triton::nvidia_gpu::WarpGroupDotWaitOp>(op)) {
     return encoding;
   }
 
@@ -494,7 +500,7 @@ Attribute inferDstEncoding(Operation *op, Attribute encoding) {
       op->hasTrait<mlir::OpTrait::SameLoadStoreOperandsAndResultEncoding>() ||
       op->hasTrait<mlir::OpTrait::Elementwise>() ||
       isa<scf::WhileOp, scf::ForOp, scf::YieldOp, scf::ConditionOp,
-          nvidia_gpu::WarpGroupDotWaitOp>(op))
+          triton::nvidia_gpu::WarpGroupDotWaitOp>(op))
     return encoding;
   if (auto reduceOp = dyn_cast<triton::ReduceOp>(op))
     return inferDstEncoding(reduceOp, encoding);
@@ -924,7 +930,7 @@ Value linearize(OpBuilder &b, Location loc, ArrayRef<Value> multiDim,
 }
 
 bool isPureUnaryInlineAsm(Operation *op) {
-  auto inlineAsmOp = dyn_cast<ElementwiseInlineAsmOp>(op);
+  auto inlineAsmOp = dyn_cast<triton::ElementwiseInlineAsmOp>(op);
   if (!inlineAsmOp)
     return false;
   return op->getNumOperands() == 1 && op->getNumResults() == 1 &&
