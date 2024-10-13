@@ -36,6 +36,7 @@ def _path_to_binary(binary: str):
     paths = [
         os.environ.get(f"TRITON_{binary.upper()}_PATH", ""),
         os.path.join(os.path.dirname(__file__), "bin", binary),
+        os.path.join(os.environ.get("CUDA_PATH"), "bin", binary),
     ]
 
     for path in paths:
