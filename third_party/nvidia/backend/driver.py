@@ -265,7 +265,14 @@ def make_launcher(constants, signature, tensordesc_meta):
     params.append("&profile_scratch")
     src = f"""
 #include \"cuda.h\"
+
+#ifndef _WIN32
 #include <dlfcn.h>
+#else
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #include <stdbool.h>
 #include <stdlib.h>
 #define PY_SSIZE_T_CLEAN
@@ -297,6 +304,7 @@ static inline void gpuAssert(CUresult code, const char *file, int line)
 
 typedef CUresult (*cuLaunchKernelEx_t)(const CUlaunchConfig* config, CUfunction f, void** kernelParams, void** extra);
 
+#ifndef _WIN32
 static cuLaunchKernelEx_t getLaunchKernelExHandle() {{
   // Open the shared library
   void* handle = dlopen("libcuda.so.1", RTLD_LAZY);
@@ -315,6 +323,25 @@ static cuLaunchKernelEx_t getLaunchKernelExHandle() {{
   }}
   return cuLaunchKernelExHandle;
 }}
+#else
+static cuLaunchKernelEx_t getLaunchKernelExHandle() {{
+  // Open the shared library
+  HMODULE handle = LoadLibraryA("nvcuda.dll");
+  if (!handle) {{
+    PyErr_SetString(PyExc_RuntimeError, "Failed to open nvcuda.dll");
+    return NULL;
+  }}
+  cuLaunchKernelEx_t cuLaunchKernelExHandle =
+      (cuLaunchKernelEx_t)GetProcAddress((HMODULE)handle, "cuLaunchKernelEx");
+  // Check for errors
+  long error = GetLastError();
+  if (error) {{
+    PyErr_SetString(PyExc_RuntimeError, "Failed to retrieve cuLaunchKernelEx from nvcuda.dll");
+    return NULL;
+  }}
+  return cuLaunchKernelExHandle;
+}}
+#endif
 
 static void _launch(int gridX, int gridY, int gridZ, int num_warps, int num_ctas, int launch_cooperative_grid, int launch_pdl, int shared_memory, CUstream stream, CUfunction function, CUdeviceptr global_scratch, CUdeviceptr profile_scratch{', ' + arg_decls if len(arg_decls) > 0 else ''}) {{
   void *params[] = {{ {', '.join(params)} }};
