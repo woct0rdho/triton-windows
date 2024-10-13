@@ -137,6 +137,10 @@ if (NOT WIN32 AND NOT APPLE)
   link_libraries(stdc++fs)
 endif()
 
+if(WIN32)
+  add_subdirectory(third_party/dlfcn-win32)
+  include_directories(${PROJECT_SOURCE_DIR}/third_party/dlfcn-win32)
+endif()
 
 # -----
 
@@ -151,6 +155,9 @@ if(TRITON_BUILD_PYTHON_MODULE)
     # using pip install.
     include_directories(${PYTHON_INCLUDE_DIRS})
     include_directories(${PYBIND11_INCLUDE_DIR})
+    if(WIN32)
+      link_directories(${PYTHON_INCLUDE_DIRS}/../libs)
+    endif()
   else()
     # Otherwise, we might be building from top CMakeLists.txt directly.
     # Try to find Python and pybind11 packages.
@@ -260,7 +267,7 @@ if(TRITON_BUILD_PYTHON_MODULE)
   # Link triton with its dependencies
   target_link_libraries(triton PUBLIC ${TRITON_LIBRARIES})
   if(WIN32)
-    target_link_libraries(triton PRIVATE ${CMAKE_DL_LIBS})
+    target_link_libraries(triton PRIVATE ${CMAKE_DL_LIBS} dlfcn)
   else()
     target_link_libraries(triton PRIVATE z)
   endif()
@@ -294,9 +301,6 @@ if(NOT TRITON_BUILD_PYTHON_MODULE)
 endif()
 
 add_subdirectory(third_party/f2reduce)
-if(WIN32)
-  add_subdirectory(third_party/dlfcn-win32)
-endif()
 add_subdirectory(bin)
 add_subdirectory(test)
 
