@@ -40,3 +40,7 @@ target_compile_definitions(proton PRIVATE __HIP_PLATFORM_AMD__)
 
 target_link_libraries(proton PRIVATE Python3::Module pybind11::headers)
 target_link_options(proton PRIVATE ${PROTON_PYTHON_LDFLAGS})
+
+if(WIN32)
+  target_link_libraries(proton PRIVATE dlfcn)
+endif()
