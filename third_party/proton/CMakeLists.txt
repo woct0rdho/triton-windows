@@ -76,3 +76,7 @@ target_link_libraries(proton PRIVATE Python3::Module)
 if(PROTON_PYTHON_LDFLAGS)
   target_link_options(proton PRIVATE ${PROTON_PYTHON_LDFLAGS})
 endif()
+
+if(WIN32)
+  target_link_libraries(proton PRIVATE dlfcn)
+endif()
