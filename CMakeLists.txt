@@ -323,6 +323,9 @@ endif()
 find_package(Threads REQUIRED)
 
 add_subdirectory(third_party/f2reduce)
+if(WIN32)
+  add_subdirectory(third_party/dlfcn-win32)
+endif()
 add_subdirectory(bin)
 add_subdirectory(test)
 
