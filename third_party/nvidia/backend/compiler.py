@@ -15,9 +15,12 @@ from pathlib import Path
 
 @functools.lru_cache()
 def _path_to_binary(binary: str):
+    if os.name == "nt":
+        binary += ".exe"
     paths = [
         os.environ.get(f"TRITON_{binary.upper()}_PATH", ""),
         os.path.join(os.path.dirname(__file__), "bin", binary),
+        os.path.join(os.environ.get("CUDA_PATH"), "bin", binary),
     ]
 
     for bin in paths:
