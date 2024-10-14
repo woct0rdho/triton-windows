@@ -19,7 +19,7 @@ Based on [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionu
 * When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine (although the memory usage is hard to profile in WSL)
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only CUDA is supported, help wanted to support AMD
-* TODO: Fix all tests
+* Most tests passed, except some overflows
 * TODO: Auto find the paths in `python/triton/runtime/build.py`
 * TODO: Build wheels using cibuildwheel
 
