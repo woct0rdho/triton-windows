@@ -1,19 +1,20 @@
 # [Triton](https://github.com/triton-lang/triton) fork for Windows support
 
-See `windows-fix` branch for the code.
+See `v3.0.x-windows` branch for the code.
 
 Based on [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionut](https://github.com/mantaionut/triton/tree/windows_support), [eaplatanios](https://github.com/eaplatanios/triton/tree/windows-fix), and more development in the community. Thank you all!
 
 ## Why?
 
-Free software should run on non-free platforms, as per Richard Stallman.
+* Free software should run on non-free platforms, as per Richard Stallman
+* Catgirl matters
 
 ## Progress
 
-* Forked from the official main branch (> 3.0.0) as of today
+* Forked from the `release/3.0.x` branch of the official repo
 * Built the package locally when the paths of Python, MSVC, Windows SDK, and CUDA are manually set
 * `triton.jit` works when the paths are manually set in `python/triton/runtime/build.py`
-* `torch.compile` works after applying the patch [#137757](https://github.com/pytorch/pytorch/pull/137757)
+* `torch.compile` works
 * When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine (although the memory usage is hard to profile in WSL)
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only CUDA is supported, help wanted to support AMD
