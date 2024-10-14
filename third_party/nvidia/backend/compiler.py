@@ -384,10 +384,11 @@ class CUDABackend(BaseBackend):
 
     def make_cubin(self, src, metadata, opt, capability):
         ptxas, _ = get_ptxas(self.target.arch)
+        # On Windows, we need to set delete=False, close the temp file before reading it, and manually remove it
         with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.ptx') as fsrc, \
             tempfile.NamedTemporaryFile(delete=False, mode='r', suffix='.log') as flog:
             fsrc.write(src)
-            fsrc.flush()
+            fsrc.close()
             fbin = fsrc.name + '.o'
 
             line_info = ["-lineinfo", "-suppress-debug-info"] if os.environ.get("TRITON_DISABLE_LINE_INFO",
@@ -398,16 +399,17 @@ class CUDABackend(BaseBackend):
             ptxas_cmd = [ptxas, *line_info, *fmad, '-v', *opt_level, f'--gpu-name={arch}', fsrc.name, '-o', fbin]
             try:
                 subprocess.run(ptxas_cmd, check=True, close_fds=False, stderr=flog)
-                # On Windows, these files cannot be immediately removed
-                # if os.path.exists(fsrc.name):
-                #     os.remove(fsrc.name)
-                # if os.path.exists(flog.name):
-                #     os.remove(flog.name)
+                flog.close()
+                if os.path.exists(fsrc.name):
+                    os.remove(fsrc.name)
+                if os.path.exists(flog.name):
+                    os.remove(flog.name)
             except subprocess.CalledProcessError as e:
+                flog.close()
                 with open(flog.name) as log_file:
                     log = log_file.read()
-                # if os.path.exists(flog.name):
-                #     os.remove(flog.name)
+                if os.path.exists(flog.name):
+                    os.remove(flog.name)
 
                 if e.returncode == 255:
                     error = 'Internal Triton PTX codegen error'
