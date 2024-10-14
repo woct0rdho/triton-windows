@@ -27,7 +27,7 @@ https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-
 Also, download JSON according to the `setup.py`:
 https://github.com/nlohmann/json/releases/download/v3.11.3/include.zip
 
-Set their paths:
+Set their paths (in PowerShell):
 ```pwsh
 $Env:JSON_SYSPATH = "C:/json"
 $Env:LLVM_SYSPATH = "C:/llvm-project/build"
@@ -43,7 +43,7 @@ I recommend to use ccache:
 $Env:TRITON_BUILD_WITH_CCACHE = "1"
 ```
 
-Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA: (Help wanted to auto find these in CMake)
+Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA (help wanted to auto find these in CMake):
 ```pwsh
 $Env:Path =
 "C:\Python310;" +
