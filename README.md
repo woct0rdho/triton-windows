@@ -43,7 +43,7 @@ I recommend to use ccache:
 $Env:TRITON_BUILD_WITH_CCACHE = "1"
 ```
 
-Set the binary, include, and library paths: (Help wanted to auto find these in CMake)
+Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA: (Help wanted to auto find these in CMake)
 ```pwsh
 $Env:Path =
 "C:\Python310;" +
