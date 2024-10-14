@@ -434,10 +434,11 @@ class CUDABackend(BaseBackend):
 
     def make_cubin(self, src, metadata, opt, capability):
         ptxas = get_ptxas().path
+        # On Windows, we need to set delete=False, close the temp file before reading it, and manually remove it
         with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.ptx') as fsrc, \
             tempfile.NamedTemporaryFile(delete=False, mode='r', suffix='.log') as flog:
             fsrc.write(src)
-            fsrc.flush()
+            fsrc.close()
             fbin = fsrc.name + '.o'
 
             debug_info = []
@@ -466,20 +467,21 @@ class CUDABackend(BaseBackend):
             ]
             try:
                 subprocess.run(ptxas_cmd, check=True, close_fds=False, stderr=flog)
+                flog.close()
                 if knobs.nvidia.dump_ptxas_log:
                     with open(flog.name) as log_file:
                         print(log_file.read())
 
-                # On Windows, these files cannot be immediately removed
-                # if os.path.exists(fsrc.name):
-                #     os.remove(fsrc.name)
-                # if os.path.exists(flog.name):
-                #     os.remove(flog.name)
+                if os.path.exists(fsrc.name):
+                    os.remove(fsrc.name)
+                if os.path.exists(flog.name):
+                    os.remove(flog.name)
             except subprocess.CalledProcessError as e:
+                flog.close()
                 with open(flog.name) as log_file:
                     log = log_file.read()
-                # if os.path.exists(flog.name):
-                #     os.remove(flog.name)
+                if os.path.exists(flog.name):
+                    os.remove(flog.name)
 
                 if e.returncode == 255:
                     error = 'Internal Triton PTX codegen error'
