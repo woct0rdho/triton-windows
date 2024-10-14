@@ -7,7 +7,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 ## Why?
 
 * Free software should run on non-free platforms, as per Richard Stallman
-* This is the basis for torchao, which crucially changes some large models from "can't run" to "can run" on consumer GPUs, and that's easier than letting the consumers to use Linux or even WSL
+* This is the basis for torchao, which crucially changes some large models from "can't run" to "can run" on consumer GPUs, and that's easier than supporting them in other quantization frameworks, or letting the consumers to use Linux or even WSL
 * Catgirl matters
 
 ## Progress
