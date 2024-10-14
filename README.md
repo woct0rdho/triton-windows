@@ -7,6 +7,7 @@ Based on [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionu
 ## Why?
 
 * Free software should run on non-free platforms, as per Richard Stallman
+* This is the basis for torchao, which crucially changes some large models from "can't run" to "can run" on consumer GPUs, and that's easier than letting the consumers to use Linux or even WSL
 * Catgirl matters
 
 ## Progress
@@ -24,32 +25,7 @@ Based on [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionu
 
 ## Build locally
 
-First, build LLVM using MSVC according to the instructions of the official triton:
-https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
-You may need to remove the non-ASCII characters in the comments of `mlir/lib/Dialect/ArmSME/Transforms/VectorLegalization.cpp` to make MSVC happy
-
-Download JSON and pybind11 according to `setup.py`:
-https://github.com/nlohmann/json/releases/download/v3.11.3/include.zip
-https://github.com/pybind/pybind11/archive/refs/tags/v2.11.1.zip
-
-Set their paths (in PowerShell):
-```pwsh
-$Env:LLVM_SYSPATH = "C:/llvm-project/build"
-$Env:JSON_SYSPATH = "C:/json"
-$Env:PYBIND11_SYSPATH = "C:/pybind11"
-```
-
-Only offline build is supported:
-```pwsh
-$Env:TRITON_OFFLINE_BUILD = "1"
-```
-
-I recommend to use ccache:
-```pwsh
-$Env:TRITON_BUILD_WITH_CCACHE = "1"
-```
-
-Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA (help wanted to auto find these in CMake):
+Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA in PowerShell (help wanted to auto find these in CMake):
 ```pwsh
 $Env:Path =
 "C:\Python310;" +
@@ -68,6 +44,31 @@ $Env:LIB =
 "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\lib\x64;" +
 "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\ucrt\x64;" +
 "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64"
+```
+
+Build LLVM using MSVC according to the instructions of the official Triton:
+* https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
+* You may need to remove the non-ASCII characters in the comments of `mlir/lib/Dialect/ArmSME/Transforms/VectorLegalization.cpp` to make MSVC happy
+
+Download JSON and pybind11 according to `setup.py`:
+* https://github.com/nlohmann/json/releases/download/v3.11.3/include.zip
+* https://github.com/pybind/pybind11/archive/refs/tags/v2.11.1.zip
+
+Set their paths:
+```pwsh
+$Env:LLVM_SYSPATH = "C:/llvm-project/build"
+$Env:JSON_SYSPATH = "C:/json"
+$Env:PYBIND11_SYSPATH = "C:/pybind11"
+```
+
+Only offline build is supported:
+```pwsh
+$Env:TRITON_OFFLINE_BUILD = "1"
+```
+
+I recommend to use ccache:
+```pwsh
+$Env:TRITON_BUILD_WITH_CCACHE = "1"
 ```
 
 Then, make an editable build using pip:
