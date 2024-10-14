@@ -2,6 +2,7 @@ import multiprocessing
 import os
 import shutil
 
+import pytest
 import torch
 
 import triton
@@ -40,7 +41,8 @@ def test_compile_in_subproc() -> None:
     cc = major * 10 + minor
     config = triton.compiler.AttrsDescriptor(tuple(range(4)), ())
 
-    multiprocessing.set_start_method('fork')
+    if os.name != "nt":
+        multiprocessing.set_start_method('fork')
     proc = multiprocessing.Process(target=compile_fn, args=(config, cc))
     proc.start()
     proc.join()
@@ -61,6 +63,9 @@ def compile_fn_dot(attrs, capability):
 
 
 def test_compile_in_forked_subproc() -> None:
+    if os.name == "nt":
+        pytest.skip("Windows doesn't have fork")
+
     reset_tmp_dir()
     major, minor = torch.cuda.get_device_capability(0)
     capability = major * 10 + minor
