@@ -38,6 +38,9 @@ def is_interpreter():
     ("device_print_pointer", "int32"),
 ])
 def test_print(func_type: str, data_type: str):
+    if os.name == "nt" and func_type == "device_print_large":
+        pytest.skip("Windows has limited pipe buffer size")
+
     proc = subprocess.Popen([sys.executable, print_path, func_type, data_type], stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, shell=False)
     outs, err = proc.communicate()
@@ -49,7 +52,18 @@ def test_print(func_type: str, data_type: str):
         assert err == b''
         return
 
-    outs = [line for line in outs.decode("UTF-8").split("\n") if line]
+    outs = [line.rstrip("\r") for line in outs.decode("UTF-8").split("\n") if line]
+
+    # On Windows, some info are sent to stdout, so we filter them out
+    if os.name == "nt":
+        outs = [line for line in outs if not any(x in line for x in [
+            "ptxas info",
+            "bytes stack frame",
+            "main.c",
+            "warning C4819: The file contains a character that cannot be represented in the current code page",
+            "Creating library main.lib and object main.exp",
+        ])]
+
     # The total number of elements in the 1-D tensor to print.
     N = 128
 
