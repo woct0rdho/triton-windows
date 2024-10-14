@@ -46,6 +46,8 @@ $Env:LIB =
 "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64"
 ```
 
+If you want to build the C++ unit tests and don't set `-DTRITON_BUILD_UT=0`, then you also need to add git to the paths.
+
 Build LLVM using MSVC according to the instructions of the official Triton:
 * https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
 * You may need to remove the non-ASCII characters in the comments of `mlir/lib/Dialect/ArmSME/Transforms/VectorLegalization.cpp` to make MSVC happy
