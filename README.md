@@ -1,305 +1,386 @@
-<div align="center">
-  <img src="https://lh5.googleusercontent.com/wzQKEsTFkrgNQO9JjhGH5wFvslJr1saLtLaJ_a6Fp_gNENpvt3VG7BmztwngU9hFJaU4CPwGiw1opQtDvTkLrxWRbO_a12Q-pdESWHgtmheIHcPbOL5ZMC4TSiJVe5ty1w=w3517" alt="Triton logo">
-</div>
+# [Triton](https://github.com/triton-lang/triton) fork for Windows support
 
-| **`Documentation`** | **`Nightly Wheels`** |
-|-------------------- | -------------------- |
-| [![Documentation](https://github.com/triton-lang/triton/actions/workflows/documentation.yml/badge.svg)](https://triton-lang.org/) | [![Wheels](https://github.com/triton-lang/triton/actions/workflows/wheels.yml/badge.svg?branch=release/2.0.x)](https://github.com/triton-lang/triton/actions/workflows/wheels.yml) |
+See `v3.2.x-windows` branch for the code, forked from `release/3.2.x` branch of the official repo.
 
-# Triton
+Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionut](https://github.com/mantaionut/triton/tree/windows_support), [eaplatanios](https://github.com/eaplatanios/triton/tree/windows-fix), [anmyachev](https://github.com/triton-lang/triton/issues?q=author%3Aanmyachev), and more development in the community. Thank you all!
 
-This is the development repository of Triton, a language and compiler for writing highly efficient custom Deep-Learning primitives. The aim of Triton is to provide an open-source environment to write fast code at higher productivity than CUDA, but also with higher flexibility than other existing DSLs.
+## Why?
 
-The foundations of this project are described in the following MAPL2019 publication: [Triton: An Intermediate Language and Compiler for Tiled Neural Network Computations](http://www.eecs.harvard.edu/~htk/publication/2019-mapl-tillet-kung-cox.pdf). Please consider citing this work if you use Triton!
+* Free software should run on non-free platforms, as per Richard Stallman
+* This is required by `torch.compile`, and used by torchao, SageAttention, ParaAttention, and more packages
+* Memory management on WSL is hard
+* Catgirl matters
 
-The [official documentation](https://triton-lang.org) contains installation instructions and tutorials.  See also these third-party [Triton puzzles](https://github.com/srush/Triton-Puzzles), which can all be run using the Triton interpreter -- no GPU required.
+## Progress
 
-# Quick Installation
+**Announcement**: As of the release `triton-windows==3.2.0.post13`, C compiler and CUDA are bundled in the wheels. Please read the instructions below to understand how to install the wheel.
 
-You can install the latest stable release of Triton from pip:
+* `triton.jit` and `torch.compile` just work
+* All unit tests passed
+* When I run Flux or HunyuanVideo in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
+* Windows 10 and 11 are supported
+* Only Nvidia GPU is supported, help wanted to support other backends
+    * For AMD GPU, you may try https://github.com/Repeerc/triton-amdgpu-windows
+    * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton
+* TODO: Set up CI (help wanted)
 
-```shell
-pip install triton
+## Install from wheel
+
+Triton accelerates your AI model by compiling things on your computer. It's not a simple package that just works with `pip install`, and you need to set up the compiler and the libraries used by it. This may be  unfamiliar for Windows users, and you can follow the instructions below.
+
+### 1. GPU
+
+Check your GPU model. Technically they're categorized by 'compute capability' (also known as 'CUDA arch' or 'sm'), and here I use RTX models for example:
+
+<details>
+<summary>RTX 50xx (Blackwell)</summary>
+
+This only works with Triton >= 3.3 (pre-release), PyTorch >= 2.7 (nightly), and CUDA 12.8 .
+</details>
+
+<details>
+<summary>RTX 40xx (Ada)</summary>
+
+This is officially supported by Triton.
+</details>
+
+<details>
+<summary>RTX 30xx (Ampere)</summary>
+
+This is officially supported by Triton, but fp8 (also known as float8) will not work, see the [known issue](https://github.com/woct0rdho/triton-windows#fp8-is-not-supported-on-rtx-30xx-and-older-gpus). I recommend to use GGUF instead of fp8 models in this case.
+</details>
+
+<details>
+<summary>RTX 20xx (Turing) or older</summary>
+
+This is not officially supported by Triton. It can run some simple AI models, but not always. fp8 (also known as float8) and bf16 (also known as bfloat16) will not work. I recommend to use GGUF instead of fp8 or bf16 models in this case.
+</details>
+
+### 2. Python environment
+
+Check how your Python is installed. Either of the following environments is supported:
+* **Embeded**: You use an all-in-one package of ComfyUI (or some other AI software), and there is a folder `python_embeded` in it
+    * In this case, don't directly run `python`, but use the full path `C:\path\to\python_embeded\python.exe`
+    * Also, don't directly run `pip`, but instead run `C:\path\to\python_embeded\python.exe -m pip`
+    * By default there is no `pip.exe` in the folder `python_embeded`. If you directly run `pip`, you're actually running a `pip.exe` installed somewhere else on your computer
+* **System-wide**: You install Python at a location like `C:\Python312\` and directly use it
+* **User-wide**: You install Python at a location like `C:\Users\<your username>\AppData\Local\Programs\Python\Python312\` and directly use it
+* **conda**: You create a virtual environment using `conda`
+* **Python venv**: You create a virtual environment using `venv` or `virtualenv`
+
+For other environment managers like poetry or uv, if you find problems, please open an issue.
+
+Make sure what environment you're using. You can run `Get-Command -All python` in PowerShell (or `where python` in cmd) to see the installation path of Python, and `python --version` to see its version. If you see multiple Python installations, make sure that you install and run everything from the first one.
+* For example, if you think you're using Python 3.12, but pip downloads a wheel with `cp311` in its name, then it means you're not using the Python environment you think
+
+Don't mix two environments, unless you know them very well.
+* If you're using ComfyUI with embeded Python, then don't use conda or venv
+* If you're already using conda, then always create a new env using conda, and don't use Python venv
+
+### 3. PyTorch
+
+Although technically Triton can be used alone, in the following let's assume you use it with PyTorch. Check your PyTorch version:
+
+Triton 3.2 works with PyTorch >= 2.6 . If you're using PyTorch < 2.6, I recommend to upgrade to 2.6 because there are several improvements to `torch.compile`.
+
+Triton 3.3 (pre-release) works with PyTorch >= 2.7 (nightly).
+
+PyTorch tagged with CUDA 12 is required. CUDA 11 is not supported.
+
+### 4. CUDA
+
+Since the release `triton-windows==3.2.0.post11`, a minimal CUDA toolchain is bundled in the Triton wheels, so you don't need to manually install it.
+
+Triton 3.2 bundles CUDA 12.4, and Triton 3.3 bundles CUDA 12.8 . They should be compatible with other CUDA 12.x because of the [minor version compatibility](https://docs.nvidia.com/deploy/cuda-compatibility/) of CUDA. CUDA 11 and older versions are not supported.
+
+If you need to override the CUDA toolchain, you can set the environment variable `CUDA_PATH`.
+
+<details>
+<summary>Instructions for older or custom wheels without bundled CUDA</summary>
+
+Choose either of the following ways to install CUDA:
+
+**a) System-wide**: Recommended for most people
+<details>
+<summary>Expand</summary>
+
+1. Install PyTorch with CUDA using pip
+2. Install CUDA toolkit from [CUDA toolkit archive](https://developer.nvidia.com/cuda-toolkit-archive)
+3. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'. Make sure these folders exist on your computer: (Change the version number according to your installation)
+    ```
+    C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include
+    C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\lib\x64
+    ```
+4. Then you need to add the path of CUDA to the Windows `PATH`:
+    * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin`
+    * Make sure this folder exists
+5. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.6, V12.6.85`, then you're doing right
+</details>
+
+**b) conda**: Do this only if you're already using conda
+<details>
+<summary>Expand</summary>
+
+* Install the following packages:
+    ```pwsh
+    conda install -c conda-forge cuda-nvcc pytorch-gpu
+    ```
+* Starting from PyTorch 2.6, PyTorch is no longer released in `pytorch` channel, and it should be installed in `conda-forge` channel
+</details>
+
+**c) pip**: Do this if you don't want to install too much boilerplate, and you want to contain everything in a venv, with minimal impact to the system
+<details>
+<summary>Expand</summary>
+
+1. Install PyTorch with CUDA using pip
+2. Install the following packages:
+    ```pwsh
+    pip install nvidia-cuda-nvcc-cu12 nvidia-cuda-runtime-cu12
+    ```
+3. There should be a folder `Lib\site-packages\nvidia\cuda_runtime\` in your Python installation path (or venv), and you need to add a library in it
+    * Download it from https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0-windows.post9/cuda_12.6_lib.zip
+    * Choose 12.6 or 12.8 according to your CUDA version
+    * Put the folder `lib` into `cuda_runtime`
+</details>
+
+For details about version compatibility of various pip packages and CUDA, see https://github.com/woct0rdho/triton-windows/issues/43
+</details>
+
+### 5. C compiler
+
+Since the release `triton-windows==3.2.0.post13`, TinyCC is bundled in the Triton wheels, so you don't need to manually install a C compiler to use Triton. Packages that directly call `triton.jit`, such as SageAttention, will just work.
+
+You still need to install a C++ compiler if you use `torch.compile` targeting CPU. This may happen when you use nodes like 'CompileModel' in ComfyUI.
+
+If you need to override the C compiler, you can set the environment variable `CC`. MSVC, GCC, and Clang are supported for the JIT compilation.
+
+<details>
+<summary>Instructions for older or custom wheels without bundled TinyCC</summary>
+
+If you don't have a C compiler, I recommend to install MSVC and Windows SDK.
+* You can install them in Visual Studio
+    * If you don't want to install the whole Visual Studio, you can just install [Visual Studio Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe)
+* Visual Studio >= 2017 is supported
+* Choose the latest version of MSVC and Windows SDK from the list
+
+Then you need to add the path containing `cl.exe` to the Windows `PATH`:
+* The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.43.34808\bin\Hostx64\x64`
+* Change the version numbers according to your installation, and make sure this folder accually exists on your computer
+* If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
+
+<details>
+<summary>Note on automatically adding the path</summary>
+(Do this if you don't want to permanently modify the Windows `PATH`)
+
+Run 'Developer PowerShell for VS 2022' (or 'Developer Command Prompt for VS 2022') from the Start menu (or in VS), and it will automatically add the paths containing `cl.exe` and other relevant VS components.
+</details>
+
+</details>
+
+### 6. vcredist
+
+vcredist is required (also known as 'Visual C++ Redistributable for Visual Studio 2015-2022', `msvcp140.dll`, `vcruntime140.dll`), because `libtriton.pyd` is compiled by MSVC. Install it from https://aka.ms/vs/17/release/vc_redist.x64.exe
+
+### 7. Triton
+
+Now you can install the wheel, or upgrade the already installed version:
+```pwsh
+pip install -U triton-windows
+```
+Note again that if you're using the embeded Python, then instead of directly run `pip`, you need:
+```pwsh
+C:\path\to\python_embeded\python.exe -m pip install -U triton-windows
+```
+For Triton 3.3 (pre-release), you need:
+```pwsh
+pip install -U --pre triton-windows
 ```
 
-Binary wheels are available for CPython 3.9-3.13.
+### 8. Special notes for ComfyUI with embeded Python
 
-# Enabling Blackwell Support
+* There should be a folder `python_embeded` in your ComfyUI installation path
+* You need to put two folders `include` and `libs` into `python_embeded` to make Triton work
+    * Be careful: It is 'libs', not 'lib'. There may already be a folder `Lib` in `python_embeded`, containing things like `site-packages` or `__future__.py`. You should not modify the `Lib` folder
+    * If you're using ComfyUI_windows_portable >= 0.2.4 with Python 3.12.7, you can download the two folders here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.12.7_include_libs.zip
+    * If you're using another Python version, you can find the two folders at https://github.com/woct0rdho/triton-windows/releases/v3.0.0-windows.post1/
+* (For developers: This is equivalent to `python-dev` on Linux, and you can get the two folders from nuget when packaging the embeded Python with your app, see https://bugs.python.org/issue38224 )
 
-The main branch now features support for NVIDIA Blackwell GPUs using 5th
-generation tensor cores. To enable this, you will need two additional steps:
+## Test if it works
 
-1. Build a pre-release PyTorch from source with CUDA 12.8
-2. Build triton from the latest source
+Before using Triton in larger projects like ComfyUI, please run the following script to test if Triton itself works. You need to save the code in a file, such as `test_triton.py`, then run `python test_triton.py`.
+```python
+import torch
+import triton
+import triton.language as tl
 
+@triton.jit
+def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
+    pid = tl.program_id(axis=0)
+    block_start = pid * BLOCK_SIZE
+    offsets = block_start + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < n_elements
+    x = tl.load(x_ptr + offsets, mask=mask)
+    y = tl.load(y_ptr + offsets, mask=mask)
+    output = x + y
+    tl.store(output_ptr + offsets, output, mask=mask)
 
-First, to build pytorch you need to have CUDA 12.8 installed locally. If not,
-follow the [instructions for your platform](https://developer.nvidia.com/cuda-downloads)
-```bash
-# Clone and checkout pytorch 2.6 release candidate
-git clone https://github.com/pytorch/pytorch
-cd pytorch
-git checkout v2.6.0-rc9
-git submodule sync
-git submodule update --init --recursive -j 8
+def add(x: torch.Tensor, y: torch.Tensor):
+    output = torch.empty_like(x)
+    n_elements = output.numel()
+    grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
+    add_kernel[grid](x, y, output, n_elements, BLOCK_SIZE=1024)
+    return output
 
-# Install build dependencies (assumes you already have a system compiler)
-pip install -r requirements.txt
-pip install mkl-static mkl-include wheel
-
-# Build PyTorch (will take a long time)
-export CUDA_HOME=/usr/local/cuda-12.8
-export CUDA_PATH=$CUDA_HOME
-export TORCH_CUDA_ARCH_LIST=Blackwell
-python setup.py develop
-
-# Optional, package build into a wheel to install on other machines.
-python setup.py bdist_wheel
-ls dist  # Wheel should be output in this directory
+a = torch.rand(3, device="cuda")
+b = a + a
+b_compiled = add(a, a)
+print(b_compiled - b)
+print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
 ```
 
-Note that if you use the domain libraries (`torchvision`, `torchtext`,
-`torchaudio`, etc.) these will need to be built from source as well, otherwise
-their custom PyTorch extensions will not work.
+## Troubleshoot the test above
 
-Finally, follow the instructions below to install triton from source.
+### ModuleNotFoundError: No module named 'triton.language'; 'triton' is not a package
 
-# Install from source
+Don't name the test script `triton.py`. Also, check if there is a folder named `triton` in your current directory. If so, Python will think it's the 'triton' package and fail to import.
 
-```shell
-git clone https://github.com/triton-lang/triton.git
-cd triton
+### AttributeError: module 'pkgutil' has no attribute 'ImpImporter'. Did you mean: 'zipimporter'
 
-pip install ninja cmake wheel pybind11 # build-time dependencies
-pip install -e python
+This is because your `setuptools` is outdated. Run the following and try again:
+```pwsh
+python -m ensurepip -U
+python -m pip install -U pip
+python -m pip install -U setuptools
 ```
 
-Or with a virtualenv:
+### ImportError: DLL load failed while importing libtriton
 
-```shell
-git clone https://github.com/triton-lang/triton.git
-cd triton
+If you see this and there are `vcruntime140.dll` and `vcruntime140_1.dll` in the folder containing `python.exe`, then you may try:
+1. Install the latest version of vcredist from https://aka.ms/vs/17/release/vc_redist.x64.exe
+2. Copy-paste `msvcp140.dll`, `vcruntime140.dll`, and `vcruntime140_1.dll` from `C:\Windows\System32\` to the folder containing `python.exe`, and replace the existing DLLs
 
-python -m venv .venv --prompt triton
-source .venv/bin/activate
-
-pip install ninja cmake wheel pybind11 # build-time dependencies
-pip install -e python
+If you're using conda, then you may try:
+```pwsh
+conda install -c conda-forge vc14_runtime
 ```
 
-# Building with a custom LLVM
+### ImportError: DLL load failed while importing cuda_utils
 
-Triton uses LLVM to generate code for GPUs and CPUs.  Normally, the Triton build
-downloads a prebuilt LLVM, but you can also build LLVM from source and use that.
+1. If these cache folders exist on your computer, delete them:
+    ```
+    C:\Users\<your username>\.triton\cache\
+    C:\Users\<your username>\AppData\Local\Temp\torchinductor_<your username>\
+    ```
+    You may also need to delete these cache folders when you change the Python version, install another version of Triton, or change the C compiler or CUDA
+2. Double check your Python version: You can run `Get-Command -All python` in PowerShell (or `where python` in cmd) to see the installation path of Python, and `python --version` to see its version. If you see multiple Python installations, make sure that you install and run everything from the first one
+3. If you're using ComfyUI with embeded Python, make sure that you copy-pasted the folders `include` and `libs` from the correct version of Python
 
-LLVM does not have a stable API, so the Triton build will not work at an
-arbitrary LLVM version.
+### dlltracer
 
-1. Find the version of LLVM that Triton builds against.  Check
-`cmake/llvm-hash.txt` to see the current version. For example, if it says:
-       49af6502c6dcb4a7f7520178bd14df396f78240c
+If the above still doesn't work, you may try:
+* Install [dlltracer](https://github.com/microsoft/dlltracer-python) in the same Python environment
+* In an administrator PowerShell, run the following script:
+```python
+import torch
 
-   This means that the version of Triton you have builds against
-   [LLVM](https://github.com/llvm/llvm-project) 49af6502.
+import sys
+import dlltracer
+with dlltracer.Trace(out=sys.stdout):
+    import triton
+    import triton.language as tl
 
-2. `git checkout` LLVM at this revision.  Optionally, make additional
-   modifications to LLVM.
+    @triton.jit
+    def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
+        pid = tl.program_id(axis=0)
+        block_start = pid * BLOCK_SIZE
+        offsets = block_start + tl.arange(0, BLOCK_SIZE)
+        mask = offsets < n_elements
+        x = tl.load(x_ptr + offsets, mask=mask)
+        y = tl.load(y_ptr + offsets, mask=mask)
+        output = x + y
+        tl.store(output_ptr + offsets, output, mask=mask)
 
-3. [Build LLVM](https://llvm.org/docs/CMake.html).  For example, you might run
+    def add(x: torch.Tensor, y: torch.Tensor):
+        output = torch.empty_like(x)
+        n_elements = output.numel()
+        grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
+        add_kernel[grid](x, y, output, n_elements, BLOCK_SIZE=1024)
+        return output
 
-       $ cd $HOME/llvm-project  # your clone of LLVM.
-       $ mkdir build
-       $ cd build
-       $ cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=ON ../llvm -DLLVM_ENABLE_PROJECTS="mlir;llvm;lld" -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU"
-       $ ninja
-
-4. Grab a snack, this will take a while.
-
-5. Build Triton as above, but set the following environment variables.
-
-       # Modify as appropriate to point to your LLVM build.
-       $ export LLVM_BUILD_DIR=$HOME/llvm-project/build
-
-       $ cd <triton install>
-       $ LLVM_INCLUDE_DIRS=$LLVM_BUILD_DIR/include \
-         LLVM_LIBRARY_DIR=$LLVM_BUILD_DIR/lib \
-         LLVM_SYSPATH=$LLVM_BUILD_DIR \
-         pip install -e python
-
-# Tips for building
-
-- Set `TRITON_BUILD_WITH_CLANG_LLD=true` as an environment variable to use clang
-  and lld.  lld in particular results in faster builds.
-
-- Set `TRITON_BUILD_WITH_CCACHE=true` to build with ccache.
-
-- Set `TRITON_HOME=/some/path` to change the location of the `.triton`
-  directory where Triton's cache is located and downloads are stored
-  during the build. By default, this is the user's home directory. It
-  can be changed anytime.
-
-- Pass `--no-build-isolation` to `pip install` to make nop builds faster.
-  Without this, every invocation of `pip install` uses a different symlink to
-  cmake, and this forces ninja to rebuild most of the `.a` files.
-
-- vscode intellisense has some difficulty figuring out how to build Triton's C++
-  (probably because, in our build, users don't invoke cmake directly, but
-  instead use setup.py).  Teach vscode how to compile Triton as follows.
-
-    - Do a local build. Run command `pip install -e python`
-    - Get the full path to the `compile_commands.json` file produced by the build:
-      `find python/build -name 'compile_commands.json' | xargs readlink -f`.
-      You might get a full path similar to `/Users/{username}/triton/python/build/cmake.macosx-11.1-arm64-cpython-3.12/compile_commands.json`
-    - In vscode, install the
-      [C/C++
-      extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools),
-      then open the command palette (`Shift + Command + P` on Mac, or `Shift +
-      Ctrl + P` on Windows/Linux) and open `C/C++: Edit Configurations (UI)`.
-    - Open "Advanced Settings" and paste the full path to
-      `compile_commands.json` into the "Compile Commands" textbox.
-
-# Running tests
-
-There currently isn't a turnkey way to run all the Triton tests, but you can
-follow the following recipe.
-
-```shell
-# One-time setup.  Note this will reinstall local Triton because torch
-# overwrites it with the public version.
-$ make dev-install
-
-# To run all tests (requires a GPU)
-$ make test
-
-# Or, to run tests without a gpu
-$ make test-nogpu
+    a = torch.rand(3, device="cuda")
+    b = a + a
+    b_compiled = add(a, a)
+    print(b_compiled - b)
+    print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
 ```
+* Open an issue and paste the results
 
-# Tips for hacking
+If it shows `Failed \Device\...\cuda_utils.pyd`, please also:
+* Find `cuda_utils.pyd` at this location
+* Use [DependenciesGui](https://github.com/lucasg/Dependencies) (or similar tools) to check what DLLs this `cuda_utils.pyd` depends on, and send a screenshot (or other related information) in the issue
 
-For detailed instructions on how to debug Triton's frontend, please refer to this [tutorial](https://triton-lang.org/main/programming-guide/chapter-3/debugging.html). The following includes additional tips for hacking on Triton's backend.
+## Known issues
 
-**Helpful environment variables**
+### Windows file path length limit (260) causes compilation failure
 
-- `MLIR_ENABLE_DUMP=1` dumps the IR before every MLIR pass Triton runs, for all
-   kernels. Use `MLIR_ENABLE_DUMP=kernelName` to dump for a specific kernel only.
-  - Triton cache can interfere with the dump. In cases where `MLIR_ENABLE_DUMP=1` does not work, try cleaning your triton cache: `rm -r ~/.triton/cache/*`
-- `MLIR_DUMP_PATH` specifies where `MLIR_ENABLE_DUMP` will dump to. If unset will dump to stderr.
-- `LLVM_IR_ENABLE_DUMP=1` dumps the IR before every pass run over the LLVM IR.
-- `TRITON_REPRODUCER_PATH=<reproducer_path>` will generate an MLIR reproducer file
-  at `<reproducer_path>` before each MLIR compiler stage. If any of the stages fail,
-  `<reproducer_path>` will be a local MLIR reproducer captured right before the failing pass.
-- `TRITON_INTERPRET=1` uses the Triton interpreter instead of running on the
-  GPU.  You can insert Python breakpoints in your kernel code!
-- `TRITON_ENABLE_LLVM_DEBUG=1` passes `-debug` to LLVM, printing a lot of
-  debugging information to stdout.  If this is too noisy, run with just
-  `TRITON_LLVM_DEBUG_ONLY` instead to limit the output.
-
-  An alternative way to reduce output noisiness is running with
-  `LLVM_IR_ENABLE_DUMP=1`, extract the IR before the LLVM pass of interest, and
-  then run LLVM's `opt` standalone, perhaps passing `-debug-only=foo` on the
-  command line.
-- `TRITON_LLVM_DEBUG_ONLY=<comma-separated>` is the equivalent of LLVM's
-  `-debug-only` command-line option. This limits the LLVM debug output to
-  specific pass or component names (which are specified using `#define
-  DEBUG_TYPE` throughout LLVM and Triton) in order to allow the debug output to
-  be less noisy. `TRITON_LLVM_DEBUG_ONLY` allows for one or more comma
-  separated values to be specified (eg
-  `TRITON_LLVM_DEBUG_ONLY="tritongpu-remove-layout-conversions"` or
-  `TRITON_LLVM_DEBUG_ONLY="tritongpu-remove-layout-conversions,regalloc"`).
-- `TRITON_ENABLE_ASAN=1` invokes the LLVM address sanitizer for
-  memory leak and out of bounds access detection. Currently only supported on the AMD
-  backend. This must be run using the ASAN libraries documented [here](https://rocm.docs.amd.com/projects/llvm-project/en/latest/conceptual/using-gpu-sanitizer.html).
-
-  When enabling the address sanitizer it is recommended to disable various memory caching strategies
-  both within the ROCm stack and PyTorch. This will give the address sanitizer the best chance at finding the
-  memory fault where it originates. See this [test](https://github.com/triton-lang/triton/blob/main/third_party/amd/python/test/test_address_sanitizer.py) for more details.
-
-- `USE_IR_LOC={ttir,ttgir}` reparses the IR such that the location information
-  will be the line number of the IR file with that particular extension,
-  instead of line number of the python file. This can provide a direct mapping
-  from the IR to llir/ptx. When used with performance tools, it can provide a
-  breakdown on IR instructions.
-- `TRITON_PRINT_AUTOTUNING=1` prints out the best autotuning config and total time
-  spent for each kernel after autotuning is complete.
-- `DISABLE_LLVM_OPT` will disable llvm optimizations for make_llir and make_ptx
-  if its value is true when parsing as Bool. Otherwise, it will be parsed as a list
-  of flags to disable llvm optimizations. One usage case is
-  `DISABLE_LLVM_OPT="disable-lsr"`
-  Loop strength reduction is known to cause up to 10% performance changes for
-  certain kernels with register pressure.
-- `TRITON_ALWAYS_COMPILE=1` forces to compile kernels regardless of cache hit.
-- `MLIR_ENABLE_TIMING` dumps the timing information for each MLIR pass.
-- `LLVM_ENABLE_TIMING` dumps the timing information for each LLVM pass.
-- `TRITON_DEFAULT_FP_FUSION` overrides the default behavior of allowing fp fusion (mul+add->fma).
-- `MLIR_ENABLE_DIAGNOSTICS=<comma-separated>` controls diagnostic emission in MLIR.
-  Options are: `warnings`, `remarks`, `stacktraces`, `operations`.
-  Use comma-separated values to customize output. For example,
-  `MLIR_ENABLE_DIAGNOSTICS=remarks,operations` enables remarks and IR operations,
-  while `MLIR_ENABLE_DIAGNOSTICS=warnings,stacktraces` enables warnings with
-  stacktraces. By default, only errors are shown. Setting `warnings` includes
-  errors and warnings; `remarks` includes errors, warnings, and remarks.
-- `MLIR_ENABLE_REMARK` is deprecated. Please use `MLIR_ENABLE_DIAGNOSTICS=remarks`.
-- `TRITON_KERNEL_DUMP` enables the dumping of the IR from each compilation stage and the final ptx/amdgcn.
-- `TRITON_DUMP_DIR` specifies the directory to save the dumped IR and ptx/amdgcn when `TRITON_KERNEL_DUMP` is set to 1.
-- `TRITON_KERNEL_OVERRIDE` enables the override of the compiled kernel with a user-specified IR/ptx/amdgcn at the beginning of each compilation stage.
-- `TRITON_OVERRIDE_DIR` specifies the directory from which to load the IR/ptx/amdgcn files when `TRITON_KERNEL_OVERRIDE` is set to 1.
-- `TRITON_F32_DEFAULT` sets the default input precision of `tl.dot` when using 32-bit floats, which can be either `ieee`, `tf32`, or `tf32x3`.
-
-**Kernel Override Steps**
-
-```bash
-export TRITON_ALWAYS_COMPILE=1
-export TRITON_KERNEL_DUMP=1
-export TRITON_DUMP_DIR=<dump_dir>
-export TRITON_KERNEL_OVERRIDE=1
-export TRITON_OVERRIDE_DIR=<override_dir>
-# Step 1: Run the kernel once to dump kernel's IRs and ptx/amdgcn in $TRITON_DUMP_DIR
-# Step 2: Copy $TRITON_DUMP_DIR/<kernel_hash> to $TRITON_OVERRIDE_DIR
-# Step 3: Delete the stages that you do not want to override and modify the stage you do want to override
-# Step 4: Run the kernel again to see the overridden result
+Triton would create file cache for complied modules. With module name in the filename, the cache filename is quite long. In some deep module, the path length would exceed Windows' 260 chars length limit, causing error like:
 ```
+... site-packages\torch\_inductor\runtime\triton_heuristics.py:479] [0/0]
+File "C:\Anaconda3\Lib\site-packages\triton\compiler\compiler.py", line 288, in compile
+ metadata_group[ir_filename] = fn_cache_manager.put(next_module, ir_filename)
+File "...\triton\runtime\cache.py", line 122, in put
+ with open(temp_path, mode) as f:
+      ^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\[USERNAME]\\AppData\\Local\\Temp\\...LONG..FILE..NAME..'
+```
+The solution is to shorten your module name or [enable Windows' long path support](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation). A reboot is required after the modification.
 
+### fp8 is not supported on RTX 30xx and older GPUs
 
-# Changelog
+If you see error messages like
+```
+torch._dynamo.exc.BackendCompilerFailed: backend='inductor' raised:
+CompilationError: at 8:11:
+def triton_(in_ptr0, out_ptr0, xnumel, XBLOCK : tl.constexpr):
+    xnumel = 196608
+    xoffset = tl.program_id(0) * XBLOCK
+    xindex = xoffset + tl.arange(0, XBLOCK)[:]
+    xmask = tl.full([XBLOCK], True, tl.int1)
+    x0 = xindex
+    tmp0 = tl.load(in_ptr0 + (x0), None)
+    tmp1 = tmp0.to(tl.float32)
+           ^
+```
+and in the full error log you find
+```
+AssertionError: fp8e4nv data type is not supported on CUDA arch < 89
+```
+then it's because in Triton, fp8 only works on Nvidia GPUs with sm >= 89, such as RTX 40xx and newer. You may disable fp8 in the node or the code.
 
-Version 2.0 is out! New features include:
+This is not Windows-specific. It should be possible to emulate fp8 on older hardware like XLA does, even if without time or memory improvement compared to fp16. Help wanted if anyone has time for this.
 
-- Many, many bug fixes
-- Performance improvements
-- Backend rewritten to use MLIR
-- Support for kernels that contain back-to-back matmuls (e.g., flash attention)
+### Error with `os.rename`
 
-# Contributing
+If you see error messages like
+```
+FileExistsError: [WinError 183] Cannot create a file when that file already exists: ...
+```
+then you need: https://github.com/pytorch/pytorch/issues/138211
 
-Community contributions are more than welcome, whether it be to fix bugs or to add new features at [github](https://github.com/triton-lang/triton/). For more detailed instructions, please visit our [contributor's guide](CONTRIBUTING.md).
+This has been fixed since PyTorch 2.6 .
 
-# Compatibility
+### Error with model offloading
 
-Supported Platforms:
+If you're using ComfyUI, the model is compiled, and you see error messages like
+```
+ValueError: Pointer argument (at 0) cannot be accessed from Triton (cpu tensor?)
+```
+then you may use `--gpu-only` when launching ComfyUI to disable model offloading. See https://github.com/woct0rdho/triton-windows/issues/61
 
-- Linux
+### No module named 'triton.ops'
 
-Supported Hardware:
+`triton.ops` was removed in Triton 3.1, and this is because some of your Python package is outdated (most likely `bitsandbytes`). See https://github.com/woct0rdho/triton-windows/issues/65
 
-- NVIDIA GPUs (Compute Capability 8.0+)
-- AMD GPUs (ROCm 6.2+)
-- Under development: CPUs
+## Build from source
 
-# Development Container (Dev Container)
-
-**Dev Containers** for the Triton project are available from
-the [triton-dev-containers repository](https://github.com/redhat-et/triton-dev-containers)
-
-### Key Benefits:
-- **Consistency**: All developers can work with the same development
-  environment, ensuring uniform behavior across different systems.
-- **Isolation**: The container prevents potential conflicts with software
-  installed on your local machine.
-- **Portability**: Easily share the development environment with team members,
-  minimizing onboarding time and setup issues.
-
-### How to Use the Dev Container:
-
-For detailed instructions on how to use the dev containers please see
-the [dev container user guide](https://github.com/redhat-et/triton-dev-containers/blob/main/.devcontainer/devcontainer.md)
+See [BUILD.md](https://github.com/woct0rdho/triton-windows/blob/readme/BUILD.md). This is for developers.
