@@ -19,7 +19,7 @@ Based on [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionu
 * When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine (although the memory usage is hard to profile in WSL)
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only CUDA is supported, help wanted to support AMD
-* Most tests passed, except some overflows
+* Most tests passed, except some overflows because on Windows the C long has only 4 bytes
 * TODO: Auto find the paths in `python/triton/runtime/build.py`
 * TODO: Build wheels using cibuildwheel
 
@@ -73,7 +73,7 @@ I recommend to use ccache:
 $Env:TRITON_BUILD_WITH_CCACHE = "1"
 ```
 
-Then, make an editable build using pip:
+Clone this repo, checkout `v3.0.x-windows` branch, make an editable build using pip:
 ```pwsh
 pip install --no-build-isolation --verbose -e python
 ```
@@ -83,4 +83,4 @@ pip install --no-build-isolation --verbose -e python
 * To implement `dlopen`, [dlfcn-win32](https://github.com/dlfcn-win32/dlfcn-win32) is added to `thirdparty/` and linked in CMake for building the package, and in `third_party/nvidia/backend/driver.c` and `driver.py` it's rewritten with `LoadLibrary` for jitting
 * In `lib/Analysis/Utility.cpp` and `lib/Dialect/TritonGPU/Transforms/Utility.cpp`, explicit namespaces are added to support the resolution behaviors of MSVC
 * In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`
-* On Windows, the C long has only 4 bytes, so some tests failed because of overflow, and I marked them xfail
+* On Windows the C long has only 4 bytes, so some tests failed because of overflow, and I marked them xfail
