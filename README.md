@@ -24,16 +24,19 @@ Based on [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionu
 
 ## Build locally
 
-First, build LLVM according to the instructions of the official triton:
+First, build LLVM using MSVC according to the instructions of the official triton:
 https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
+You may need to remove the non-ASCII characters in the comments of `mlir/lib/Dialect/ArmSME/Transforms/VectorLegalization.cpp` to make MSVC happy
 
-Also, download JSON according to the `setup.py`:
+Download JSON and pybind11 according to `setup.py`:
 https://github.com/nlohmann/json/releases/download/v3.11.3/include.zip
+https://github.com/pybind/pybind11/archive/refs/tags/v2.11.1.zip
 
 Set their paths (in PowerShell):
 ```pwsh
-$Env:JSON_SYSPATH = "C:/json"
 $Env:LLVM_SYSPATH = "C:/llvm-project/build"
+$Env:JSON_SYSPATH = "C:/json"
+$Env:PYBIND!!_SYSPATH = "C:/pybind11"
 ```
 
 Only offline build is supported:
