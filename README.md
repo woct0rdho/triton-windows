@@ -11,12 +11,14 @@ Free software should run on non-free platforms, as per Richard Stallman.
 ## Progress
 
 * Forked from the official main branch (> 3.0.0) as of today
-* Can build the package locally and jit Python functions
+* Built the package locally when the paths of Python, MSVC, Windows SDK, and CUDA are manually set
+* `triton.jit` works when the paths are manually set in `python/triton/runtime/build.py`
+* `torch.compile` works after applying the patch [#137757](https://github.com/pytorch/pytorch/pull/137757)
 * When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine (although the memory usage is hard to profile in WSL)
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only CUDA is supported, help wanted to support AMD
 * TODO: Fix all tests
-* TODO: Auto find the paths of MSVC, Windows SDK, and CUDA when jitting in `python/triton/runtime/build.py`
+* TODO: Auto find the paths in `python/triton/runtime/build.py`
 * TODO: Build wheels using cibuildwheel
 
 ## Build locally
