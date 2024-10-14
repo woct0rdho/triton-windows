@@ -152,18 +152,30 @@ static void read_csv_to_buffer(char *filename, int16_t *buffer, int size) {
 
 
 def gen_kernel_library(dir, libname):
-    c_files = glob.glob(os.path.join(dir, "*.c"))
-    subprocess.run(
-        ["gcc"] + c_files + ["-I", include_dirs[0], "-c", "-fPIC"],
-        check=True,
-        cwd=dir,
-    )
-    o_files = glob.glob(os.path.join(dir, "*.o"))
+    if os.name == "nt":
+        libname = libname.lstrip("lib")
+        libname = libname.replace(".so", ".lib")
 
-    command = ["gcc", *o_files, "-shared", "-o", libname]
-    for lib_dir in library_dirs():
-        command.extend(["-L", lib_dir])
-    subprocess.run(command, check=True, cwd=dir)
+        c_files = glob.glob(os.path.join(dir, "*.c"))
+        command = ["cl", *c_files, "/nologo", "/c"]
+        command += [f"/I{x}" for x in include_dirs if x is not None]
+        subprocess.run(command, check=True, cwd=dir)
+
+        obj_files = glob.glob(os.path.join(dir, "*.obj"))
+        command = ["lib", *obj_files]
+        command += [f"/LIBPATH:{x}" for x in library_dirs()]
+        command += ["cuda.lib", f"/OUT:{libname}"]
+        subprocess.run(command, check=True, cwd=dir)
+    else:
+        c_files = glob.glob(os.path.join(dir, "*.c"))
+        command = ["gcc", *c_files, "-c", "-fPIC"]
+        command += [f"-I{x}" for x in include_dirs if x is not None]
+        subprocess.run(command, check=True, cwd=dir)
+
+        o_files = glob.glob(os.path.join(dir, "*.o"))
+        command = ["gcc", *o_files, "-shared", "-o", libname]
+        command += [f"-L{x}" for x in library_dirs()]
+        subprocess.run(command, check=True, cwd=dir)
 
 
 def gen_test_bin(dir, M, N, K, exe="test", algo_id=0):
@@ -188,8 +200,8 @@ int main(int argc, char **argv) {{
   load_matmul_fp16();
 
   // initialize input data
-  int16_t hA[M*K];
-  int16_t hB[K*N];
+  int16_t hA[{M * K}];
+  int16_t hB[{K * N}];
   memset(hA, 0, M*K*2);
   memset(hB, 0, K*N*2);
   read_csv_to_buffer(argv[1], hA, M*K);
@@ -209,7 +221,7 @@ int main(int argc, char **argv) {{
   assert(ret == 0);
 
   // read data
-  int32_t hC[M*N];
+  int32_t hC[{M * N}];
   memset(hC, 0, M*N*4);
   cuMemcpyDtoH(hC, C, M*N*4);
   write_buffer_to_csv(argv[3], hC, M*N);
@@ -281,14 +293,20 @@ int main(int argc, char **argv) {{
     with open(os.path.join(dir, "test.c"), "w") as file:
         file.write(src)
 
-    command = ["gcc", "test.c"]
-    for inc_dir in include_dirs:
-        command.extend(["-I", inc_dir])
-    for lib_dir in library_dirs():
-        command.extend(["-L", lib_dir])
-    for lib_name in library_names():
-        command.extend(["-l", lib_name])
-    command.extend(["-L", dir, "-l", "kernel", "-o", exe])
+    if os.name == "nt":
+        command = ["cl", "test.c", "/nologo"]
+        command += [f"/I{x}" for x in include_dirs if x is not None]
+        command += ["/link"]
+        command += [f"/LIBPATH:{x}" for x in library_dirs()]
+        command += [x for x in library_names()]
+        command += [f"/LIBPATH:{dir}", "kernel.lib", f"/OUT:{exe}.exe"]
+    else:
+        command = ["gcc", "test.c"]
+        command += [f"-I{x}" for x in include_dirs if x is not None]
+        command += [f"-L{x}" for x in library_dirs()]
+        command += [f"-l{x}" for x in library_names()]
+        command += ["-L", dir, "-l", "kernel", "-o", exe]
+
     subprocess.run(command, check=True, cwd=dir)
 
 
@@ -414,7 +432,12 @@ def test_compile_link_matmul_no_specialization():
         # run test case
         env = os.environ.copy()
         env["LD_LIBRARY_PATH"] = tmp_dir
-        subprocess.run(["./test", a_path, b_path, c_path], env=env, check=True, cwd=tmp_dir)
+        if os.name == "nt":
+            exe = "test.exe"
+        else:
+            exe = "test"
+        exe = os.path.join(tmp_dir, exe)
+        subprocess.run([exe, a_path, b_path, c_path], env=env, check=True, cwd=tmp_dir)
 
         # read data and compare against reference
         c = np.genfromtxt(c_path, delimiter=",", dtype=np.int32)
@@ -447,7 +470,12 @@ def test_compile_link_matmul():
         # run test case
         env = os.environ.copy()
         env["LD_LIBRARY_PATH"] = tmp_dir
-        subprocess.run(["./test", a_path, b_path, c_path], env=env, check=True, cwd=tmp_dir)
+        if os.name == "nt":
+            exe = "test.exe"
+        else:
+            exe = "test"
+        exe = os.path.join(tmp_dir, exe)
+        subprocess.run([exe, a_path, b_path, c_path], env=env, check=True, cwd=tmp_dir)
 
         # read data and compare against reference
         c = np.genfromtxt(c_path, delimiter=",", dtype=np.int32)
@@ -481,8 +509,13 @@ def test_launcher_has_no_available_kernel():
         # run test case
         env = os.environ.copy()
         env["LD_LIBRARY_PATH"] = tmp_dir
+        if os.name == "nt":
+            exe = "test.exe"
+        else:
+            exe = "test"
+        exe = os.path.join(tmp_dir, exe)
         result = subprocess.run(
-            ["./test", a_path, b_path, c_path],
+            [exe, a_path, b_path, c_path],
             env=env,
             cwd=tmp_dir,
             capture_output=True,
@@ -490,7 +523,10 @@ def test_launcher_has_no_available_kernel():
         )
 
         # It should fail since the launcher requires all the strides be 1 while they are not.
-        assert result.returncode == -6
+        if os.name == "nt":
+            assert result.returncode == 0xc0000409
+        else:
+            assert result.returncode == -6
         assert "kernel launch failed" in result.stderr
 
 
@@ -529,8 +565,13 @@ def test_compile_link_autotune_matmul():
 
             env = os.environ.copy()
             env["LD_LIBRARY_PATH"] = tmp_dir
+            if os.name == "nt":
+                exe = f"{test_name}.exe"
+            else:
+                exe = test_name
+            exe = os.path.join(tmp_dir, exe)
             subprocess.run(
-                [f"./{test_name}", a_path, b_path, c_path],
+                [exe, a_path, b_path, c_path],
                 check=True,
                 cwd=tmp_dir,
                 env=env,
