@@ -411,7 +411,7 @@ bool maybeSharedAllocationOp(Operation *op) {
   // query the memory effects of the op.
   auto *dialect = op->getDialect();
   return dialect &&
-         (dialect->getTypeID() == TypeID::get<TritonGPUDialect>() ||
+         (dialect->getTypeID() == TypeID::get<triton::gpu::TritonGPUDialect>() ||
           dialect->getTypeID() ==
               TypeID::get<triton::nvidia_gpu::TritonNvidiaGPUDialect>() ||
           dialect->getTypeID() == TypeID::get<triton::TritonDialect>() ||
@@ -608,8 +608,8 @@ bool isMfmaToDotShortcut(RankedTensorType &srcTy, RankedTensorType &dstTy) {
 }
 
 static bool isMmaToMmaShortcut(Attribute srcEncoding, Attribute dstEncoding) {
-  auto src = dyn_cast<NvidiaMmaEncodingAttr>(srcEncoding);
-  auto dst = dyn_cast<NvidiaMmaEncodingAttr>(dstEncoding);
+  auto src = dyn_cast<triton::gpu::NvidiaMmaEncodingAttr>(srcEncoding);
+  auto dst = dyn_cast<triton::gpu::NvidiaMmaEncodingAttr>(dstEncoding);
   if (!src || !dst)
     return false;
   // when #mma = MmaEncoding<version=3, warpsPerCTA=[..., 1]>
