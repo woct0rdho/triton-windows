@@ -15,8 +15,8 @@
 #include <mutex>
 #include <tuple>
 
-#include <cxxabi.h>
-#include <unistd.h>
+// #include <cxxabi.h>
+// #include <unistd.h>
 
 namespace proton {
 
@@ -140,14 +140,15 @@ std::pair<bool, bool> matchKernelCbId(uint32_t cbId) {
 }
 // C++ symbol demangle
 static inline const std::string cxxDemangle(const char *symbol) {
-  size_t funcNameSize;
-  int status;
-  if (const char *name =
-          abi::__cxa_demangle(symbol, NULL, &funcNameSize, &status)) {
-    std::string ret(name);
-    std::free(reinterpret_cast<void *>(const_cast<char *>(name)));
-    return ret;
-  }
+  // TODO: Support Windows
+  // size_t funcNameSize;
+  // int status;
+  // if (const char *name =
+  //         abi::__cxa_demangle(symbol, NULL, &funcNameSize, &status)) {
+  //   std::string ret(name);
+  //   std::free(reinterpret_cast<void *>(const_cast<char *>(name)));
+  //   return ret;
+  // }
   return std::string(symbol);
 }
 
