@@ -36,7 +36,7 @@ Set their paths (in PowerShell):
 ```pwsh
 $Env:LLVM_SYSPATH = "C:/llvm-project/build"
 $Env:JSON_SYSPATH = "C:/json"
-$Env:PYBIND!!_SYSPATH = "C:/pybind11"
+$Env:PYBIND11_SYSPATH = "C:/pybind11"
 ```
 
 Only offline build is supported:
