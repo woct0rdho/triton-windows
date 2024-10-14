@@ -16,8 +16,8 @@ Free software should run on non-free platforms, as per Richard Stallman.
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only CUDA is supported, help wanted to support AMD
 * TODO: Fix all tests
-* TODO: Auto find the paths of MSVC, Windows SDK, and CUDA when jitting
-* TODO: Build wheels
+* TODO: Auto find the paths of MSVC, Windows SDK, and CUDA when jitting in `python/triton/runtime/build.py`
+* TODO: Build wheels using cibuildwheel
 
 ## Build locally
 
@@ -68,3 +68,9 @@ Then, make an editable build using pip:
 ```pwsh
 pip install --no-build-isolation --verbose -e python
 ```
+
+## Dev notes
+
+* To implement `dlopen`, [dlfcn-win32](https://github.com/dlfcn-win32/dlfcn-win32) is added to `thirdparty/` and linked in CMake for building the package, and in `third_party/nvidia/backend/driver.c` and `driver.py` it's rewritten with `LoadLibrary` for jitting
+* In `lib/Analysis/Utility.cpp` and `lib/Dialect/TritonGPU/Transforms/Utility.cpp`, explicit namespaces are added to support the resolution behaviors of MSVC
+* In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`
