@@ -30,6 +30,9 @@ Then you need to add the path containing `cl.exe`, such as `C:\Program Files (x8
 
 Now you can download the wheel from [releases](https://github.com/woct0rdho/triton/releases).
 
+If you're using ComfyUI with the embeded Python, there should be a folder `python_embeded` in your ComfyUI installation path, and you need to put two folders `include` and `libs` in `python_embeded` to make Triton work. You can download the two folders for Python 3.11.9 here:
+https://github.com/woct0rdho/triton/releases/download/v3.0.0-windows.post1/python_3.11.9_include_libs.zip
+
 ## Test if it works
 
 ```python
