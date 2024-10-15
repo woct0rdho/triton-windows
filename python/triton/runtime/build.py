@@ -16,7 +16,7 @@ from .cache import get_cache_manager
 from .. import knobs
 
 if os.name == "nt":
-    from .windows import find_msvc_winsdk, find_python
+    from triton.windows_utils import find_msvc_winsdk, find_python
 
 
 def _cc_cmd(cc, src, out, include_dirs, library_dirs, libraries):
