@@ -7,25 +7,34 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 ## Why?
 
 * Free software should run on non-free platforms, as per Richard Stallman
-* This is the basis for torchao, which crucially changes some large models from "can't run" to "can run" on consumer GPUs, and that's easier than supporting them in other quantization frameworks, or letting the consumers to use Linux or even WSL
+* This is the basis for torchao, which crucially changes some large models from "can't run" to "can run" on consumer GPUs. That's easier than supporting them in other quantization frameworks, or letting the consumers use Linux or WSL
 * Catgirl matters
 
 ## Progress
 
 * Forked from the `release/3.0.x` branch of the official repo
-* Built the package locally when the paths of Python, MSVC, Windows SDK, and CUDA are manually set
-* `triton.jit` works when the paths are manually set in `python/triton/runtime/build.py`
-* `torch.compile` works
-* When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine (although the memory usage is hard to profile in WSL)
+* `triton.jit` and `torch.compile` just work
+* When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
+* Most tests passed, except some overflows because on Windows the C long has only 4 bytes
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only CUDA is supported, help wanted to support AMD
-* Most tests passed, except some overflows because on Windows the C long has only 4 bytes
-* TODO: Auto find the paths in `python/triton/runtime/build.py`
-* TODO: Build wheels using cibuildwheel
+* TODO: Set up CI
 
-## Build locally
+## Install from wheel
 
-Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA in PowerShell (help wanted to auto find these in CMake):
+The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x.
+
+MSVC and Windows SDK are required, because Triton compiles Python functions on your machine. You can install them in Visual Studio, or just Visual Studio Build Tools.
+
+Then you need to add the path containing `cl.exe`, such as `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`, to your `PATH`. If you type `cl` in PowerShell and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right.
+
+Now you can download the wheel from [releases](https://github.com/woct0rdho/triton/releases).
+
+## Build from source
+
+**(This is for developers)**
+
+Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA in PowerShell (help wanted to automatically find these in CMake):
 ```pwsh
 $Env:Path =
 "C:\Windows\System32;" +
@@ -47,7 +56,7 @@ $Env:LIB =
 "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64"
 ```
 
-If you want to build the C++ unit tests and don't set `-DTRITON_BUILD_UT=0`, then you also need to add git to the paths.
+If you want to build the C++ unit tests and don't set `TRITON_BUILD_UT=0`, then you also need to add git to the paths.
 
 Build LLVM using MSVC according to the instructions of the official Triton:
 * https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
@@ -79,9 +88,16 @@ Clone this repo, checkout `v3.0.x-windows` branch, make an editable build using 
 pip install --no-build-isolation --verbose -e python
 ```
 
+Build the wheels:
+```pwsh
+$Env:CIBW_BUILD = "{cp310-win_amd64,cp311-win_amd64,cp312-win_amd64}"
+cibuildwheel python
+```
+
 ## Dev notes
 
 * To implement `dlopen`, [dlfcn-win32](https://github.com/dlfcn-win32/dlfcn-win32) is added to `thirdparty/` and linked in CMake for building the package, and in `third_party/nvidia/backend/driver.c` and `driver.py` it's rewritten with `LoadLibrary` for jitting
 * In `lib/Analysis/Utility.cpp` and `lib/Dialect/TritonGPU/Transforms/Utility.cpp`, explicit namespaces are added to support the resolution behaviors of MSVC
 * In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`
+* In `python/triton/runtime/build.py`, the paths of MSVC and Windows SDK are automatically found
 * On Windows the C long has only 4 bytes, so some tests failed because of overflow, and I marked them xfail
