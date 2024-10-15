@@ -63,6 +63,7 @@ a = torch.rand(3, device="cuda")
 b = a + a
 b_compiled = add(a, a)
 print(b_compiled - b)
+print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
 ```
 
 ## Build from source
