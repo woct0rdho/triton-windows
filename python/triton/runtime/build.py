@@ -44,6 +44,12 @@ def _build(name: str, src: str, srcdir: str, library_dirs: list[str], include_di
     so = os.path.join(srcdir, '{name}{suffix}'.format(name=name, suffix=suffix))
     cc = os.environ.get("CC")
     if cc is None:
+        # Users may not know how to add cl to PATH. Let's do it for them
+        if os.name == "nt":
+            msvc_winsdk_inc_dirs, _ = find_msvc_winsdk()
+            if msvc_winsdk_inc_dirs:
+                cl_path = msvc_winsdk_inc_dirs[0].replace(r"\include", r"\bin\Hostx64\x64")
+            os.environ["PATH"] = cl_path + os.pathsep + os.environ["PATH"]
         cl = shutil.which("cl")
         gcc = shutil.which("gcc")
         clang = shutil.which("clang")
@@ -65,6 +71,9 @@ def _build(name: str, src: str, srcdir: str, library_dirs: list[str], include_di
     include_dirs = include_dirs + [srcdir, py_include_dir, *custom_backend_dirs]
     if os.name == "nt":
         library_dirs += [os.path.join(sysconfig.get_paths()["data"], "libs")]
+        library_dirs += [os.path.join(os.path.dirname(sys.executable), "libs")]
+        python_version = sysconfig.get_python_version().replace(".", "")
+        library_dirs += [fr"C:\Python{python_version}\libs"]
         msvc_winsdk_inc_dirs, msvc_winsdk_lib_dirs = find_msvc_winsdk()
         include_dirs += msvc_winsdk_inc_dirs
         library_dirs += msvc_winsdk_lib_dirs
