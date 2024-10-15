@@ -28,6 +28,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA in PowerShell (help wanted to auto find these in CMake):
 ```pwsh
 $Env:Path =
+"C:\Windows\System32;" +
 "C:\Python310;" +
 "C:\Python310\Scripts;" +
 "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;" +
