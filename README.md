@@ -27,7 +27,9 @@ The wheels are built against CUDA 12.5, and they should work with other CUDA 12.
 
 MSVC and Windows SDK are required, because Triton compiles Python functions on your machine. You can install them in Visual Studio, or just Visual Studio Build Tools.
 
-Then you need to add the path containing `cl.exe`, such as `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`, to your `PATH`. If you type `cl` in PowerShell and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right.
+Then you need to add the path containing `cl.exe` to the `PATH` of Windows.
+* The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`. Change the version numbers according to your installation, and make sure that this folder accually exists on your computer
+* If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
 
 Now you can download the wheel from [releases](https://github.com/woct0rdho/triton/releases).
 
