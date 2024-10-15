@@ -32,7 +32,6 @@ def _cc_cmd(cc: str, src: str, out: str, include_dirs: list[str], library_dirs: 
         cc_cmd += [r"/LIBPATH:C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\lib\x64"]
         cc_cmd += [r"/LIBPATH:C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\ucrt\x64"]
         cc_cmd += [r"/LIBPATH:C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64"]
-        cc_cmd += [r"/LIBPATH:C:\Python310\libs"]
 
         cc_cmd += [f'{lib}.lib' for lib in libraries]
         cc_cmd += [f"/OUT:{out}"]
@@ -73,6 +72,8 @@ def _build(name: str, src: str, srcdir: str, library_dirs: list[str], include_di
     py_include_dir = sysconfig.get_paths(scheme=scheme)["include"]
     custom_backend_dirs = knobs.build.backend_dirs
     include_dirs = include_dirs + [srcdir, py_include_dir, *custom_backend_dirs]
+    if os.name == "nt":
+        library_dirs += [os.path.join(sysconfig.get_paths()["data"], "libs")]
     cc_cmd = _cc_cmd(cc, src, so, include_dirs, library_dirs, libraries, ccflags)
     subprocess.check_call(cc_cmd, stdout=subprocess.DEVNULL)
     return so
