@@ -14,8 +14,9 @@ from triton.backends.driver import GPUDriver
 dirname = os.path.dirname(os.path.realpath(__file__))
 include_dirs = [os.path.join(dirname, "include")]
 if os.name == "nt":
-    cuda_path = os.environ.get("CUDA_PATH")
-    include_dirs += [f"{cuda_path}\\include"]
+    from triton.windows_utils import find_cuda
+    _, cuda_inc_dirs, _ = find_cuda()
+    include_dirs += cuda_inc_dirs
 libdevice_dir = os.path.join(dirname, "lib")
 libraries = ['cuda']
 PyCUtensorMap = None
@@ -25,6 +26,10 @@ PyCUtensorMap = None
 def libcuda_dirs():
     if env_libcuda_path := knobs.nvidia.libcuda_path:
         return [env_libcuda_path]
+
+    if os.name == "nt":
+        _, _, cuda_lib_dirs = find_cuda()
+        return cuda_lib_dirs
 
     libs = subprocess.check_output(["/sbin/ldconfig", "-p"]).decode(errors="ignore")
     # each line looks like the following:
