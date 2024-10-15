@@ -14,12 +14,14 @@ from types import ModuleType
 
 from .cache import get_cache_manager
 from .. import knobs
-from .windows import find_msvc_winsdk
+
+if os.name == "nt":
+    from .windows import find_msvc_winsdk, find_python
 
 
 def _cc_cmd(cc: str, src: str, out: str, include_dirs: list[str], library_dirs: list[str], libraries: list[str],
             ccflags: list[str]) -> list[str]:
-    if cc.lower().endswith("cl.exe"):
+    if cc.lower().endswith("cl") or cc.lower().endswith("cl.exe"):
         cc_cmd = [cc, src, "/nologo", "/O2", "/LD", "/wd4819"]
         cc_cmd += [f"/I{dir}" for dir in include_dirs if dir is not None]
         cc_cmd += ["/link"]
@@ -66,10 +68,7 @@ def _build(name: str, src: str, srcdir: str, library_dirs: list[str], include_di
     custom_backend_dirs = knobs.build.backend_dirs
     include_dirs = include_dirs + [srcdir, py_include_dir, *custom_backend_dirs]
     if os.name == "nt":
-        library_dirs += [os.path.join(sysconfig.get_paths()["data"], "libs")]
-        library_dirs += [os.path.join(os.path.dirname(sys.executable), "libs")]
-        python_version = sysconfig.get_python_version().replace(".", "")
-        library_dirs += [fr"C:\Python{python_version}\libs"]
+        library_dirs += find_python()
         msvc_winsdk_inc_dirs, msvc_winsdk_lib_dirs = find_msvc_winsdk()
         include_dirs += msvc_winsdk_inc_dirs
         library_dirs += msvc_winsdk_lib_dirs
