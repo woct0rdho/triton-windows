@@ -18,7 +18,8 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 * Most tests passed, except some overflows because on Windows the C long has only 4 bytes
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only CUDA is supported, help wanted to support AMD
-* TODO: Set up CI
+* TODO: Set up CI (help wanted)
+* TODO: Make a minimal bundle of MSVC and Windows SDK in the wheels (help wanted)
 
 ## Install from wheel
 
