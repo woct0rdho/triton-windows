@@ -23,6 +23,8 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ## Install from wheel
 
+Triton 3.0.0 works with PyTorch 2.4.x, not 2.3.x.
+
 The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x.
 
 MSVC and Windows SDK are required, because Triton compiles Python functions on your machine. You can install them in Visual Studio, or just Visual Studio Build Tools.
