@@ -29,7 +29,7 @@ The wheels are built against CUDA 12.5, and they should work with other CUDA 12.
 * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
 * Change the version number according to your installation, and make sure that this folder accually exists on your computer
 
-MSVC and Windows SDK are required, because Triton compiles Python functions on your machine. You can install them in Visual Studio, or just Visual Studio Build Tools. You need to add the path containing `cl.exe` to the Windows `PATH`.
+MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. You need to add the path containing `cl.exe` to the Windows `PATH`.
 * The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
 * Change the version numbers according to your installation, and make sure that this folder accually exists on your computer
 * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
@@ -144,5 +144,5 @@ cibuildwheel python
 * To implement `dlopen`, [dlfcn-win32](https://github.com/dlfcn-win32/dlfcn-win32) is added to `thirdparty/` and linked in CMake for building the package, and in `third_party/nvidia/backend/driver.c` and `driver.py` it's rewritten with `LoadLibrary` for jitting
 * In `lib/Analysis/Utility.cpp` and `lib/Dialect/TritonGPU/Transforms/Utility.cpp`, explicit namespaces are added to support the resolution behaviors of MSVC
 * In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`
-* In `python/triton/runtime/build.py`, the paths of MSVC and Windows SDK are automatically found
+* `windows_utils.py` contains many ways to find the paths of Python, MSVC, Windows SDK, and CUDA
 * On Windows the C long has only 4 bytes, so some tests failed because of overflow, and I marked them xfail
