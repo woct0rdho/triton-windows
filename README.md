@@ -25,12 +25,13 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 Triton 3.0.0 works with PyTorch 2.4.x, not 2.3.x.
 
-The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x.
+The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. You need to add the path of CUDA to the Windows `PATH`.
+* The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
+* Change the version number according to your installation, and make sure that this folder accually exists on your computer
 
-MSVC and Windows SDK are required, because Triton compiles Python functions on your machine. You can install them in Visual Studio, or just Visual Studio Build Tools.
-
-Then you need to add the path containing `cl.exe` to the `PATH` of Windows.
-* The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`. Change the version numbers according to your installation, and make sure that this folder accually exists on your computer
+MSVC and Windows SDK are required, because Triton compiles Python functions on your machine. You can install them in Visual Studio, or just Visual Studio Build Tools. You need to add the path containing `cl.exe` to the Windows `PATH`.
+* The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
+* Change the version numbers according to your installation, and make sure that this folder accually exists on your computer
 * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
 
 Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases).
