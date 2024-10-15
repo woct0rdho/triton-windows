@@ -18,6 +18,7 @@ include(CTest)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Options
+option(TRITON_BUILD_BINARY "Build C++ Triton binaries" ON)
 option(TRITON_BUILD_TUTORIALS "Build C++ Triton tutorials" ON)
 option(TRITON_BUILD_PYTHON_MODULE "Build Python Triton bindings" OFF)
 option(TRITON_BUILD_PROTON "Build the Triton Proton profiler" ON)
@@ -327,15 +328,17 @@ endif()
 find_package(Threads REQUIRED)
 
 add_subdirectory(third_party/f2reduce)
-add_subdirectory(bin)
-add_subdirectory(test)
 
-if(TRITON_BUILD_UT)
-  add_subdirectory(unittest)
-  # This target runs all the unit tests.
-  add_custom_target(check-triton-unit-tests
-    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-    DEPENDS TritonUnitTests
-    USES_TERMINAL
-  )
+if(TRITON_BUILD_BINARY)
+  add_subdirectory(bin)
+  if(TRITON_BUILD_UT)
+    add_subdirectory(test)
+    add_subdirectory(unittest)
+    # This target runs all the unit tests.
+    add_custom_target(check-triton-unit-tests
+      COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+      DEPENDS TritonUnitTests
+      USES_TERMINAL
+    )
+  endif()
 endif()
