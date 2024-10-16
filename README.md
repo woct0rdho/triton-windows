@@ -93,7 +93,7 @@ If you see `ImportError: DLL load failed`, and there are `vcruntime140.dll` and 
 
 If it still doesn't work, you may try:
 * Install [dlltracer](https://github.com/microsoft/dlltracer-python) in the same Python environment
-* In an administrator PowerShell, run the following:
+* In an administrator PowerShell, run the following script:
 ```python
 import sys
 import dlltracer
