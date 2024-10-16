@@ -92,6 +92,8 @@ If you see `ImportError: DLL load failed`, and there are `vcruntime140.dll` and 
 * Copy-paste `msvcp140.dll`, `vcruntime140.dll`, and `vcruntime140_1.dll` from `C:\Windows\System32\` to the folder containing `python.exe`
 * Delete the cache folder `C:\Users\<your username>\.triton\cache\`
 
+You may also need to delete the cache folder when you install another version of Triton, or change the version of MSVC, Windows SDK, or CUDA.
+
 If it still doesn't work, you may try:
 * Install [dlltracer](https://github.com/microsoft/dlltracer-python) in the same Python environment
 * In an administrator PowerShell, run the following script:
