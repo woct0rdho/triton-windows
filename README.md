@@ -40,6 +40,9 @@ MSVC and Windows SDK are required, because Triton compiles Python functions on y
 * Change the version numbers according to your installation, and make sure that this folder accually exists on your computer
 * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
 
+msvcp140 (Visual C++ Redistributable for Visual Studio 2015-2022) is required:
+https://aka.ms/vs/17/release/vc_redist.x64.exe
+
 Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases).
 
 Special notes if you're using ComfyUI with the embeded Python:
