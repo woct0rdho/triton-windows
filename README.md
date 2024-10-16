@@ -1,6 +1,6 @@
 # [Triton](https://github.com/triton-lang/triton) fork for Windows support
 
-See `v3.0.x-windows` branch for the code.
+See `v3.1.x-windows` branch for the code.
 
 Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionut](https://github.com/mantaionut/triton/tree/windows_support), [eaplatanios](https://github.com/eaplatanios/triton/tree/windows-fix), and more development in the community. Thank you all!
 
@@ -12,7 +12,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ## Progress
 
-* Forked from the `release/3.0.x` branch of the official repo
+* Forked from the `release/3.1.x` branch of the official repo
 * `triton.jit` and `torch.compile` just work
 * When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
 * Most tests passed, except some overflows because on Windows the C long has only 4 bytes
@@ -23,7 +23,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ## Install from wheel
 
-Triton 3.0.0 works with PyTorch 2.4.x, not 2.3.x.
+Triton 3.1.0 works with PyTorch 2.4.x, not 2.3.x.
 
 CUDA 12 is required. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'. Then you need to add the path of CUDA to the Windows `PATH`:
 * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
@@ -132,7 +132,7 @@ I recommend to use ccache:
 $Env:TRITON_BUILD_WITH_CCACHE = "1"
 ```
 
-Clone this repo, checkout `v3.0.x-windows` branch, make an editable build using pip:
+Clone this repo, checkout `v3.1.x-windows` branch, make an editable build using pip:
 ```pwsh
 pip install --no-build-isolation --verbose -e python
 ```
