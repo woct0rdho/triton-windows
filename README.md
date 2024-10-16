@@ -55,6 +55,7 @@ Special notes if you're using ComfyUI with the embeded Python:
 
 ## Test if it works
 
+Run the following script:
 ```python
 import torch
 import triton
@@ -85,6 +86,21 @@ b_compiled = add(a, a)
 print(b_compiled - b)
 print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
 ```
+
+If you see `ImportError: DLL load failed`, and there are `vcruntime140.dll` and `vcruntime140_1.dll` in the folder containing `python.exe`, then you may try:
+* Install the latest version of msvcp140 from the link above
+* Copy-paste `msvcp140.dll`, `vcruntime140.dll`, and `vcruntime140_1.dll` from `C:\Windows\System32\` to the folder containing `python.exe`
+
+If it still doesn't work, you may try:
+* Install [dlltracer](https://github.com/microsoft/dlltracer-python) in the same Python environment
+* In an administrator PowerShell, run the following:
+```python
+import sys
+import dlltracer
+with dlltracer.Trace(out=sys.stdout):
+    import triton
+```
+* Open an issue and paste the results
 
 ## Build from source
 
