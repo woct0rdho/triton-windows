@@ -25,11 +25,15 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 Triton 3.0.0 works with PyTorch 2.4.x, not 2.3.x.
 
-The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. You need to add the path of CUDA to the Windows `PATH`.
+CUDA 12 is required. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'. Then you need to add the path of CUDA to the Windows `PATH`:
 * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
 * Change the version number according to your installation, and make sure that this folder accually exists on your computer
+* Also make sure these folders exist:
+  * `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\include`
+  * `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\lib\x64`
+* If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
 
-MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. You need to add the path containing `cl.exe` to the Windows `PATH`.
+MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. Then you need to add the path containing `cl.exe` to the Windows `PATH`:
 * The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
 * Change the version numbers according to your installation, and make sure that this folder accually exists on your computer
 * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
@@ -39,7 +43,7 @@ Now you can download the wheel from [releases](https://github.com/woct0rdho/trit
 Special notes if you're using ComfyUI with the embeded Python:
 * There should be a folder `python_embeded` in your ComfyUI installation path
 * You need to put two folders `include` and `libs` in `python_embeded` to make Triton work
-* You can download the two folders for Python 3.11.9 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.11.9_include_libs.zip
+* If you're using ComfyUI_windows_portable 0.2.3, you can download the two folders for Python 3.11.9 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.11.9_include_libs.zip
 * Or you can copy-paste them from a usual installation of Python, with the same version as ComfyUI uses
 
 ## Test if it works
