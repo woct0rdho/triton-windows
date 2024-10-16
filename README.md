@@ -14,6 +14,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 * Forked from the `release/3.1.x` branch of the official repo
 * `triton.jit` and `torch.compile` just work
+* `torchao.quantization.autoquant` just works after installing torchao 0.5.0 from source
 * When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
 * Most tests passed, except some overflows because on Windows the C long has only 4 bytes
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
