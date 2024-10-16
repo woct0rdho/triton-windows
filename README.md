@@ -31,6 +31,7 @@ CUDA 12 is required. The wheels are built against CUDA 12.5, and they should wor
 * Also make sure these folders exist:
   * `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\include`
   * `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\lib\x64`
+* Make sure this file exists: `C:\Windows\System32\nvcuda.dll`
 * If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
 
 MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. Then you need to add the path containing `cl.exe` to the Windows `PATH`:
