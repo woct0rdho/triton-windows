@@ -18,7 +18,9 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 * When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
 * Most tests passed, except some overflows because on Windows the C long has only 4 bytes
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
-* Only CUDA is supported, help wanted to support AMD, you may try https://github.com/Repeerc/triton-amdgpu-windows
+* Only CUDA is supported, help wanted to support other backends
+  * For AMD, you may try https://github.com/Repeerc/triton-amdgpu-windows
+  * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton/tree/gregory/windows-support
 * TODO: Set up CI (help wanted)
 * TODO: Make a minimal bundle of MSVC and Windows SDK in the wheels (help wanted)
 
