@@ -26,7 +26,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ## Install from wheel
 
-Triton 3.1.0 works with PyTorch >= 2.4.0, not 2.3.x. I recommend PyTorch >= 2.5.0 because there are other improvements on compiling things on Windows.
+Triton 3.1.0 works with PyTorch 2.4.x, not 2.3.x. PyTorch 2.5.0 has other improvements on compiling things on Windows, but xformers does not support it yet, so let's wait for a few days.
 
 CUDA 12 is required. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'. Then you need to add the path of CUDA to the Windows `PATH`:
 * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
