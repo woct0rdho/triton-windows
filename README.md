@@ -181,3 +181,4 @@ cibuildwheel python
 * In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`
 * `windows_utils.py` contains many ways to find the paths of Python, MSVC, Windows SDK, and CUDA
 * On Windows the C long has only 4 bytes, so some tests failed because of overflow, and I marked them xfail
+* How TorchInductor is designed to support Windows: https://github.com/pytorch/pytorch/issues/124245
