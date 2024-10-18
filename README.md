@@ -119,7 +119,8 @@ $Env:Path =
 "C:\Python310\Scripts;" +
 "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;" +
 "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64;" +
-"C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64"
+"C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64;" +
+"C:\Program Files\Git\cmd"
 $Env:INCLUDE =
 "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\include;" +
 "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared;" +
@@ -133,7 +134,7 @@ $Env:LIB =
 "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64"
 ```
 * cibuildwheel needs the binaries in `C:\Windows\System32\`
-* If you want to build the C++ unit tests and don't set `TRITON_BUILD_UT=0`, then you also need git in the paths
+* If you want to build the C++ unit tests and don't set `TRITON_BUILD_UT=0`, then you need git
 
 Build LLVM using MSVC according to the instructions of the official Triton:
 * https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
