@@ -168,7 +168,7 @@ pip install --no-build-isolation --verbose -e python
 
 Build the wheels:
 ```pwsh
-$Env:CIBW_BUILD = "{cp310-win_amd64,cp311-win_amd64,cp312-win_amd64}"
+$Env:CIBW_BUILD = "{cp38-win_amd64,cp39-win_amd64,cp310-win_amd64,cp311-win_amd64,cp312-win_amd64}"
 cibuildwheel python
 ```
 
