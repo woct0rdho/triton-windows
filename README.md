@@ -26,7 +26,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ## Install from wheel
 
-Triton 3.1.0 works with torch 2.4.x, not 2.3.x. Torch 2.5.0 has other improvements on compiling things on Windows, but xformers does not support it yet, so let's wait for a few days.
+Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
 
 CUDA 12 is required. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'. Then you need to add the path of CUDA to the Windows `PATH`:
 * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
@@ -51,7 +51,8 @@ Special notes if you're using ComfyUI with the embeded Python:
 * There should be a folder `python_embeded` in your ComfyUI installation path
 * You need to put two folders `include` and `libs` in `python_embeded` to make Triton work
   * Be careful: It is 'libs', not 'lib'. The folder `Lib` should already exist in `python_embeded`
-* If you're using ComfyUI_windows_portable 0.2.3, you can download the two folders for Python 3.11.9 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.11.9_include_libs.zip
+* If you're using ComfyUI_windows_portable <= 0.2.3, you can download the two folders for Python 3.11.9 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.11.9_include_libs.zip
+* If you're using ComfyUI_windows_portable >= 0.2.4, you can download the two folders for Python 3.12.7 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.12.7_include_libs.zip
 * If you're using another version, you can copy-paste them from a usual installation of Python, with the same version as ComfyUI uses
 * If you're not sure, run `path\to\python_embeded\python.exe --version` to see the Python version
 
