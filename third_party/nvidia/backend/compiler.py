@@ -36,8 +36,12 @@ def _path_to_binary(binary: str):
     paths = [
         os.environ.get(f"TRITON_{binary.upper()}_PATH", ""),
         os.path.join(os.path.dirname(__file__), "bin", binary),
-        os.path.join(os.environ.get("CUDA_PATH"), "bin", binary),
     ]
+    if os.name == "nt":
+        from triton.windows_utils import find_cuda
+        cuda_bin_path, _, _ = find_cuda()
+        if cuda_bin_path:
+            paths += [os.path.join(cuda_bin_path, binary)]
 
     for path in paths:
         if os.path.exists(path) and os.path.isfile(path):
