@@ -139,7 +139,7 @@ $Env:LIB =
 
 Build LLVM using MSVC according to the instructions of the official Triton:
 * https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
-* You may need to remove the non-ASCII characters in the comments of `mlir/lib/Dialect/ArmSME/Transforms/VectorLegalization.cpp` to make MSVC happy
+* You may need to add the compiler options `/utf-8 /D_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING` to make MSVC happy, see https://reviews.llvm.org/D90116 and https://github.com/llvm/llvm-project/issues/65255
 
 Download JSON and pybind11 according to `setup.py`:
 * https://github.com/nlohmann/json/releases/download/v3.11.3/include.zip
