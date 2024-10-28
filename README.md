@@ -183,3 +183,18 @@ cibuildwheel python
 * `windows_utils.py` contains many ways to find the paths of Python, MSVC, Windows SDK, and CUDA
 * On Windows the C long has only 4 bytes, so some tests failed because of overflow, and I marked them xfail
 * How TorchInductor is designed to support Windows: https://github.com/pytorch/pytorch/issues/124245
+
+## Known Issues
+
+### Windows file path length limit(260) caused compile failure.  
+  Triton would create file cache for complied modules, with module name inside the filename, the cache filename is quite long. In some deep module, the path length would exceed windows's 260 chars length limit, cusing error likes:  
+  ```
+  ... site-packages\torch\_inductor\runtime\triton_heuristics.py:479] [0/0]
+   File "C:\Anaconda3\Lib\site-packages\triton\compiler\compiler.py", line 288, in compile
+     metadata_group[ir_filename] = fn_cache_manager.put(next_module, ir_filename)
+   File "...\triton\runtime\cache.py", line 122, in put
+     with open(temp_path, mode) as f:
+          ^^^^^^^^^^^^^^^^^^^^^
+  FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\[USERNAME]\\AppData\\Local\\Temp\\...LONG..FILE..NAME..'
+  ```  
+  The solution is shorten your module name or [enable windows' long path support](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry), a reboot is required after the modify.
