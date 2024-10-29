@@ -68,6 +68,16 @@ def file_hash(path):
         return hashlib.sha256(f.read()).hexdigest()
 
 
+# The file may be accessed in parallel
+def try_remove(path):
+    if os.path.exists(path):
+        try:
+            os.remove(path)
+        except OSError:
+            import traceback
+            traceback.print_exc()
+
+
 @dataclass(frozen=True)
 class CUDAOptions:
     num_warps: int = 4
@@ -304,8 +314,7 @@ class CUDABackend(BaseBackend):
                 flog.close()
                 with open(flog.name) as log_file:
                     log = log_file.read()
-                if os.path.exists(flog.name):
-                    os.remove(flog.name)
+                try_remove(flog.name)
 
                 if e.returncode == 255:
                     raise RuntimeError(f'Internal Triton PTX codegen error: \n{log}')
@@ -316,16 +325,13 @@ class CUDABackend(BaseBackend):
                     raise RuntimeError(f'`ptxas` failed with error code {e.returncode}: \n{log}')
             finally:
                 fsrc.close()
-                if os.path.exists(fsrc.name):
-                    os.remove(fsrc.name)
+                try_remove(fsrc.name)
                 flog.close()
-                if os.path.exists(flog.name):
-                    os.remove(flog.name)
+                try_remove(flog.name)
 
             with open(fbin, 'rb') as f:
                 cubin = f.read()
-            if os.path.exists(fbin):
-                os.remove(fbin)
+            try_remove(fbin)
         return cubin
 
     def add_stages(self, stages, options):
