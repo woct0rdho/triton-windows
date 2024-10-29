@@ -23,7 +23,8 @@ SmallVector<T> convertType(const VecU &in) {
 }
 
 template <typename Int> Int product(llvm::ArrayRef<Int> arr) {
-  return std::accumulate(arr.begin(), arr.end(), 1, std::multiplies<Int>());
+  return std::accumulate(arr.begin(), arr.end(), (Int)1,
+                         std::multiplies<Int>());
 }
 template <typename VecT> auto product(const VecT &vec) {
   return product(llvm::ArrayRef(vec));
