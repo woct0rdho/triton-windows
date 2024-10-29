@@ -156,7 +156,7 @@ std::string patchPtxAsm(Operation *op, std::string ptxAsm) {
     assert(endIterator != ptxAsm.end() && "unexpected asm format");
 
     auto end = std::distance(ptxAsm.begin(), endIterator);
-    auto patchLocation = std::make_pair(start, end);
+    auto patchLocation = std::make_pair((int)start, (int)end);
     patchLocations.push_back(patchLocation);
     auto patchValue = ptxAsm.substr(start + 1, end - start - 1);
     patchValues.push_back(patchValue);
