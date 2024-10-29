@@ -673,7 +673,7 @@ bool matchMmaV3AndDotOperandLayout(RankedTensorType srcTy,
 // distributed shared memory. If it's also the identity on kWarp, we can
 // transfer via warp-shuffles, and if it's the identity on kLane just have to
 // reorder the registers
-std::optional<LinearLayout> minimalCvtLayout(RankedTensorType srcTy,
+std::optional<triton::LinearLayout> minimalCvtLayout(RankedTensorType srcTy,
                                              RankedTensorType dstTy) {
   MLIRContext *ctx = srcTy.getContext();
   std::optional<triton::LinearLayout> srcLayout =
