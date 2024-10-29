@@ -102,6 +102,16 @@ def sm_arch_from_capability(capability: int):
     return f"sm_{capability}{suffix}"
 
 
+# The file may be accessed in parallel
+def try_remove(path):
+    if os.path.exists(path):
+        try:
+            os.remove(path)
+        except OSError:
+            import traceback
+            traceback.print_exc()
+
+
 @dataclass(frozen=True)
 class CUDAOptions:
     num_warps: int = 4
@@ -472,16 +482,13 @@ class CUDABackend(BaseBackend):
                     with open(flog.name) as log_file:
                         print(log_file.read())
 
-                if os.path.exists(fsrc.name):
-                    os.remove(fsrc.name)
-                if os.path.exists(flog.name):
-                    os.remove(flog.name)
+                try_remove(fsrc.name)
+                try_remove(flog.name)
             except subprocess.CalledProcessError as e:
                 flog.close()
                 with open(flog.name) as log_file:
                     log = log_file.read()
-                if os.path.exists(flog.name):
-                    os.remove(flog.name)
+                try_remove(flog.name)
 
                 if e.returncode == 255:
                     error = 'Internal Triton PTX codegen error'
@@ -507,8 +514,7 @@ please share the reproducer above with Triton project.
 
             with open(fbin, 'rb') as f:
                 cubin = f.read()
-            if os.path.exists(fbin):
-                os.remove(fbin)
+            try_remove(fbin)
         return cubin
 
     def add_stages(self, stages, options, language):
