@@ -62,7 +62,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 if(MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /nologo /Zc:__STDC__ /Zc:preprocessor /utf-8 /wd4244 /wd4624 /bigobj")
 else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__STDC_FORMAT_MACROS  -fPIC -std=gnu++17")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__STDC_FORMAT_MACROS -fPIC -std=gnu++17")
 endif()
 
 
