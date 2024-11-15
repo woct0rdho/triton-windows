@@ -29,7 +29,10 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
 
 1. CUDA 12 is required. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. You can either:
-    * **Install CUDA in your system** using the installer from [CUDA toolkit archive](https://developer.nvidia.com/cuda-toolkit-archive)
+    * If you're using conda, then install PyTorch with CUDA in conda according to [PyTorch's guide](https://pytorch.org/get-started/locally/#windows-anaconda)
+        * You can verify the existance of CUDA in the conda env by running `conda list cuda`
+    > OR
+    * If you're not using conda, then install CUDA in your system using the installer from [CUDA toolkit archive](https://developer.nvidia.com/cuda-toolkit-archive)
         1. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'
             * Make sure these folders exist on your computer: (Change the version number according to your installation)
                 ```
@@ -41,9 +44,6 @@ Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
             * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
             * Make sure this folder exists
         3. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
-    > OR
-    * **Install cuda in the conda env** according to [PyTorch's guide](https://pytorch.org/get-started/locally/#windows-anaconda)
-        * You can verify the existance of cuda in the conda env by running `conda list cuda`
 
 2. MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. Then you need to add the path containing `cl.exe` to the Windows `PATH`:
     * The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
