@@ -19,8 +19,8 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 * Most tests passed, except some overflows because on Windows the C long has only 4 bytes
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only Nvidia GPU is supported, help wanted to support other backends
-  * For AMD GPU, you may try https://github.com/Repeerc/triton-amdgpu-windows
-  * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton/tree/gregory/windows-support
+    * For AMD GPU, you may try https://github.com/Repeerc/triton-amdgpu-windows
+    * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton/tree/gregory/windows-support
 * TODO: Set up CI (help wanted)
 * TODO: Make a minimal bundle of MSVC and Windows SDK in the wheels (help wanted)
 
@@ -28,41 +28,39 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
 
-CUDA 12 is required. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'. Then you need to add the path of CUDA to the Windows `PATH`:
-1. The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
-   > [!Tip] Change the version number according to your installation, and make sure that this folder accually exists on your computer
-   > Also make sure these folders exist:
-      * `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\include`
-      * `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\lib\x64`
- > OR
-  * install cuda in conda [Resource](https://pytorch.org/get-started/locally/). You can verify existance of cuda in conda env by running
-    ```
-    conda list cuda
-    ```
-  
-2. Make sure this file exists. Just copy and paste in window explorer and verify if it is open with some editor
-   ```
-   C:\Windows\System32\nvcuda.dll
-   ```
-3. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
+1. CUDA 12 is required. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. You can either:
+    * **Install CUDA in your system** using the installer from [CUDA toolkit archive](https://developer.nvidia.com/cuda-toolkit-archive)
+        1. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'
+            * Make sure these folders exist on your computer: (Change the version number according to your installation)
+                ```
+                C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\include
+                C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\lib\x64
+                ```
+            * Make sure this file exists: `C:\Windows\System32\nvcuda.dll`
+        2. Then you need to add the path of CUDA to the Windows `PATH`:
+            * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
+            * Make sure this folder exists
+        3. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
+    > OR
+    * **Install cuda in the conda env** according to [PyTorch's guide](https://pytorch.org/get-started/locally/#windows-anaconda)
+        * You can verify the existance of cuda in the conda env by running `conda list cuda`
 
-4. MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. Then you need to add the path containing `cl.exe` to the Windows `PATH`:
-  * The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
-  * Change the version numbers according to your installation, and make sure that this folder accually exists on your computer
-  * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
+2. MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. Then you need to add the path containing `cl.exe` to the Windows `PATH`:
+    * The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
+    * Change the version numbers according to your installation, and make sure this folder accually exists on your computer
+    * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
 
-5. vcredist is required (also known as 'Visual C++ Redistributable for Visual Studio 2015-2022', `msvcp140.dll`, `vcruntime140.dll`):
-https://aka.ms/vs/17/release/vc_redist.x64.exe
+3. vcredist is required (also known as 'Visual C++ Redistributable for Visual Studio 2015-2022', `msvcp140.dll`, `vcruntime140.dll`). Install it from https://aka.ms/vs/17/release/vc_redist.x64.exe
 
-6. Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases). e.g.
-   ```
-   pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.0.0-cp311-cp311-win_amd64.whl
-   ```
+4. Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases), e.g.,
+```sh
+pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp310-cp310-win_amd64.whl
+```
 
 Special notes if you're using ComfyUI with the embeded Python:
 * There should be a folder `python_embeded` in your ComfyUI installation path
 * You need to put two folders `include` and `libs` in `python_embeded` to make Triton work
-  * Be careful: It is 'libs', not 'lib'. The folder `Lib` should already exist in `python_embeded`
+    * Be careful: It is 'libs', not 'lib'. The folder `Lib` should already exist in `python_embeded`
 * If you're using ComfyUI_windows_portable <= 0.2.3, you can download the two folders for Python 3.11.9 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.11.9_include_libs.zip
 * If you're using ComfyUI_windows_portable >= 0.2.4, you can download the two folders for Python 3.12.7 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.12.7_include_libs.zip
 * If you're using another version, you can copy-paste them from a usual installation of Python, with the same version as ComfyUI uses
@@ -188,8 +186,8 @@ cibuildwheel python
 ## Dev notes
 
 * To implement `dlopen`:
-  * For building the package, [dlfcn-win32](https://github.com/dlfcn-win32/dlfcn-win32) is added to `thirdparty/` and linked in CMake, so I don't need to rewrite it every time
-  * For jitting, in `third_party/nvidia/backend/driver.c` and `driver.py` it's rewritten with `LoadLibrary`
+    * For building the package, [dlfcn-win32](https://github.com/dlfcn-win32/dlfcn-win32) is added to `thirdparty/` and linked in CMake, so I don't need to rewrite it every time
+    * For jitting, in `third_party/nvidia/backend/driver.c` and `driver.py` it's rewritten with `LoadLibrary`
 * In `lib/Analysis/Utility.cpp` and `lib/Dialect/TritonGPU/Transforms/Utility.cpp`, explicit namespaces are added to support the resolution behaviors of MSVC
 * In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`
 * `windows_utils.py` contains many ways to find the paths of Python, MSVC, Windows SDK, and CUDA
@@ -198,15 +196,16 @@ cibuildwheel python
 
 ## Known Issues
 
-### Windows file path length limit(260) caused compile failure.  
-  Triton would create file cache for complied modules, with module name inside the filename, the cache filename is quite long. In some deep module, the path length would exceed windows's 260 chars length limit, cusing error likes:  
-  ```
-  ... site-packages\torch\_inductor\runtime\triton_heuristics.py:479] [0/0]
-   File "C:\Anaconda3\Lib\site-packages\triton\compiler\compiler.py", line 288, in compile
-     metadata_group[ir_filename] = fn_cache_manager.put(next_module, ir_filename)
-   File "...\triton\runtime\cache.py", line 122, in put
-     with open(temp_path, mode) as f:
-          ^^^^^^^^^^^^^^^^^^^^^
-  FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\[USERNAME]\\AppData\\Local\\Temp\\...LONG..FILE..NAME..'
-  ```  
-  The solution is shorten your module name or [enable windows' long path support](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry), a reboot is required after the modify.
+### Windows file path length limit (260) causes compilation failure
+
+Triton would create file cache for complied modules. With module name in the filename, the cache filename is quite long. In some deep module, the path length would exceed Windows' 260 chars length limit, causing error like:
+```
+... site-packages\torch\_inductor\runtime\triton_heuristics.py:479] [0/0]
+File "C:\Anaconda3\Lib\site-packages\triton\compiler\compiler.py", line 288, in compile
+ metadata_group[ir_filename] = fn_cache_manager.put(next_module, ir_filename)
+File "...\triton\runtime\cache.py", line 122, in put
+ with open(temp_path, mode) as f:
+      ^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\[USERNAME]\\AppData\\Local\\Temp\\...LONG..FILE..NAME..'
+```
+The solution is to shorten your module name or [enable Windows' long path support](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation). A reboot is required after the modification.
