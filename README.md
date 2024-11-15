@@ -29,23 +29,35 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
 
 CUDA 12 is required. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'. Then you need to add the path of CUDA to the Windows `PATH`:
-* The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
-* Change the version number according to your installation, and make sure that this folder accually exists on your computer
-* Also make sure these folders exist:
-  * `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\include`
-  * `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\lib\x64`
-* Make sure this file exists: `C:\Windows\System32\nvcuda.dll`
-* If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
+1. The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
+   > [!Tip] Change the version number according to your installation, and make sure that this folder accually exists on your computer
+   > Also make sure these folders exist:
+      * `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\include`
+      * `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\lib\x64`
+ > OR
+  * install cuda in conda [Resource](https://pytorch.org/get-started/locally/). You can verify existance of cuda in conda env by running
+    ```
+    conda list cuda
+    ```
+  
+2. Make sure this file exists. Just copy and paste in window explorer and verify if it is open with some editor
+   ```
+   C:\Windows\System32\nvcuda.dll
+   ```
+3. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
 
-MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. Then you need to add the path containing `cl.exe` to the Windows `PATH`:
-* The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
-* Change the version numbers according to your installation, and make sure that this folder accually exists on your computer
-* If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
+4. MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. Then you need to add the path containing `cl.exe` to the Windows `PATH`:
+  * The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
+  * Change the version numbers according to your installation, and make sure that this folder accually exists on your computer
+  * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
 
-vcredist is required (also known as 'Visual C++ Redistributable for Visual Studio 2015-2022', `msvcp140.dll`, `vcruntime140.dll`):
+5. vcredist is required (also known as 'Visual C++ Redistributable for Visual Studio 2015-2022', `msvcp140.dll`, `vcruntime140.dll`):
 https://aka.ms/vs/17/release/vc_redist.x64.exe
 
-Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases).
+6. Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases). e.g.
+   ```
+   pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.0.0-cp311-cp311-win_amd64.whl
+   ```
 
 Special notes if you're using ComfyUI with the embeded Python:
 * There should be a folder `python_embeded` in your ComfyUI installation path
