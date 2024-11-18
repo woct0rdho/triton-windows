@@ -14,7 +14,8 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 * Forked from the `release/3.1.x` branch of the official repo
 * `triton.jit` and `torch.compile` just work
-* `torchao.autoquant` just works after installing torchao from source
+* `torchao.autoquant` just works after installing torchao
+    * You can install the prereleased wheel of torchao by `pip install --pre torchao --index-url https://download.pytorch.org/whl/nightly/cu124`, and you can choose cu121/cu124 according to your CUDA version
 * When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
 * Most tests passed, except some overflows because on Windows the C long has only 4 bytes
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
