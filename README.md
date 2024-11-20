@@ -21,7 +21,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 * Only MSVC is supported, from my experience it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only Nvidia GPU is supported, help wanted to support other backends
     * For AMD GPU, you may try https://github.com/Repeerc/triton-amdgpu-windows
-    * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton/tree/gregory/windows-support
+    * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton
 * TODO: Set up CI (help wanted)
 * TODO: Make a minimal bundle of MSVC and Windows SDK in the wheels (help wanted)
 
