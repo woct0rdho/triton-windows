@@ -104,9 +104,13 @@ print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
 If you see `ImportError: DLL load failed`, and there are `vcruntime140.dll` and `vcruntime140_1.dll` in the folder containing `python.exe`, then you may try:
 * Install the latest version of vcredist from https://aka.ms/vs/17/release/vc_redist.x64.exe
 * Copy-paste `msvcp140.dll`, `vcruntime140.dll`, and `vcruntime140_1.dll` from `C:\Windows\System32\` to the folder containing `python.exe`
-* Delete the cache folder `C:\Users\<your username>\.triton\cache\`
+* Delete the cache folders:
+    ```
+    C:\Users\<your username>\.triton\cache\
+    C:\Users\<your username>\AppData\Local\Temp\torchinductor_<your username>\
+    ```
 
-You may also need to delete the cache folder when you change the Python version, install another version of Triton, or change the version of MSVC, Windows SDK, or CUDA.
+You may also need to delete the cache folders when you change the Python version, install another version of Triton, or change the version of MSVC, Windows SDK, or CUDA.
 
 If it still doesn't work, you may try:
 * Install [dlltracer](https://github.com/microsoft/dlltracer-python) in the same Python environment
