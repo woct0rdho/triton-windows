@@ -103,7 +103,7 @@ print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
 
 If you see `ImportError: DLL load failed`, and there are `vcruntime140.dll` and `vcruntime140_1.dll` in the folder containing `python.exe`, then you may try:
 * Install the latest version of vcredist from https://aka.ms/vs/17/release/vc_redist.x64.exe
-* Copy-paste `msvcp140.dll`, `vcruntime140.dll`, and `vcruntime140_1.dll` from `C:\Windows\System32\` to the folder containing `python.exe`
+* Copy-paste `msvcp140.dll`, `vcruntime140.dll`, and `vcruntime140_1.dll` from `C:\Windows\System32\` to the folder containing `python.exe`, and replace the existing DLLs
 * Delete the cache folders:
     ```
     C:\Users\<your username>\.triton\cache\
