@@ -127,7 +127,7 @@ with dlltracer.Trace(out=sys.stdout):
 
 **(This is for developers)**
 
-Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA in PowerShell (help wanted to automatically find these in CMake):
+Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA in PowerShell (help wanted to automatically find these in CMake, or using something equivalent to `vcvarsall.bat` in PowerShell):
 ```pwsh
 $Env:Path =
 "C:\Windows\System32;" +
