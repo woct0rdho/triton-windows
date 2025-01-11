@@ -27,6 +27,8 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ## Install from wheel
 
+~~(From the instructions below you can see what a hell programming on Windows is)~~
+
 Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
 
 1. CUDA 12 is required. CUDA 11 and older versions are not supported. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. You can either:
