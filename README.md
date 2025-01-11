@@ -55,9 +55,10 @@ Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
 3. vcredist is required (also known as 'Visual C++ Redistributable for Visual Studio 2015-2022', `msvcp140.dll`, `vcruntime140.dll`). Install it from https://aka.ms/vs/17/release/vc_redist.x64.exe
 
 4. Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases), e.g.,
-```sh
-pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp310-cp310-win_amd64.whl
-```
+    ```sh
+    pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp310-cp310-win_amd64.whl
+    ```
+    * Choose the wheel with your Python version. If you're using Python 3.12, then you need to change `cp310` to `cp312`
 
 Special notes if you're using ComfyUI with the embeded Python:
 * There should be a folder `python_embeded` in your ComfyUI installation path
