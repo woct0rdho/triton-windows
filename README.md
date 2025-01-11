@@ -29,7 +29,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
 
-1. CUDA 12 is required. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. You can either:
+1. CUDA 12 is required. CUDA 11 and older versions are not supported. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. You can either:
     * If you're using conda, then install PyTorch with CUDA in conda according to [PyTorch's guide](https://pytorch.org/get-started/locally/#windows-anaconda)
         * You can verify the existance of CUDA in the conda env by running `conda list cuda`
     > OR
