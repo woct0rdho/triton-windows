@@ -23,12 +23,16 @@ def quiet():
 
 def _cc_cmd(cc, src, out, include_dirs, library_dirs, libraries):
     if cc.lower().endswith("cl") or cc.lower().endswith("cl.exe"):
+        out_base = os.path.splitext(out)[0]
         cc_cmd = [cc, src, "/nologo", "/O2", "/LD", "/wd4819"]
         cc_cmd += [f"/I{dir}" for dir in include_dirs if dir is not None]
+        cc_cmd += [f"/Fo{out_base + '.obj'}"]
         cc_cmd += ["/link"]
         cc_cmd += [f"/LIBPATH:{dir}" for dir in library_dirs]
         cc_cmd += [f'{lib}.lib' for lib in libraries]
         cc_cmd += [f"/OUT:{out}"]
+        cc_cmd += [f"/IMPLIB:{out_base + '.lib'}"]
+        cc_cmd += [f"/PDB:{out_base + '.pdb'}"]
     else:
         # for -Wno-psabi, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=111047
         cc_cmd = [cc, src, "-O3", "-shared", "-fPIC", "-Wno-psabi", "-o", out]
