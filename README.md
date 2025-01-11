@@ -200,7 +200,7 @@ cibuildwheel python
     * For building the package, [dlfcn-win32](https://github.com/dlfcn-win32/dlfcn-win32) is added to `thirdparty/` and linked in CMake, so I don't need to rewrite it every time
     * For jitting, in `third_party/nvidia/backend/driver.c` and `driver.py` it's rewritten with `LoadLibrary`
 * In `lib/Analysis/Utility.cpp` and `lib/Dialect/TritonGPU/Transforms/Utility.cpp`, explicit namespaces are added to support the resolution behaviors of MSVC
-* In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`
+* In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`, see https://github.com/triton-lang/triton/pull/4976
 * `windows_utils.py` contains many ways to find the paths of Python, MSVC, Windows SDK, and CUDA
 * On Windows the C long has only 4 bytes, so some tests failed because of overflow, and I marked them xfail
 * How TorchInductor is designed to support Windows: https://github.com/pytorch/pytorch/issues/124245
