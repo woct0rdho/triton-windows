@@ -30,9 +30,9 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ~~(From the instructions below you can see what a hell programming on Windows is)~~
 
-Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
+1. Check your PyTorch version: Triton 3.1.0 works with torch >= 2.4.0. torch 2.3.x and older versions are not supported.
 
-1. CUDA 12 is required. CUDA 11 and older versions are not supported. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. You can either:
+2. CUDA 12 is required. CUDA 11.x and older versions are not supported. The wheels are built against CUDA 12.5, and they should work with other CUDA 12.x. You can either:
     * If you're using conda, then install PyTorch with CUDA in conda according to [PyTorch's guide](https://pytorch.org/get-started/locally/#windows-anaconda)
         * You can verify the existance of CUDA in the conda env by running `conda list cuda`
         * Don't mix two virtual environments. If you're using ComfyUI (or some other AI software) with an embeded Python environment, then don't use conda, unless you know conda very well
@@ -51,14 +51,14 @@ Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
             * Make sure this folder exists
         4. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
 
-2. MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. (Visual Studio >= 2017 is supported. Usually you can choose the latest version of MSVC and Windows SDK from the list in Visual Studio.) Then you need to add the path containing `cl.exe` to the Windows `PATH`:
+3. MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. (Visual Studio >= 2017 is supported. Usually you can choose the latest version of MSVC and Windows SDK from the list in Visual Studio.) Then you need to add the path containing `cl.exe` to the Windows `PATH`:
     * The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
     * Change the version numbers according to your installation, and make sure this folder accually exists on your computer
     * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
 
-3. vcredist is required (also known as 'Visual C++ Redistributable for Visual Studio 2015-2022', `msvcp140.dll`, `vcruntime140.dll`). Install it from https://aka.ms/vs/17/release/vc_redist.x64.exe
+4. vcredist is required (also known as 'Visual C++ Redistributable for Visual Studio 2015-2022', `msvcp140.dll`, `vcruntime140.dll`). Install it from https://aka.ms/vs/17/release/vc_redist.x64.exe
 
-4. Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases), e.g.,
+5. Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases), e.g.,
     ```sh
     pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp310-cp310-win_amd64.whl
     ```
