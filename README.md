@@ -37,17 +37,18 @@ Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
         * Don't mix two virtual environments. If you're using ComfyUI (or some other AI software) with an embeded Python environment, then don't use conda, unless you know conda very well
     > OR
     * If you're not using conda, then install CUDA in your system using the installer from [CUDA toolkit archive](https://developer.nvidia.com/cuda-toolkit-archive)
-        1. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'
+        1. Yes, you need to install 'torch with CUDA' using pip, and also install the 'full version of CUDA' using the installer
+        2. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'
             * Make sure these folders exist on your computer: (Change the version number according to your installation)
                 ```
                 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\include
                 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\lib\x64
                 ```
             * Make sure this file exists: `C:\Windows\System32\nvcuda.dll`
-        2. Then you need to add the path of CUDA to the Windows `PATH`:
+        3. Then you need to add the path of CUDA to the Windows `PATH`:
             * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
             * Make sure this folder exists
-        3. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
+        4. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
 
 2. MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. Then you need to add the path containing `cl.exe` to the Windows `PATH`:
     * The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
