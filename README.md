@@ -50,7 +50,7 @@ Triton 3.1.0 works with torch >= 2.4.0, not 2.3.x.
             * Make sure this folder exists
         4. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
 
-2. MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. Then you need to add the path containing `cl.exe` to the Windows `PATH`:
+2. MSVC and Windows SDK are required, because Triton compiles Python functions on your computer. You can install them in Visual Studio, or just Visual Studio Build Tools. (Visual Studio >= 2017 is supported. Usually you can choose the latest version of MSVC and Windows SDK from the list in Visual Studio.) Then you need to add the path containing `cl.exe` to the Windows `PATH`:
     * The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
     * Change the version numbers according to your installation, and make sure this folder accually exists on your computer
     * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
