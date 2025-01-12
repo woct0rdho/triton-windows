@@ -221,3 +221,27 @@ File "...\triton\runtime\cache.py", line 122, in put
 FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\[USERNAME]\\AppData\\Local\\Temp\\...LONG..FILE..NAME..'
 ```
 The solution is to shorten your module name or [enable Windows' long path support](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation). A reboot is required after the modification.
+
+### fp8 is not supported on RTX 30xx and older GPUs
+
+If you see error messages like
+```
+torch._dynamo.exc.BackendCompilerFailed: backend='inductor' raised:
+CompilationError: at 8:11:
+def triton_(in_ptr0, out_ptr0, xnumel, XBLOCK : tl.constexpr):
+    xnumel = 196608
+    xoffset = tl.program_id(0) * XBLOCK
+    xindex = xoffset + tl.arange(0, XBLOCK)[:]
+    xmask = tl.full([XBLOCK], True, tl.int1)
+    x0 = xindex
+    tmp0 = tl.load(in_ptr0 + (x0), None)
+    tmp1 = tmp0.to(tl.float32)
+           ^
+```
+and in the full error log you find
+```
+AssertionError: fp8e4nv data type is not supported on CUDA arch < 89
+```
+then it's because in Triton, fp8 only works on Nvidia GPUs with sm >= 89 (also known as 'CUDA arch' or 'compute capability'), such as RTX 40xx and newer. Sadly, RTX 30xx only has sm 86.
+
+It should be possible to write some placeholding kernels to make it work. Help wanted if anyone has time for this.
