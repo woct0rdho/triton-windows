@@ -68,10 +68,11 @@ Special notes if you're using ComfyUI with the embeded Python:
 * There should be a folder `python_embeded` in your ComfyUI installation path
 * You need to put two folders `include` and `libs` in `python_embeded` to make Triton work
     * Be careful: It is 'libs', not 'lib'. The folder `Lib` should already exist in `python_embeded`
-* If you're using ComfyUI_windows_portable <= 0.2.3, you can download the two folders for Python 3.11.9 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.11.9_include_libs.zip
-* If you're using ComfyUI_windows_portable >= 0.2.4, you can download the two folders for Python 3.12.7 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.12.7_include_libs.zip
-* If you're using another version, you can copy-paste them from a usual installation of Python, with the same version as ComfyUI uses
-* If you're not sure, run `path\to\python_embeded\python.exe --version` to see the Python version
+    * If you're using ComfyUI_windows_portable <= 0.2.3, you can download the two folders for Python 3.11.9 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.11.9_include_libs.zip
+    * If you're using ComfyUI_windows_portable >= 0.2.4, you can download the two folders for Python 3.12.7 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.12.7_include_libs.zip
+    * If you're using another version, you can copy-paste them from a usual installation of Python, with the same version as ComfyUI uses
+    * If you're not sure, run `path\to\python_embeded\python.exe --version` to see the Python version
+* Don't directly use `pip`, because `pip.exe` is not in the folder `python_embeded`, and you may accidentally call a `pip.exe` installed elsewhere. Use `python -m pip` instead
 
 ## Test if it works
 
