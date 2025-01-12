@@ -244,4 +244,4 @@ AssertionError: fp8e4nv data type is not supported on CUDA arch < 89
 ```
 then it's because in Triton, fp8 only works on Nvidia GPUs with sm >= 89 (also known as 'CUDA arch' or 'compute capability'), such as RTX 40xx and newer. Sadly, RTX 30xx only has sm 86.
 
-It should be possible to write some placeholding kernels to make it work. Help wanted if anyone has time for this.
+It should be possible to write some placeholding kernels to make it work, even if without time or memory improvement compared to fp16. Help wanted if anyone has time for this.
