@@ -60,7 +60,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 5. Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases), e.g.,
     ```sh
-    pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post6/triton-3.1.0-cp310-cp310-win_amd64.whl
+    pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post7/triton-3.1.0-cp310-cp310-win_amd64.whl
     ```
     * Choose the wheel with your Python version. If you're using Python 3.12, then you need to change `cp310` to `cp312`
 
