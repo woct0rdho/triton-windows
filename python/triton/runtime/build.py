@@ -78,7 +78,7 @@ def _build(name, src, srcdir, library_dirs, include_dirs, libraries):
         return so
     # fallback on setuptools
     extra_compile_args = []
-    if if cc.lower().endswith("cl") or cc.lower().endswith("cl.exe"):
+    if cc.lower().endswith("cl") or cc.lower().endswith("cl.exe"):
         extra_compile_args += ["/O2"]
     else:
         extra_compile_args += ["-O3"]
