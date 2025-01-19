@@ -60,7 +60,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 5. Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases), e.g.,
     ```sh
-    pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post5/triton-3.1.0-cp310-cp310-win_amd64.whl
+    pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post6/triton-3.1.0-cp310-cp310-win_amd64.whl
     ```
     * Choose the wheel with your Python version. If you're using Python 3.12, then you need to change `cp310` to `cp312`
 
@@ -202,7 +202,7 @@ cibuildwheel python
     * For jitting, in `third_party/nvidia/backend/driver.c` and `driver.py` it's rewritten with `LoadLibrary`
 * In `lib/Analysis/Utility.cpp` and `lib/Dialect/TritonGPU/Transforms/Utility.cpp`, explicit namespaces are added to support the resolution behaviors of MSVC
 * In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`, see https://github.com/triton-lang/triton/pull/4976
-* `windows_utils.py` contains many ways to find the paths of Python, MSVC, Windows SDK, and CUDA
+* `python/triton/windows_utils.py` contains many ways to find the paths of Python, MSVC, Windows SDK, and CUDA
 * On Windows the C long has only 4 bytes, so some tests failed because of overflow, and I marked them xfail
 * How TorchInductor is designed to support Windows: https://github.com/pytorch/pytorch/issues/124245
 
