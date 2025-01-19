@@ -64,7 +64,8 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
     ```
     * Choose the wheel with your Python version. If you're using Python 3.12, then you need to change `cp310` to `cp312`
 
-Special notes if you're using ComfyUI with the embeded Python:
+### Special notes if you're using ComfyUI with the embeded Python
+
 * There should be a folder `python_embeded` in your ComfyUI installation path
 * You need to put two folders `include` and `libs` in `python_embeded` to make Triton work
     * Be careful: It is 'libs', not 'lib'. The folder `Lib` should already exist in `python_embeded`
@@ -119,7 +120,9 @@ If you see `ImportError: DLL load failed`, and there are `vcruntime140.dll` and 
 
 You may also need to delete the cache folders when you change the Python version, install another version of Triton, or change the version of MSVC, Windows SDK, or CUDA.
 
-If it still doesn't work, you may try:
+### dlltracer
+
+If the above still doesn't work, you may try:
 * Install [dlltracer](https://github.com/microsoft/dlltracer-python) in the same Python environment
 * In an administrator PowerShell, run the following script:
 ```python
