@@ -52,7 +52,7 @@ Make sure what environment you're using. You can use `Get-Command python` in Pow
 
 Don't mix two environments, unless you know them very well.
 * If you're using ComfyUI with embeded Python, then don't use conda or venv
-* If you're already using conda, then always create a new env using conda, don't use venv from Python
+* If you're already using conda, then always create a new env using conda, and don't use Python venv
 
 ### 3. PyTorch
 
