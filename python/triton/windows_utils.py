@@ -236,8 +236,8 @@ def find_msvc_winsdk():
 def find_python():
     version = sysconfig.get_python_version().replace(".", "")
     python_lib_dirs = [
-        os.path.join(os.path.dirname(sysconfig.get_paths()["stdlib"]), "libs"),
         os.path.join(os.path.dirname(sysconfig.get_paths()["platstdlib"]), "libs"),
+        os.path.join(os.path.dirname(sysconfig.get_paths()["stdlib"]), "libs"),
         os.path.join(os.path.dirname(sys.executable), "libs"),
         rf"C:\Python{version}\libs",
     ]
@@ -250,11 +250,37 @@ def find_python():
     return python_lib_dirs
 
 
+def check_cuda_pip(nvidia_base_path):
+    return all(
+        x.exists()
+        for x in [
+            nvidia_base_path / "cuda_nvcc" / "bin" / "ptxas.exe",
+            nvidia_base_path / "cuda_runtime" / "include" / "cuda.h",
+            nvidia_base_path / "cuda_runtime" / "lib" / "x64" / "cuda.lib",
+        ]
+    )
+
+
+def find_cuda_pip():
+    for python_base_path in [
+        Path(sys.executable).parent,  # system-wide
+        Path(sys.executable).parent.parent,  # venv
+    ]:
+        nvidia_base_path = python_base_path / "Lib" / "site-packages" / "nvidia"
+        if check_cuda_pip(nvidia_base_path):
+            return (
+                str(nvidia_base_path / "cuda_nvcc" / "bin"),
+                [str(nvidia_base_path / "cuda_runtime" / "include")],
+                [str(nvidia_base_path / "cuda_runtime" / "lib" / "x64")],
+            )
+
+    return None, [], []
+
+
 def check_cuda(cuda_base_path):
     return all(
         x.exists()
         for x in [
-            cuda_base_path / "bin" / "cudart64_12.dll",
             cuda_base_path / "bin" / "ptxas.exe",
             cuda_base_path / "include" / "cuda.h",
             cuda_base_path / "lib" / "x64" / "cuda.lib",
@@ -263,14 +289,11 @@ def check_cuda(cuda_base_path):
 
 
 def find_cuda_env():
-    cuda_base_path = os.environ.get("CUDA_PATH")
-    if cuda_base_path is not None:
-        cuda_base_path = Path(cuda_base_path)
-        if check_cuda(cuda_base_path):
-            return cuda_base_path
+    for cuda_base_path in ["CUDA_PATH", "CUDA_HOME"]:
+        cuda_base_path = os.environ.get(cuda_base_path)
+        if cuda_base_path is None:
+            continue
 
-    cuda_base_path = os.environ.get("CUDA_HOME")
-    if cuda_base_path is not None:
         cuda_base_path = Path(cuda_base_path)
         if check_cuda(cuda_base_path):
             return cuda_base_path
@@ -296,6 +319,10 @@ def find_cuda_hardcoded():
 
 @functools.cache
 def find_cuda():
+    cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = find_cuda_pip()
+    if cuda_bin_path:
+        return cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs
+
     cuda_base_path = find_cuda_env()
     if cuda_base_path is None:
         cuda_base_path = find_cuda_hardcoded()
