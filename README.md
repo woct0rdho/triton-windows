@@ -42,7 +42,7 @@ Check how your Python is installed. We mainly support either of the following en
 * **System-wide**: You install Python at a location like `C:\Python310\` and directly use it
 * **Embeded**: You use an all-in-one package of ComfyUI (or some other AI software), and there is a folder `python_embeded` in it
     * In this case, don't directly use `pip`, but use `python -m pip` instead. It's because `pip.exe` is not in the folder `python_embeded`, and you may accidentally call a `pip.exe` installed elsewhere
-* **Conda**: You create a virtual environment using `conda`
+* **conda**: You create a virtual environment using `conda`
 * **Python venv**: You create a virtual environment using `venv` or `virtualenv`
     * This still has some issues when importing DLL
 
@@ -62,23 +62,48 @@ Check your PyTorch version: Triton 3.1.0 works with torch >= 2.4.0. torch 2.3.x 
 
 CUDA 12 is required. CUDA 11.x and older versions are not supported. The wheels here are built against CUDA 12.5, and they should work with other CUDA 12.x.
 
-If you're using conda, then install PyTorch with CUDA according to [PyTorch's guide](https://pytorch.org/get-started/locally/#windows-anaconda)
-* You can verify the existance of CUDA in the conda env by running `conda list cuda`
+Choose either of the following ways to install CUDA:
 
-If you're not using conda, then install CUDA in your system using the installer from [CUDA toolkit archive](https://developer.nvidia.com/cuda-toolkit-archive)
-1. To make things easier, you need to install 'torch with CUDA' using pip, and also install the 'full version of CUDA' using the installer
-    * If you don't like the installer, it's also possible to use the CUDA in pip, see https://github.com/woct0rdho/triton-windows/issues/43
-2. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'
-    * Make sure these folders exist on your computer: (Change the version number according to your installation)
-        ```
-        C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\include
-        C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\lib\x64
-        ```
-    * Make sure this file exists: `C:\Windows\System32\nvcuda.dll`
-3. Then you need to add the path of CUDA to the Windows `PATH`:
+**a) conda**: Do this only if you're already using conda
+<details>
+<summary>Expand</summary>
+
+* Install PyTorch with CUDA using conda, according to [PyTorch's guide](https://pytorch.org/get-started/locally/#windows-anaconda)
+* You can verify the existance of CUDA in the conda env by running `conda list cuda`
+</details>
+
+**b) System-wide**: Recommended for most people
+<details>
+<summary>Expand</summary>
+
+1. Install PyTorch with CUDA using pip
+2. Install CUDA toolkit from [CUDA toolkit archive](https://developer.nvidia.com/cuda-toolkit-archive)
+3. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'. Make sure these folders exist on your computer: (Change the version number according to your installation)
+    ```
+    C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\include
+    C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\lib\x64
+    ```
+4. Then you need to add the path of CUDA to the Windows `PATH`:
     * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
     * Make sure this folder exists
-4. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
+5. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
+</details>
+
+**c) pip**: Recommended if you don't want to install too much boilerplate, and you want to contain everything in a venv, with minimal impact to the system
+<details>
+<summary>Expand</summary>
+
+1. Install PyTorch with CUDA using pip
+2. install the following packages:
+    ```sh
+    pip install nvidia-cuda-nvcc-cu12 nvidia-cuda-runtime-cu12
+    ```
+3. There should be a folder `Lib\site-packages\nvidia\cuda_runtime\` in your Python installation path (or venv), and you need to add a library in it
+    * Download it from https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post8/cuda_12.4_lib.zip
+    * Put the folder `lib` into `cuda_runtime`
+
+For details about compatibility of various pip packages and CUDA versions, see https://github.com/woct0rdho/triton-windows/issues/43
+</details>
 
 ### 5. MSVC and Windows SDK
 
@@ -102,14 +127,14 @@ vcredist is required (also known as 'Visual C++ Redistributable for Visual Studi
 
 Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases), e.g.,
 ```sh
-pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post7/triton-3.1.0-cp310-cp310-win_amd64.whl
+pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post8/triton-3.1.0-cp310-cp310-win_amd64.whl
 ```
 * Choose the wheel according to your Python version. If you're using Python 3.12, then you need to change `cp310` to `cp312`
 
 ### 8. Special notes for ComfyUI with embeded Python
 
 * There should be a folder `python_embeded` in your ComfyUI installation path
-* You need to put two folders `include` and `libs` in `python_embeded` to make Triton work
+* You need to put two folders `include` and `libs` into `python_embeded` to make Triton work
     * Be careful: It is 'libs', not 'lib'. The folder `Lib` should already exist in `python_embeded`
     * If you're using ComfyUI_windows_portable <= 0.2.3, you can download the two folders for Python 3.11.9 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.11.9_include_libs.zip
     * If you're using ComfyUI_windows_portable >= 0.2.4, you can download the two folders for Python 3.12.7 here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.12.7_include_libs.zip
