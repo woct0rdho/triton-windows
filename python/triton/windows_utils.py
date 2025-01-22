@@ -235,19 +235,18 @@ def find_msvc_winsdk():
 @functools.cache
 def find_python():
     version = sysconfig.get_python_version().replace(".", "")
-    python_lib_dirs = [
-        os.path.join(os.path.dirname(sysconfig.get_paths()["platstdlib"]), "libs"),
-        os.path.join(os.path.dirname(sysconfig.get_paths()["stdlib"]), "libs"),
-        os.path.join(os.path.dirname(sys.executable), "libs"),
-        rf"C:\Python{version}\libs",
-    ]
+    for python_base_path in [
+        sys.exec_prefix,
+        sys.base_exec_prefix,
+        os.path.dirname(sys.executable),
+        rf"C:\Python{version}",
+    ]:
+        python_lib_dir = Path(python_base_path) / "libs"
+        if (python_lib_dir / f"python{version}.lib").exists():
+            return [str(python_lib_dir)]
 
-    python_lib_dirs = list(set(python_lib_dirs))
-    python_lib_dirs = [x for x in python_lib_dirs if os.path.exists(x)]
-    if not python_lib_dirs:
-        print("WARNING: Failed to find Python libs.")
-
-    return python_lib_dirs
+    print("WARNING: Failed to find Python libs.")
+    return []
 
 
 def check_cuda_pip(nvidia_base_path):
@@ -262,17 +261,13 @@ def check_cuda_pip(nvidia_base_path):
 
 
 def find_cuda_pip():
-    for python_base_path in [
-        Path(sys.executable).parent,  # system-wide
-        Path(sys.executable).parent.parent,  # venv
-    ]:
-        nvidia_base_path = python_base_path / "Lib" / "site-packages" / "nvidia"
-        if check_cuda_pip(nvidia_base_path):
-            return (
-                str(nvidia_base_path / "cuda_nvcc" / "bin"),
-                [str(nvidia_base_path / "cuda_runtime" / "include")],
-                [str(nvidia_base_path / "cuda_runtime" / "lib" / "x64")],
-            )
+    nvidia_base_path = Path(sysconfig.get_paths()["platlib"]) / "nvidia"
+    if check_cuda_pip(nvidia_base_path):
+        return (
+            str(nvidia_base_path / "cuda_nvcc" / "bin"),
+            [str(nvidia_base_path / "cuda_runtime" / "include")],
+            [str(nvidia_base_path / "cuda_runtime" / "lib" / "x64")],
+        )
 
     return None, [], []
 
