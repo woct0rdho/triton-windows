@@ -10,6 +10,7 @@ python/triton*.egg-info/
 python/triton/_C/*.pyd
 python/triton/_C/*.so
 python/triton/_C/*.dylib
+python/triton/_C/*.dll
 python/triton/_C/*.pdb
 python/triton/_C/*.exe
 python/triton/_C/*.ilk
@@ -60,8 +61,9 @@ ptxas
 ptxas-blackwell
 
 # Third-party include
+third_party/nvidia/backend/bin
 third_party/nvidia/backend/include
-third_party/nvidia/backend/lib/cupti
+third_party/nvidia/backend/lib
 
 # Docs
 docs/_build/
@@ -84,3 +86,8 @@ docs/sg_execution_times.rst
 
 # macOS
 .DS_Store
+
+.tmp
+/main.*
+/*.mlir
+/wheelhouse
