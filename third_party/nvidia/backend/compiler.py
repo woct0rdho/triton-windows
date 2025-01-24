@@ -482,13 +482,10 @@ class CUDABackend(BaseBackend):
                     with open(flog.name) as log_file:
                         print(log_file.read())
 
-                try_remove(fsrc.name)
-                try_remove(flog.name)
             except subprocess.CalledProcessError as e:
                 flog.close()
                 with open(flog.name) as log_file:
                     log = log_file.read()
-                try_remove(flog.name)
 
                 if e.returncode == 255:
                     error = 'Internal Triton PTX codegen error'
@@ -511,6 +508,10 @@ class CUDABackend(BaseBackend):
 please share the reproducer above with Triton project.
 """)
                 raise PTXASError(error)
+
+            finally:
+                try_remove(fsrc.name)
+                try_remove(flog.name)
 
             with open(fbin, 'rb') as f:
                 cubin = f.read()
