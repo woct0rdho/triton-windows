@@ -130,7 +130,7 @@ def compile_module_from_src(src, name):
     cache_path = cache.get_file(f"{name}.so")
     if cache_path is None:
         with tempfile.TemporaryDirectory() as tmpdir:
-            src_path = os.path.join(tmpdir, "main.c")
+            src_path = os.path.join(tmpdir, f"{name}.c")
             with open(src_path, "w") as f:
                 f.write(src)
             so = _build(name, src_path, tmpdir, [], include_dir, [])
@@ -220,7 +220,7 @@ def make_launcher(constants, signature, ids, warp_size):
             "int8_t": "b",
             "int16_t": "h",
             "int32_t": "i",
-            "int64_t": "l",
+            "int64_t": "L",
             "uint8_t": "B",
             "uint16_t": "H",
             "uint32_t": "I",
