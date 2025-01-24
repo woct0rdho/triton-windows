@@ -12,6 +12,8 @@ python/triton/_C/*.so
 python/triton/_C/*.dylib
 python/triton/_C/*.dll
 python/triton/_C/*.exe
+python/triton/_C/*.ilk
+python/triton/_C/*.pdb
 
 # Backends copied from submodules
 python/triton/backends/
