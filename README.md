@@ -24,7 +24,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
     * For AMD GPU, you may try https://github.com/Repeerc/triton-amdgpu-windows
     * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton
 * TODO: Set up CI (help wanted)
-* TODO: Make a minimal bundle of MSVC and Windows SDK in the wheels (help wanted)
+* TODO: Make a minimal bundle of MSVC, Windows SDK, and CUDA SDK in the wheels (help wanted)
 
 ## Install from wheel
 
