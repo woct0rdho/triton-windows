@@ -53,8 +53,8 @@ def ptx_get_version(cuda_version) -> int:
     if major == 12:
         if minor < 6:
             return 80 + minor
-        elif minor == 6:
-            return 85
+        else:
+            return 79 + minor
     if major == 11:
         return 70 + minor
     if major == 10:
