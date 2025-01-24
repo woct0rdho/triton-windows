@@ -18,7 +18,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 * `torchao.autoquant` just works
     * You can install the prereleased wheel of torchao by `pip install --pre torchao --index-url https://download.pytorch.org/whl/nightly/cu124`. Choose cu121/cu124 according to your CUDA version
 * When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
-* Most tests passed, except some overflows because on Windows the C long has only 4 bytes
+* All unit tests passed
 * Only MSVC is supported, because it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only Nvidia GPU is supported, help wanted to support other backends
     * For AMD GPU, you may try https://github.com/Repeerc/triton-amdgpu-windows
@@ -270,7 +270,7 @@ cibuildwheel python
 * In `lib/Analysis/Utility.cpp` and `lib/Dialect/TritonGPU/Transforms/Utility.cpp`, explicit namespaces are added to support the resolution behaviors of MSVC
 * In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`, see https://github.com/triton-lang/triton/pull/4976
 * `python/triton/windows_utils.py` contains many ways to find the paths of Python, MSVC, Windows SDK, and CUDA
-* On Windows the C long has only 4 bytes, so some tests failed because of overflow, and I marked them xfail
+* In `third_party/nvidia/backend/driver.py`, function `make_launcher`, `int64_t` should map to `L` in `PyArg_ParseTuple`. This fixes the error `Python int too large to convert to C long`
 * How TorchInductor is designed to support Windows: https://github.com/pytorch/pytorch/issues/124245
 
 ## Known issues
