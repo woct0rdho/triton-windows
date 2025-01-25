@@ -270,7 +270,7 @@ cibuildwheel python
 * In `lib/Analysis/Utility.cpp` and `lib/Dialect/TritonGPU/Transforms/Utility.cpp`, explicit namespaces are added to support the resolution behaviors of MSVC
 * In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`, see https://github.com/triton-lang/triton/pull/4976
 * `python/triton/windows_utils.py` contains many ways to find the paths of Python, MSVC, Windows SDK, and CUDA
-* In `third_party/nvidia/backend/driver.py`, function `make_launcher`, `int64_t` should map to `L` in `PyArg_ParseTuple`. This fixes the error `Python int too large to convert to C long`
+* In `third_party/nvidia/backend/driver.py`, function `make_launcher`, `int64_t` should map to `L` in `PyArg_ParseTuple`. This fixes the error `Python int too large to convert to C long`. See https://github.com/triton-lang/triton/pull/5351
 * How TorchInductor is designed to support Windows: https://github.com/pytorch/pytorch/issues/124245
 
 ## Known issues
