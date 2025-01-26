@@ -120,7 +120,7 @@ def find_msvc_envpath():
 
 def find_msvc_hardcoded():
     vs_path = find_in_program_files("Microsoft Visual Studio")
-    if not vs_path.exists():
+    if vs_path is None:
         return None, None
 
     paths = glob(str(vs_path / "*" / "*" / "VC" / "Tools" / "MSVC"))
@@ -191,7 +191,7 @@ def find_winsdk_registry():
 
 def find_winsdk_hardcoded():
     winsdk_base_path = find_in_program_files(r"Windows Kits\10")
-    if not winsdk_base_path.exists():
+    if winsdk_base_path is None:
         return None, None
 
     version = max_version(
