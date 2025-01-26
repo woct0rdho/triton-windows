@@ -7,16 +7,13 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 ## Why?
 
 * Free software should run on non-free platforms, as per Richard Stallman
-* This is the basis for torchao, which crucially changes some large models from "can't run" to "can run" on consumer GPUs. That's easier than supporting them in other quantization frameworks, or letting the consumers use Linux or WSL
-* This is also used by SageAttention, ParaAttention, and more packages
+* This is required by `torch.compile`, and used by torchao, SageAttention, ParaAttention, and more packages
 * Catgirl matters
 
 ## Progress
 
 * Forked from the `release/3.1.x` branch of the official repo
 * `triton.jit` and `torch.compile` just work
-* `torchao.autoquant` just works
-    * You can install the prereleased wheel of torchao by `pip install --pre torchao --index-url https://download.pytorch.org/whl/nightly/cu124`. Choose cu121/cu124 according to your CUDA version
 * When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
 * All unit tests passed
 * Only MSVC is supported, because it's much more stable than GCC and Clang when working with CUDA on Windows
