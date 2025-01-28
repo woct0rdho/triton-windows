@@ -544,12 +544,12 @@ bool supportMMA(Value value, int version) {
 }
 
 bool isBlockedToDotShortcut(RankedTensorType &srcTy, RankedTensorType &dstTy) {
-  auto blockedLayout = dyn_cast<BlockedEncodingAttr>(srcTy.getEncoding());
-  auto dotOperandLayout = dyn_cast<DotOperandEncodingAttr>(dstTy.getEncoding());
+  auto blockedLayout = dyn_cast<triton::gpu::BlockedEncodingAttr>(srcTy.getEncoding());
+  auto dotOperandLayout = dyn_cast<triton::gpu::DotOperandEncodingAttr>(dstTy.getEncoding());
   if (blockedLayout == nullptr || dotOperandLayout == nullptr)
     return false;
   auto parentLayout =
-      dyn_cast<BlockedEncodingAttr>(dotOperandLayout.getParent());
+      dyn_cast<triton::gpu::BlockedEncodingAttr>(dotOperandLayout.getParent());
   if (parentLayout == nullptr)
     return false;
   auto opShape = srcTy.getShape();
@@ -653,17 +653,17 @@ bool matchMmaV3AndDotOperandLayout(RankedTensorType srcTy,
 // distributed shared memory. If it's also the identity on kWarp, we can
 // transfer via warp-shuffles, and if it's the identity on kLane just have to
 // reorder the registers
-std::optional<LinearLayout> minimalCvtLayout(RankedTensorType srcTy,
+std::optional<triton::LinearLayout> minimalCvtLayout(RankedTensorType srcTy,
                                              RankedTensorType dstTy) {
   MLIRContext *ctx = srcTy.getContext();
-  std::optional<LinearLayout> srcLayout =
-      toLinearLayout(srcTy.getShape(), srcTy.getEncoding());
-  std::optional<LinearLayout> dstLayout =
-      toLinearLayout(dstTy.getShape(), dstTy.getEncoding());
+  std::optional<triton::LinearLayout> srcLayout =
+      triton::gpu::toLinearLayout(srcTy.getShape(), srcTy.getEncoding());
+  std::optional<triton::LinearLayout> dstLayout =
+      triton::gpu::toLinearLayout(dstTy.getShape(), dstTy.getEncoding());
   if (!(srcLayout.has_value() && dstLayout.has_value()))
     return std::nullopt;
   // comp describes the layout function to create dst from src.
-  LinearLayout comp = dstLayout->invertAndCompose(*srcLayout);
+  triton::LinearLayout comp = dstLayout->invertAndCompose(*srcLayout);
   // We try to quotient by the largest subspace first
   auto dims = SmallVector<StringRef>{"block", "warp", "lane", "register"};
   for (auto dim : dims) {

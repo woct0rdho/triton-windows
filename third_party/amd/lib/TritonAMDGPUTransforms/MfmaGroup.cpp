@@ -236,7 +236,7 @@ std::pair<mlir::Type, mlir::Type> TypesFromMfmaId(mlir::MLIRContext *ctx,
   case MfmaTypeId::Bf8Bf8TyId:
     return {f8e5m2fnuz, f8e5m2fnuz};
   }
-  assert(false && "unsupported MfmaTypeId");
+  llvm_unreachable("unsupported MfmaTypeId");
 }
 
 FailureOr<MfmaInsn> MfmaInsn::selectMfma(unsigned mDim, unsigned nDim,

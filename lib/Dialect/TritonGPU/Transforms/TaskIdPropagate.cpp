@@ -149,13 +149,13 @@ static bool oneVecCoversTheOther(SmallVector<AsyncTaskId> &one,
 struct AsyncTaskIdsCompare {
   static SmallVector<AsyncTaskId> getEmptyKey() {
     SmallVector<AsyncTaskId> V;
-    V.push_back(reinterpret_cast<AsyncTaskId>(-1));
+    V.push_back(static_cast<AsyncTaskId>(-1));
     return V;
   }
 
   static SmallVector<AsyncTaskId> getTombstoneKey() {
     SmallVector<AsyncTaskId> V;
-    V.push_back(reinterpret_cast<AsyncTaskId>(-2));
+    V.push_back(static_cast<AsyncTaskId>(-2));
     return V;
   }
 
