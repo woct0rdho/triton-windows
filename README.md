@@ -55,7 +55,9 @@ Don't mix two environments, unless you know them very well.
 
 ### 3. PyTorch
 
-Check your PyTorch version: Triton 3.1.0 works with torch >= 2.4.0. torch 2.3.x and older versions are not supported.
+Check your PyTorch version: Triton 3.1.0 works with torch >= 2.4.0 . torch 2.3.x and older versions are not supported.
+
+Triton 3.2.0 works with torch >= 2.6.0 . For now don't install it unless you're using the pre-release version of PyTorch.
 
 ### 4. CUDA
 
@@ -228,7 +230,7 @@ Build LLVM using MSVC according to the instructions of the official Triton:
 ```pwsh
 # Check out the commit according to cmake/llvm-hash.txt
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="mlir;llvm" -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" -DLLVM_BUILD_TOOLS=OFF -DLLVM_CCACHE_BUILD=ON llvm
-cmake --build build -j 8 --config Release 
+cmake --build build -j 8 --config Release
 ```
 * See https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
 * You may need to add the following compiler options to make MSVC happy, see https://reviews.llvm.org/D90116 and https://github.com/llvm/llvm-project/issues/65255:
@@ -327,7 +329,7 @@ and in the full error log you find
 ```
 AssertionError: fp8e4nv data type is not supported on CUDA arch < 89
 ```
-then it's because in Triton, fp8 only works on Nvidia GPUs with sm >= 89, such as RTX 40xx and newer. You may disable fp8 in the node or the code. 
+then it's because in Triton, fp8 only works on Nvidia GPUs with sm >= 89, such as RTX 40xx and newer. You may disable fp8 in the node or the code.
 
 This is not Windows-specific. It should be possible to emulate fp8 on older hardware like XLA does, even if without time or memory improvement compared to fp16. Help wanted if anyone has time for this.
 
