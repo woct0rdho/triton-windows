@@ -229,7 +229,22 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="mlir;
 cmake --build build -j 8 --config Release 
 ```
 * See https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
-* You may need to add the compiler options `/utf-8 /D_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING` to make MSVC happy, see https://reviews.llvm.org/D90116 and https://github.com/llvm/llvm-project/issues/65255
+* You may need to add the following compiler options to make MSVC happy, see https://reviews.llvm.org/D90116 and https://github.com/llvm/llvm-project/issues/65255:
+```diff
+diff --git a/llvm/CMakeLists.txt b/llvm/CMakeLists.txt
+index c06e661573ed..80b31843f45d 100644
+--- a/llvm/CMakeLists.txt
++++ b/llvm/CMakeLists.txt
+@@ -821,6 +821,8 @@ if(MSVC)
+   if (BUILD_SHARED_LIBS)
+     message(FATAL_ERROR "BUILD_SHARED_LIBS options is not supported on Windows.")
+   endif()
++  add_compile_options("/utf-8")
++  add_compile_options("/D_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING")
+ else()
+   option(LLVM_LINK_LLVM_DYLIB "Link tools against the libllvm dynamic library" OFF)
+   option(LLVM_BUILD_LLVM_C_DYLIB "Build libllvm-c re-export library (Darwin only)" OFF)
+```
 
 Download JSON and pybind11 according to `setup.py`:
 * https://github.com/nlohmann/json/releases/download/v3.11.3/include.zip
