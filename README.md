@@ -223,7 +223,12 @@ $Env:LIB =
 * If you want to build the C++ unit tests and don't set `TRITON_BUILD_UT=0`, then you need git
 
 Build LLVM using MSVC according to the instructions of the official Triton:
-* https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
+```pwsh
+# Check out the commit according to cmake/llvm-hash.txt
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="mlir;llvm" -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" -DLLVM_BUILD_TOOLS=OFF -DLLVM_CCACHE_BUILD=ON llvm
+cmake --build build -j 8 --config Release 
+```
+* See https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
 * You may need to add the compiler options `/utf-8 /D_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING` to make MSVC happy, see https://reviews.llvm.org/D90116 and https://github.com/llvm/llvm-project/issues/65255
 
 Download JSON and pybind11 according to `setup.py`:
