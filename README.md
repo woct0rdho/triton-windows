@@ -328,3 +328,13 @@ AssertionError: fp8e4nv data type is not supported on CUDA arch < 89
 then it's because in Triton, fp8 only works on Nvidia GPUs with sm >= 89, such as RTX 40xx and newer. You may disable fp8 in the node or the code. 
 
 This is not Windows-specific. It should be possible to write some placeholding kernels to make it work, even if without time or memory improvement compared to fp16. Help wanted if anyone has time for this.
+
+### Error with `os.rename`
+
+If you see error messages like
+```
+FileExistsError: [WinError 183] Cannot create a file when that file already exists: ...
+```
+then you need: https://github.com/pytorch/pytorch/issues/138211
+
+This will be solved when PyTorch 2.6 is out.
