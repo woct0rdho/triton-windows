@@ -31,6 +31,8 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 Check your GPU model. Triton officially supports Nvidia GPUs with sm >= 80 (also known as 'CUDA arch' or 'compute capability'), such as RTX 30xx and newer. RTX 20xx and older may work when running some simple AI models, but not always.
 
+Many AI models use bf16 (also known as bfloat16). In Triton, it only works with sm >= 80. If you really want to run it on older GPUs, you may try changing bf16 to fp16.
+
 Some AI models use fp8 (also known as float8). In Triton, it only works with sm >= 89, such as RTX 40xx and newer. See the [known issue](https://github.com/woct0rdho/triton-windows#fp8-is-not-supported-on-rtx-30xx-and-older-gpus).
 
 ### 2. Python environment
