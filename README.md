@@ -233,6 +233,7 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="mlir;
 cmake --build build -j 8 --config Release
 ```
 * See https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
+* Adding `-DLLVM_ENABLE_ASSERTIONS=ON` will increase the binary size of Triton
 * You may need to add the following compiler options to make MSVC happy, see https://reviews.llvm.org/D90116 and https://github.com/llvm/llvm-project/issues/65255:
 ```diff
 diff --git a/llvm/CMakeLists.txt b/llvm/CMakeLists.txt
