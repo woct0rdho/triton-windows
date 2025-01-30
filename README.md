@@ -57,7 +57,7 @@ Don't mix two environments, unless you know them very well.
 
 Check your PyTorch version: Triton 3.1.0 works with torch >= 2.4.0 . torch 2.3.x and older versions are not supported.
 
-Triton 3.2.0 works with torch >= 2.6.0 . For now don't install it unless you're using the pre-release version of PyTorch.
+Triton 3.2.0 works with torch >= 2.6.0 . Let's wait for a few days until xformers supports it.
 
 ### 4. CUDA
 
