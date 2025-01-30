@@ -59,6 +59,8 @@ Check your PyTorch version: Triton 3.1.0 works with torch >= 2.4.0 . torch 2.3.x
 
 Triton 3.2.0 works with torch >= 2.6.0 . Let's wait for a few days until xformers supports it.
 
+Remember to install PyTorch with CUDA 12.
+
 ### 4. CUDA
 
 CUDA 12 is required. CUDA 11.x and older versions are not supported. The wheels here are built against CUDA 12.5, and they should work with other CUDA 12.x.
@@ -172,6 +174,7 @@ b_compiled = add(a, a)
 print(b_compiled - b)
 print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
 ```
+You need to save the above code in a file, such as `test_triton.py`, then run `python test_triton.py`.
 
 If you see `ImportError: DLL load failed`, and there are `vcruntime140.dll` and `vcruntime140_1.dll` in the folder containing `python.exe`, then you may try:
 * Install the latest version of vcredist from https://aka.ms/vs/17/release/vc_redist.x64.exe
