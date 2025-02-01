@@ -344,4 +344,4 @@ FileExistsError: [WinError 183] Cannot create a file when that file already exis
 ```
 then you need: https://github.com/pytorch/pytorch/issues/138211
 
-This has ben solved since PyTorch 2.6 .
+This has been fixed since PyTorch 2.6 .
