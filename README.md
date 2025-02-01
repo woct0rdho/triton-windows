@@ -1,6 +1,6 @@
 # [Triton](https://github.com/triton-lang/triton) fork for Windows support
 
-See `v3.1.x-windows` branch for the code.
+See `v3.2.x-windows` branch for the code.
 
 Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionut](https://github.com/mantaionut/triton/tree/windows_support), [eaplatanios](https://github.com/eaplatanios/triton/tree/windows-fix), [anmyachev](https://github.com/triton-lang/triton/issues?q=author%3Aanmyachev), and more development in the community. Thank you all!
 
@@ -12,7 +12,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ## Progress
 
-* Forked from the `release/3.1.x` branch of the official repo
+* Forked from the `release/3.2.x` branch of the official repo
 * `triton.jit` and `torch.compile` just work
 * When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
 * All unit tests passed
@@ -38,7 +38,7 @@ Some AI models use fp8 (also known as float8). In Triton, it only works with sm 
 ### 2. Python environment
 
 Check how your Python is installed. We mainly support either of the following environments:
-* **System-wide**: You install Python at a location like `C:\Python310\` and directly use it
+* **System-wide**: You install Python at a location like `C:\Python312\` and directly use it
 * **Embeded**: You use an all-in-one package of ComfyUI (or some other AI software), and there is a folder `python_embeded` in it
     * In this case, don't directly use `pip`, but use `python -m pip` instead. It's because `pip.exe` is not in the folder `python_embeded`, and you may accidentally call a `pip.exe` installed elsewhere
 * **conda**: You create a virtual environment using `conda`
@@ -55,15 +55,15 @@ Don't mix two environments, unless you know them very well.
 
 ### 3. PyTorch
 
-Check your PyTorch version: Triton 3.1.0 works with torch >= 2.4.0 . torch 2.3.x and older versions are not supported.
+Check your PyTorch version: Triton 3.2 works with torch >= 2.6 . I recommend to upgrade to torch 2.6 because there are several improvements to `torch.compile`.
 
-Triton 3.2.0 works with torch >= 2.6.0 . Let's wait for a few days until xformers supports it.
+Triton 3.1 works with torch >= 2.4 . torch 2.3.x and older versions are not supported.
 
 Remember to install PyTorch with CUDA 12.
 
 ### 4. CUDA
 
-CUDA 12 is required. CUDA 11.x and older versions are not supported. The wheels here are built against CUDA 12.5, and they should work with other CUDA 12.x.
+CUDA 12 is required. CUDA 11.x and older versions are not supported. The wheels here are built against CUDA 12.6, and they should work with other CUDA 12.x.
 
 Choose either of the following ways to install CUDA:
 
@@ -83,13 +83,13 @@ Choose either of the following ways to install CUDA:
 2. Install CUDA toolkit from [CUDA toolkit archive](https://developer.nvidia.com/cuda-toolkit-archive)
 3. When installing, you need to choose both 'CUDA Development' and 'CUDA Runtime'. Make sure these folders exist on your computer: (Change the version number according to your installation)
     ```
-    C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\include
-    C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\lib\x64
+    C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include
+    C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\lib\x64
     ```
 4. Then you need to add the path of CUDA to the Windows `PATH`:
-    * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\bin`
+    * The path is like `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin`
     * Make sure this folder exists
-5. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.5, V12.5.82`, then you're doing right
+5. If you open a new PowerShell, type `ptxas --version`, and it shows your CUDA version like `Cuda compilation tools, release 12.6, V12.6.85`, then you're doing right
 </details>
 
 **c) pip**: Recommended if you don't want to install too much boilerplate, and you want to contain everything in a venv, with minimal impact to the system
@@ -102,7 +102,7 @@ Choose either of the following ways to install CUDA:
     pip install nvidia-cuda-nvcc-cu12 nvidia-cuda-runtime-cu12
     ```
 3. There should be a folder `Lib\site-packages\nvidia\cuda_runtime\` in your Python installation path (or venv), and you need to add a library in it
-    * Download it from https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post8/cuda_12.4_lib.zip
+    * Download it from https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0-windows.post9/cuda_12.6_lib.zip
     * Put the folder `lib` into `cuda_runtime`
 
 For details about compatibility of various pip packages and CUDA versions, see https://github.com/woct0rdho/triton-windows/issues/43
@@ -118,7 +118,7 @@ MSVC and Windows SDK are required, because Triton compiles Python functions on y
 * Choose the latest version of MSVC and Windows SDK from the list
 
 Then you need to add the path containing `cl.exe` to the Windows `PATH`:
-* The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
+* The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\Hostx64\x64`
 * Change the version numbers according to your installation, and make sure this folder accually exists on your computer
 * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
 
@@ -130,9 +130,9 @@ vcredist is required (also known as 'Visual C++ Redistributable for Visual Studi
 
 Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases), e.g.,
 ```sh
-pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.1.0-windows.post9/triton-3.1.0-cp310-cp310-win_amd64.whl
+pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0-windows.post9/triton-3.2.0-cp312-cp312-win_amd64.whl
 ```
-* Choose the wheel according to your Python version. If you're using Python 3.12, then you need to change `cp310` to `cp312`
+* Choose the wheel according to your Python version. If you're using Python 3.11, then you need to change `cp312` to `cp311`
 
 ### 8. Special notes for ComfyUI with embeded Python
 
@@ -208,21 +208,21 @@ Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUD
 ```pwsh
 $Env:Path =
 "C:\Windows\System32;" +
-"C:\Python310;" +
-"C:\Python310\Scripts;" +
+"C:\Python312;" +
+"C:\Python312\Scripts;" +
 "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;" +
-"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64;" +
+"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\bin\Hostx64\x64;" +
 "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64;" +
 "C:\Program Files\Git\cmd"
 $Env:INCLUDE =
-"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\include;" +
+"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\include;" +
 "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared;" +
 "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt;" +
 "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um;" +
-"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\include;" +
-"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5\extras\CUPTI\include"
+"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include;" +
+"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\extras\CUPTI\include"
 $Env:LIB =
-"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\lib\x64;" +
+"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.42.34433\lib\x64;" +
 "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\ucrt\x64;" +
 "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64"
 ```
@@ -254,16 +254,15 @@ index c06e661573ed..80b31843f45d 100644
    option(LLVM_BUILD_LLVM_C_DYLIB "Build libllvm-c re-export library (Darwin only)" OFF)
 ```
 
-Download JSON and pybind11 according to `setup.py`:
+Download JSON according to `setup.py`:
 * https://github.com/nlohmann/json/releases/download/v3.11.3/include.zip
-* https://github.com/pybind/pybind11/archive/refs/tags/v2.11.1.zip
 
 Set their paths:
 ```pwsh
 $Env:LLVM_SYSPATH = "C:/llvm-project/build"
 $Env:JSON_SYSPATH = "C:/json"
-$Env:PYBIND11_SYSPATH = "C:/pybind11"
 ```
+(For triton <= 3.1, you also need to download pybind11 and set its path according to `setup.py`)
 
 Only offline build is supported:
 ```pwsh
@@ -275,14 +274,14 @@ I recommend to use ccache:
 $Env:TRITON_BUILD_WITH_CCACHE = "1"
 ```
 
-Clone this repo, checkout `v3.1.x-windows` branch, make an editable build using pip:
+Clone this repo, checkout `v3.2.x-windows` branch, make an editable build using pip:
 ```pwsh
 pip install --no-build-isolation --verbose -e python
 ```
 
 Build the wheels:
 ```pwsh
-$Env:CIBW_BUILD = "{cp38-win_amd64,cp39-win_amd64,cp310-win_amd64,cp311-win_amd64,cp312-win_amd64}"
+$Env:CIBW_BUILD = "{cp39-win_amd64,cp310-win_amd64,cp311-win_amd64,cp312-win_amd64,cp313-win_amd64}"
 cibuildwheel python
 ```
 
@@ -345,4 +344,4 @@ FileExistsError: [WinError 183] Cannot create a file when that file already exis
 ```
 then you need: https://github.com/pytorch/pytorch/issues/138211
 
-This will be solved when PyTorch 2.6 is out.
+This has ben solved since PyTorch 2.6 .
