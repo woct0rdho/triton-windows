@@ -1,4 +1,5 @@
 import multiprocessing
+import os
 import shutil
 
 import pytest
@@ -87,6 +88,9 @@ def test_compile_in_forked_subproc_with_forced_gc(fresh_triton_cache) -> None:
     This is a regression test that ensures thread pool in MLIRContext is released
     safely after compilation.
     '''
+    if os.name == "nt":
+        pytest.skip("Windows doesn't have fork")
+
     import gc
     old_gc_state = gc.isenabled()
     # disable GC to manage resources manually in the manner described in comment above
