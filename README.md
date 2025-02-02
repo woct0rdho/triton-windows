@@ -105,7 +105,7 @@ Choose either of the following ways to install CUDA:
     * Download it from https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0-windows.post9/cuda_12.6_lib.zip
     * Put the folder `lib` into `cuda_runtime`
 
-For details about compatibility of various pip packages and CUDA versions, see https://github.com/woct0rdho/triton-windows/issues/43
+For details about version compatibility of various pip packages and CUDA, see https://github.com/woct0rdho/triton-windows/issues/43
 </details>
 
 ### 5. MSVC and Windows SDK
