@@ -112,9 +112,7 @@ For details about compatibility of various pip packages and CUDA versions, see h
 
 MSVC and Windows SDK are required, because Triton compiles Python functions on your computer.
 * You can install them in Visual Studio
-    * **Recommended:** If you don't want to install the whole Visual Studio, you can just use Visual Studio Build Tools [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads)
-    * Feeling Adventurous: If you don't want any MS boilerplate, you may try [PortableBuildTools](https://github.com/Data-Oriented-House/PortableBuildTools)
-    (see troubleshooting below)
+    * If you don't want to install the whole Visual Studio, you can just install [Visual Studio Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe)
 * Visual Studio >= 2017 is supported
 * Choose the latest version of MSVC and Windows SDK from the list
 
@@ -177,8 +175,10 @@ print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
 ```
 You need to save the above code in a file, such as `test_triton.py`, then run `python test_triton.py`.
 
-### Troubleshooting
-#### ImportError: DLL load failed
+## Troubleshoot the import
+
+### ImportError: DLL load failed
+
 If you see `ImportError: DLL load failed`, and there are `vcruntime140.dll` and `vcruntime140_1.dll` in the folder containing `python.exe`, then you may try:
 * Install the latest version of vcredist from https://aka.ms/vs/17/release/vc_redist.x64.exe
 * Copy-paste `msvcp140.dll`, `vcruntime140.dll`, and `vcruntime140_1.dll` from `C:\Windows\System32\` to the folder containing `python.exe`, and replace the existing DLLs
@@ -190,17 +190,14 @@ If you see `ImportError: DLL load failed`, and there are `vcruntime140.dll` and 
 
 You may also need to delete the cache folders when you change the Python version, install another version of Triton, or change the version of MSVC, Windows SDK, or CUDA.
 
-#### triton unable to find_msvc() related issues
-  * If you didn't install VC2022 then recommend you do so (don't forget to reboot after)
-  * [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads)
- 
-#### module 'pkgutil' has no attribute 'ImpImporter'. Did you mean: 'zipimporter'
-  *  run the following and try again:
-  ```
-  pip install --upgrade setuptools
-  py -m ensurepip --upgrade
-  py -m pip install --upgrade pip
-  ```
+### AttributeError: module 'pkgutil' has no attribute 'ImpImporter'. Did you mean: 'zipimporter'
+
+This is because your `setuptools` is outdated. Run the following and try again:
+```pwsh
+python -m ensurepip --upgrade
+python -m pip install --upgrade pip
+python -m pip install --upgrade setuptools
+```
 
 ### dlltracer
 
