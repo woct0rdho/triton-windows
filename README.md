@@ -177,6 +177,15 @@ You need to save the above code in a file, such as `test_triton.py`, then run `p
 
 ## Troubleshoot the import
 
+### AttributeError: module 'pkgutil' has no attribute 'ImpImporter'. Did you mean: 'zipimporter'
+
+This is because your `setuptools` is outdated. Run the following and try again:
+```pwsh
+python -m ensurepip --upgrade
+python -m pip install --upgrade pip
+python -m pip install --upgrade setuptools
+```
+
 ### ImportError: DLL load failed
 
 If you see `ImportError: DLL load failed`, and there are `vcruntime140.dll` and `vcruntime140_1.dll` in the folder containing `python.exe`, then you may try:
@@ -189,15 +198,6 @@ If you see `ImportError: DLL load failed`, and there are `vcruntime140.dll` and 
     ```
 
 You may also need to delete the cache folders when you change the Python version, install another version of Triton, or change the version of MSVC, Windows SDK, or CUDA.
-
-### AttributeError: module 'pkgutil' has no attribute 'ImpImporter'. Did you mean: 'zipimporter'
-
-This is because your `setuptools` is outdated. Run the following and try again:
-```pwsh
-python -m ensurepip --upgrade
-python -m pip install --upgrade pip
-python -m pip install --upgrade setuptools
-```
 
 ### dlltracer
 
