@@ -697,11 +697,11 @@ FailureOr<scf::ForOp> preProcessLoopForTC05MMAPipelining(scf::ForOp forOp,
       continue;
     }
 
-    MMAInfo mmaInfo = {.accAlloc = accAlloc,
-                       .accLoad = accLoad,
-                       .accDef = accOverridePoint,
-                       .yieldArgNo = yieldArgNo,
-                       .accIsMultiBuffered = canMultiBuffer};
+    MMAInfo mmaInfo = {/* .accAlloc = */ accAlloc,
+                       /* .accLoad = */ accLoad,
+                       /* .accDef = */ accOverridePoint,
+                       /* .yieldArgNo = */ yieldArgNo,
+                       /* .accIsMultiBuffered = */ canMultiBuffer};
 
     builder.setInsertionPoint(forOp);
     Value zero = builder.create<arith::ConstantIntOp>(forOp.getLoc(), 0, 32);
