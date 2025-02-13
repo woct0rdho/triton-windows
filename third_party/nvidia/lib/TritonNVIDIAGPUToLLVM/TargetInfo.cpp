@@ -450,7 +450,7 @@ bool TargetInfo::warpReduce(RewriterBase &rewriter, Location loc,
         Value threadId = getThreadId(rewriter, loc);
         Value laneId = b.urem(threadId, b.i32_val(32));
         mask = b.shl(b.i32_val(bitmask),
-                     b.and_(laneId, b.i32_val(~(numLaneToReduce - 1))));
+                     b.and_(laneId, b.i32_val( (int32_t)(~(numLaneToReduce - 1)) )));
       }
       for (unsigned i = 0; i < acc.size(); ++i) {
         unsigned bitwidth = cast<IntegerType>(acc[i].getType()).getWidth();
