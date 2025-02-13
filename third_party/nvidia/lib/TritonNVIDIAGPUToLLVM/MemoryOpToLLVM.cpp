@@ -103,7 +103,7 @@ private:
         /*maxVecElems=*/maxVecElems, smemObj, loc, rewriter, targetInfo,
         [&](VectorType vecTy, Value vecAddr) {
           auto numElems = vecTy.getNumElements();
-          auto numElemsI32 = (numElems * bitwidth / 32) >> shift;
+          auto numElemsI32 = (numElems * bitwidth / 32) >> ((int)shift);
           auto matTy = LLVM::LLVMStructType::getLiteral(
               ctx, SmallVector<Type>(numElemsI32, i32_ty));
           auto ldMatrixOp = rewriter.create<nvgpu::LoadMatrixOp>(
