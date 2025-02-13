@@ -35,6 +35,8 @@ Many AI models use bf16 (also known as bfloat16). In Triton, it only works with 
 
 Some AI models use fp8 (also known as float8). In Triton, it only works with sm >= 89, such as RTX 40xx and newer. See the [known issue](https://github.com/woct0rdho/triton-windows#fp8-is-not-supported-on-rtx-30xx-and-older-gpus).
 
+Triton 3.2 does not support sm >= 100, such as RTX 50xx. You need to compile the main branch.
+
 ### 2. Python environment
 
 Check how your Python is installed. We mainly support either of the following environments:
