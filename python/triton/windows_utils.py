@@ -37,10 +37,9 @@ def unparse_version(t, prefix=""):
 
 
 def max_version(versions, prefix="", check=lambda x: True):
+    versions = [x for x in versions if check(x)]
     versions = [parse_version(x, prefix) for x in versions]
-    versions = [
-        x for x in versions if x is not None and check(unparse_version(x, prefix))
-    ]
+    versions = [x for x in versions if x is not None]
     if not versions:
         return None
     version = unparse_version(max(versions), prefix)
@@ -272,7 +271,30 @@ def find_cuda_pip():
     return None, [], []
 
 
-def check_cuda(cuda_base_path):
+def check_cuda_conda(cuda_base_path):
+    return all(
+        x.exists()
+        for x in [
+            cuda_base_path / "bin" / "ptxas.exe",
+            cuda_base_path / "include" / "cuda.h",
+            cuda_base_path / "lib" / "cuda.lib",
+        ]
+    )
+
+
+def find_cuda_conda():
+    cuda_base_path = Path(sys.exec_prefix) / "Library"
+    if check_cuda_conda(cuda_base_path):
+        return (
+            str(cuda_base_path / "bin"),
+            [str(cuda_base_path / "include")],
+            [str(cuda_base_path / "lib")],
+        )
+
+    return None, [], []
+
+
+def check_cuda_system_wide(cuda_base_path):
     return all(
         x.exists()
         for x in [
@@ -290,7 +312,7 @@ def find_cuda_env():
             continue
 
         cuda_base_path = Path(cuda_base_path)
-        if check_cuda(cuda_base_path):
+        if check_cuda_system_wide(cuda_base_path):
             return cuda_base_path
 
     return None
@@ -306,7 +328,7 @@ def find_cuda_hardcoded():
     paths = sorted(paths)[::-1]
     for path in paths:
         cuda_base_path = Path(path)
-        if check_cuda(cuda_base_path):
+        if check_cuda_system_wide(cuda_base_path):
             return cuda_base_path
 
     return None
@@ -315,6 +337,10 @@ def find_cuda_hardcoded():
 @functools.cache
 def find_cuda():
     cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = find_cuda_pip()
+    if cuda_bin_path:
+        return cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs
+
+    cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = find_cuda_conda()
     if cuda_bin_path:
         return cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs
 
