@@ -371,7 +371,7 @@ class CUDABackend(BaseBackend):
                 ptxas, *line_info, *fmad, '-v', *opt_level, f'--gpu-name=sm_{capability}{suffix}', fsrc.name, '-o', fbin
             ]
             try:
-                subprocess.run(ptxas_cmd, check=True, close_fds=False, stderr=flog)
+                subprocess.run(ptxas_cmd, check=True, close_fds=False, stdout=flog, stderr=flog)
                 try_remove(fsrc.name)
                 flog.close()
                 try_remove(flog.name)
