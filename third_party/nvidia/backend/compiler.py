@@ -309,7 +309,7 @@ class CUDABackend(BaseBackend):
                 ptxas, *line_info, *fmad, '-v', *opt_level, f'--gpu-name=sm_{capability}{suffix}', fsrc.name, '-o', fbin
             ]
             try:
-                subprocess.run(ptxas_cmd, check=True, close_fds=False, stderr=flog)
+                subprocess.run(ptxas_cmd, check=True, close_fds=False, stdout=flog, stderr=flog)
             except subprocess.CalledProcessError as e:
                 flog.close()
                 with open(flog.name) as log_file:
