@@ -119,7 +119,7 @@ applyLinearLayout(Location loc, RewriterBase &rewriter,
   for (auto [inDimName, idx] : indices) {
     if (auto constant = idx.getDefiningOp<LLVM::ConstantOp>()) {
       constantIns.push_back(
-          {inDimName, (int32_t)cast<IntegerAttr>(constant.getValue()).getInt()});
+          {inDimName, static_cast<int32_t>(cast<IntegerAttr>(constant.getValue()).getInt())});
     } else {
       constantIns.push_back({inDimName, 0});
     }
