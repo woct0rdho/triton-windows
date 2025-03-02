@@ -35,7 +35,7 @@ Check your GPU model. Technically they're categorized by 'compute capability' (a
 <details>
 <summary>RTX 50xx (Blackwell)</summary>
 
-Triton 3.2 does not support Blackwell. The main branch of Triton has basic support for Blackwell and some optimizations are still ongoing. However, the main branch of Triton does not work with PyTorch 2.6 and older. You need to compile the `main-windows` branch of this repo, and install the nightly version of PyTorch with CUDA 12.8 .
+Triton 3.2 does not support Blackwell. The main branch of Triton has basic support for Blackwell and some optimizations are still ongoing. However, the main branch of Triton does not work with PyTorch 2.6 and older. You need to compile the `main-windows` branch of this repo (see https://github.com/woct0rdho/triton-windows#build-from-source ), and install the nightly version of PyTorch with CUDA 12.8 .
 </details>
 
 <details>
@@ -343,7 +343,7 @@ I recommend to use ccache if you installed it:
 $Env:TRITON_BUILD_WITH_CCACHE = "1"
 ```
 
-Clone this repo, checkout `v3.2.x-windows` branch, make an editable build using pip:
+Clone this repo, checkout `v3.2.x-windows` branch (or `main-windows` branch if you need it), make an editable build using pip:
 ```pwsh
 pip install --no-build-isolation --verbose -e python
 ```
