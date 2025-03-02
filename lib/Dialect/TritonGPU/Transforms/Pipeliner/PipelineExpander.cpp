@@ -571,7 +571,7 @@ LogicalResult LoopPipelinerInternal::createKernel(
       if (stageDef == stages.end() || stageDef->second == useStage)
         continue;
       auto remap = loopArgMap.find(std::make_pair(
-          operand->get(), (unsigned int)useStage - stageDef->second));
+          operand->get(), static_cast<unsigned>(useStage) - stageDef->second));
       assert(remap != loopArgMap.end());
       nestedNewOp->setOperand(operand->getOperandNumber(),
                               newForOp.getRegionIterArgs()[remap->second]);
