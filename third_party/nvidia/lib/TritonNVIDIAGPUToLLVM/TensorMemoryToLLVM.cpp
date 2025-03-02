@@ -29,23 +29,23 @@ struct TMemAccessAtom {
   bool usesSecondHalfOffset;
 };
 
-constexpr TMemAccessAtom TMemAccess32x32b{.opBitWidth = 32,
-                                          .colsPerThread = 1,
-                                          .rowsPerThread = 1,
-                                          .opShape = "32x32b",
-                                          .usesSecondHalfOffset = false};
+constexpr TMemAccessAtom TMemAccess32x32b{/* .opBitWidth = */ 32,
+                                          /* .colsPerThread = */ 1,
+                                          /* .rowsPerThread = */ 1,
+                                          /* .opShape = */ "32x32b",
+                                          /* .usesSecondHalfOffset = */ false};
 
-constexpr TMemAccessAtom TMemAccess16x32bx2{.opBitWidth = 32,
-                                            .colsPerThread = 1,
-                                            .rowsPerThread = 1,
-                                            .opShape = "16x32bx2",
-                                            .usesSecondHalfOffset = true};
+constexpr TMemAccessAtom TMemAccess16x32bx2{/* .opBitWidth = */ 32,
+                                            /* .colsPerThread = */ 1,
+                                            /* .rowsPerThread = */ 1,
+                                            /* .opShape = */ "16x32bx2",
+                                            /* .usesSecondHalfOffset = */ true};
 
-constexpr TMemAccessAtom TMemAccess16x256b{.opBitWidth = 256,
-                                           .colsPerThread = 2,
-                                           .rowsPerThread = 2,
-                                           .opShape = "16x256b",
-                                           .usesSecondHalfOffset = false};
+constexpr TMemAccessAtom TMemAccess16x256b{/* .opBitWidth = */ 256,
+                                           /* .colsPerThread = */ 2,
+                                           /* .rowsPerThread = */ 2,
+                                           /* .opShape = */ "16x256b",
+                                           /* .usesSecondHalfOffset = */ false};
 
 struct TMemMessageTraits {
   TMemAccessAtom atom;
