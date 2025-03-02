@@ -55,7 +55,10 @@ def _path_to_binary(binary: str):
 
 @functools.lru_cache()
 def get_ptxas(arch: int):
-    name = "ptxas-blackwell" if arch >= 100 else "ptxas"
+    if os.name == "nt":
+        name = "ptxas"
+    else:
+        name = "ptxas-blackwell" if arch >= 100 else "ptxas"
     return _path_to_binary(name)
 
 
