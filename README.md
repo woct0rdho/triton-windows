@@ -338,7 +338,7 @@ Only offline build is supported:
 $Env:TRITON_OFFLINE_BUILD = "1"
 ```
 
-I recommend to use ccache:
+I recommend to use ccache if you installed it:
 ```pwsh
 $Env:TRITON_BUILD_WITH_CCACHE = "1"
 ```
