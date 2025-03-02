@@ -67,7 +67,8 @@ ensureLayoutNotLargerThan(const LinearLayout &layout,
           continue;
         }
         assert(llvm::isPowerOf2_32(outValue));
-        sortedBases.emplace_back(inDimName, basisIdx, outValue);
+        sortedBases.emplace_back(inDimName, static_cast<int>(basisIdx),
+                                 outValue);
       }
     }
     // From the largest basis to the smallest.
