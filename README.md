@@ -348,7 +348,7 @@ Clone this repo, checkout `v3.2.x-windows` branch (or `main-windows` branch if y
 pip install --no-build-isolation --verbose -e python
 ```
 
-Build the wheels:
+Build the wheels: (This is for sending the wheels to others. You don't need this if you only use Triton on your own computer)
 ```pwsh
 $Env:CIBW_BUILD = "{cp39-win_amd64,cp310-win_amd64,cp311-win_amd64,cp312-win_amd64,cp313-win_amd64}"
 cibuildwheel python
