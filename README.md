@@ -422,3 +422,7 @@ If you're using ComfyUI, the model is compiled, and you see error messages like
 ValueError: Pointer argument (at 0) cannot be accessed from Triton (cpu tensor?)
 ```
 then you may use `--gpu-only` when launching ComfyUI to disable model offloading. See https://github.com/woct0rdho/triton-windows/issues/61
+
+### No module named 'triton.ops'
+
+In Triton 3 there is no `triton.ops`, and this is because some of your Python package is outdated (most likely `bitsandbytes`).
