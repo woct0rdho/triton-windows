@@ -425,4 +425,4 @@ then you may use `--gpu-only` when launching ComfyUI to disable model offloading
 
 ### No module named 'triton.ops'
 
-In Triton 3 there is no `triton.ops`, and this is because some of your Python package is outdated (most likely `bitsandbytes`).
+`triton.ops` was removed in Triton 3.1, and this is because some of your Python package is outdated (most likely `bitsandbytes`). See https://github.com/woct0rdho/triton-windows/issues/65
