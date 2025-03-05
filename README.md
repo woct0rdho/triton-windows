@@ -23,6 +23,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
     * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton
 * TODO: Set up CI (help wanted)
 * TODO: Make a minimal bundle of MSVC, Windows SDK, and CUDA SDK in the wheels (help wanted)
+* TODO: Make an automatic installation script with WinGet, see https://github.com/woct0rdho/triton-windows/issues/74
 
 ## Install from wheel
 
