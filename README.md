@@ -133,6 +133,7 @@ Choose either of the following ways to install CUDA:
     ```
 3. There should be a folder `Lib\site-packages\nvidia\cuda_runtime\` in your Python installation path (or venv), and you need to add a library in it
     * Download it from https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0-windows.post9/cuda_12.6_lib.zip
+    * Choose 12.6 or 12.8 according to your CUDA version
     * Put the folder `lib` into `cuda_runtime`
 
 For details about version compatibility of various pip packages and CUDA, see https://github.com/woct0rdho/triton-windows/issues/43
