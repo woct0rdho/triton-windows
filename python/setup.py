@@ -287,6 +287,12 @@ def download_and_copy(name, src_path, dst_path, variable, version, url_func):
     base_dir = os.path.dirname(__file__)
     system = platform.system()
     arch = platform.machine()
+    if system == "Windows":
+        # On Windows we don't need this unless in CI
+        if not check_env_flag("TRITON_WINDOWS_COPY_NVIDIA_PACKAGES"):
+            return
+        if dst_path.startswith("bin/"):
+            dst_path += ".exe"
     # NOTE: This might be wrong for jetson if both grace chips and jetson chips return aarch64
     arch = {"AMD64": "x86_64", "arm64": "sbsa", "aarch64": "sbsa"}.get(arch, arch)
     supported = {"Linux": "linux", "Darwin": "linux", "Windows": "windows"}
