@@ -530,6 +530,8 @@ class CMakeBuild(build_ext):
         if is_offline_build():
             # unit test builds fetch googletests from GitHub
             cmake_args += ["-DTRITON_BUILD_UT=OFF"]
+        else:
+            cmake_args += [f"-D{option}={os.getenv(option)}" for option in ["TRITON_BUILD_UT"] if option in os.environ]
 
         cmake_args_append = os.getenv("TRITON_APPEND_CMAKE_ARGS")
         if cmake_args_append is not None:
