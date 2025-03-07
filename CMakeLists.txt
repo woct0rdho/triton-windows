@@ -347,15 +347,16 @@ add_subdirectory(third_party/f2reduce)
 
 if(TRITON_BUILD_BINARY)
   add_subdirectory(bin)
-  if(TRITON_BUILD_UT)
-    add_subdirectory(test)
-    add_subdirectory(unittest)
-    # This target runs all the unit tests.
-    add_custom_target(check-triton-unit-tests
-      COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-      DEPENDS TritonUnitTests
-      USES_TERMINAL
-    )
-  endif()
   add_subdirectory(examples)
+endif()
+
+if(TRITON_BUILD_UT)
+  add_subdirectory(test)
+  add_subdirectory(unittest)
+  # This target runs all the unit tests.
+  add_custom_target(check-triton-unit-tests
+    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+    DEPENDS TritonUnitTests
+    USES_TERMINAL
+  )
 endif()
