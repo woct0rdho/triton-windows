@@ -167,11 +167,13 @@ def get_json_package_info():
 def get_llvm_package_info():
     system = platform.system()
     try:
-        arch = {"x86_64": "x64", "arm64": "arm64", "aarch64": "arm64"}[platform.machine()]
+        arch = {"x86_64": "x64", "AMD64": "x64", "arm64": "arm64", "aarch64": "arm64"}[platform.machine()]
     except KeyError:
         arch = platform.machine()
     if system == "Darwin":
         system_suffix = f"macos-{arch}"
+    elif system == "Windows":
+        system_suffix = f"windows-{arch}"
     elif system == "Linux":
         if arch == 'arm64':
             system_suffix = 'ubuntu-arm64'
@@ -233,6 +235,17 @@ def get_triton_cache_path():
     return os.path.join(user_home, ".triton")
 
 
+def download_and_extract_archive(url, extract_path):
+    with open_url(url) as response:
+        if url.endswith(".zip"):
+            file_bytes = BytesIO(response.read())
+            with zipfile.ZipFile(file_bytes, "r") as file:
+                file.extractall(path=extract_path)
+        else:
+            with tarfile.open(fileobj=response, mode="r|*") as file:
+                file.extractall(path=extract_path)
+
+
 def get_thirdparty_packages(packages: list):
     triton_cache_path = get_triton_cache_path()
     thirdparty_cmake_args = []
@@ -254,14 +267,7 @@ def get_thirdparty_packages(packages: list):
                 shutil.rmtree(package_root_dir)
             os.makedirs(package_root_dir, exist_ok=True)
             print(f'downloading and extracting {p.url} ...')
-            with open_url(p.url) as response:
-                if p.url.endswith(".zip"):
-                    file_bytes = BytesIO(response.read())
-                    with zipfile.ZipFile(file_bytes, "r") as file:
-                        file.extractall(path=package_root_dir)
-                else:
-                    with tarfile.open(fileobj=response, mode="r|*") as file:
-                        file.extractall(path=package_root_dir)
+            download_and_extract_archive(p.url, package_root_dir)
             # write version url to package_dir
             with open(os.path.join(package_dir, "version.txt"), "w") as f:
                 f.write(p.url)
@@ -280,12 +286,13 @@ def download_and_copy(name, src_path, dst_path, variable, version, url_func):
         return
     base_dir = os.path.dirname(__file__)
     system = platform.system()
-    try:
-        arch = {"x86_64": "64", "arm64": "aarch64", "aarch64": "aarch64"}[platform.machine()]
-    except KeyError:
-        arch = platform.machine()
-    supported = {"Linux": "linux", "Darwin": "linux"}
+    arch = platform.machine()
+    # NOTE: This might be wrong for jetson if both grace chips and jetson chips return aarch64
+    arch = {"AMD64": "x86_64", "arm64": "sbsa", "aarch64": "sbsa"}.get(arch, arch)
+    supported = {"Linux": "linux", "Darwin": "linux", "Windows": "windows"}
     url = url_func(supported[system], arch, version)
+    if system == "Windows":
+        url = url.replace(".tar.xz", ".zip")
     tmp_path = os.path.join(triton_cache_path, "nvidia", name)  # path to cache the download
     dst_path = os.path.join(base_dir, os.pardir, "third_party", "nvidia", "backend", dst_path)  # final binary path
     platform_name = "sbsa-linux" if arch == "aarch64" else "x86_64-linux"
@@ -298,8 +305,7 @@ def download_and_copy(name, src_path, dst_path, variable, version, url_func):
         download = download or curr_version != version
     if download:
         print(f'downloading and extracting {url} ...')
-        file = tarfile.open(fileobj=open_url(url), mode="r|*")
-        file.extractall(path=tmp_path)
+        download_and_extract_archive(url, tmp_path)
     os.makedirs(os.path.split(dst_path)[0], exist_ok=True)
     print(f'copy {src_path} to {dst_path} ...')
     if os.path.isdir(src_path):
