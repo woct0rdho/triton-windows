@@ -45,6 +45,11 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from python.build_helpers import get_base_dir, get_cmake_dir
 
+import warnings
+from setuptools import SetuptoolsDeprecationWarning
+
+warnings.filterwarnings("ignore", category=SetuptoolsDeprecationWarning)
+
 
 @dataclass
 class Backend:
