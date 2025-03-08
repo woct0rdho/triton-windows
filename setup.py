@@ -45,6 +45,11 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from python.build_helpers import get_base_dir, get_cmake_dir
 
+import warnings
+from setuptools import SetuptoolsDeprecationWarning
+
+warnings.filterwarnings("ignore", category=SetuptoolsDeprecationWarning)
+
 
 def is_git_repo():
     """Return True if this file resides in a git repository"""
