@@ -28,6 +28,11 @@ from wheel.bdist_wheel import bdist_wheel
 
 import pybind11
 
+import warnings
+from setuptools import SetuptoolsDeprecationWarning
+
+warnings.filterwarnings("ignore", category=SetuptoolsDeprecationWarning)
+
 
 @dataclass
 class Backend:
