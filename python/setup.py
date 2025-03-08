@@ -24,6 +24,11 @@ from setuptools.command.develop import develop
 from setuptools.command.egg_info import egg_info
 from wheel.bdist_wheel import bdist_wheel
 
+import warnings
+from setuptools import SetuptoolsDeprecationWarning
+
+warnings.filterwarnings("ignore", category=SetuptoolsDeprecationWarning)
+
 
 @dataclass
 class Backend:
