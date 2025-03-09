@@ -81,9 +81,9 @@ Don't mix two environments, unless you know them very well.
 
 ### 3. PyTorch
 
-Although technically Triton can be used alone, in the following let's assume you use it with PyTorch.
+Although technically Triton can be used alone, in the following let's assume you use it with PyTorch. Check your PyTorch version:
 
-Check your PyTorch version: Triton 3.2 works with PyTorch >= 2.6 . I recommend to upgrade to PyTorch 2.6 because there are several improvements to `torch.compile`.
+Triton 3.2 works with PyTorch >= 2.6 . I recommend to upgrade to PyTorch 2.6 because there are several improvements to `torch.compile`.
 
 Triton 3.1 works with PyTorch >= 2.4 . PyTorch 2.3.x and older versions are not supported.
 
@@ -153,7 +153,12 @@ Then you need to add the path containing `cl.exe` to the Windows `PATH`:
 * Change the version numbers according to your installation, and make sure this folder accually exists on your computer
 * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
 
-Note that if you run 'Developer PowerShell for VS 2022' (or 'Developer Command Prompt for VS 2022') from the Start menu (or tools like VSCode), it will automatically add the path containing `cl.exe`.
+<details>
+<summary>Note on automatically adding the path</summary>
+(Do this if you don't want to permanently modify the Windows `PATH`)
+
+Run 'Developer PowerShell for VS 2022' (or 'Developer Command Prompt for VS 2022') from the Start menu (or tools like VSCode), and it will automatically add the paths containing `cl.exe` and other relevant VS components.
+</details>
 
 ### 6. vcredist
 
@@ -177,7 +182,7 @@ pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0
 
 ## Test if it works
 
-Run the following script:
+Run the following script. You need to save the code in a file, such as `test_triton.py`, then run `python test_triton.py`.
 ```python
 import torch
 import triton
@@ -207,7 +212,6 @@ b_compiled = add(a, a)
 print(b_compiled - b)
 print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
 ```
-You need to save the above code in a file, such as `test_triton.py`, then run `python test_triton.py`.
 
 ## Troubleshoot the test above
 
