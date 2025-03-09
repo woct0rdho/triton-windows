@@ -157,7 +157,7 @@ Then you need to add the path containing `cl.exe` to the Windows `PATH`:
 <summary>Note on automatically adding the path</summary>
 (Do this if you don't want to permanently modify the Windows `PATH`)
 
-Run 'Developer PowerShell for VS 2022' (or 'Developer Command Prompt for VS 2022') from the Start menu (or tools like VSCode), and it will automatically add the paths containing `cl.exe` and other relevant VS components.
+Run 'Developer PowerShell for VS 2022' (or 'Developer Command Prompt for VS 2022') from the Start menu (or in VS), and it will automatically add the paths containing `cl.exe` and other relevant VS components.
 </details>
 
 ### 6. vcredist
