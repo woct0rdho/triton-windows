@@ -9,6 +9,7 @@ body:
       #### Disclaimer
       The core triton team is small and has very limited capacity. We may not have time to look into your report.
       For the best results, please:
+        - Read the instructions in README: https://github.com/woct0rdho/triton-windows
         - Avoid submitting duplicates. Search through [the existing and past issues](https://github.com/triton-lang/triton/issues?q=is%3Aissue+sort%3Acreated-desc+) first to see if it's been reported previously.
         - Check if the issue persists with a build from the latest source.
         - Provide all relevant information in the initial report, to prevent unnecessary back and forth discussion.
