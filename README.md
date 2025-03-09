@@ -153,6 +153,8 @@ Then you need to add the path containing `cl.exe` to the Windows `PATH`:
 * Change the version numbers according to your installation, and make sure this folder accually exists on your computer
 * If you open a new PowerShell, type `cl`, and it shows `Microsoft (R) C/C++ Optimizing Compiler ...`, then you're doing right
 
+Note that if you run 'Developer PowerShell for VS 2022' (or 'Developer Command Prompt for VS 2022') from the Start menu (or tools like VSCode), it will automatically add the path containing `cl.exe`.
+
 ### 6. vcredist
 
 vcredist is required (also known as 'Visual C++ Redistributable for Visual Studio 2015-2022', `msvcp140.dll`, `vcruntime140.dll`). Install it from https://aka.ms/vs/17/release/vc_redist.x64.exe
