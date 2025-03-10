@@ -1,6 +1,6 @@
 # [Triton](https://github.com/triton-lang/triton) fork for Windows support
 
-See `v3.2.x-windows` branch for the code.
+See `v3.2.x-windows` branch for the code, forked from `release/3.2.x` branch of the official repo.
 
 Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionut](https://github.com/mantaionut/triton/tree/windows_support), [eaplatanios](https://github.com/eaplatanios/triton/tree/windows-fix), [anmyachev](https://github.com/triton-lang/triton/issues?q=author%3Aanmyachev), and more development in the community. Thank you all!
 
@@ -13,18 +13,16 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ## Progress
 
-* Forked from the `release/3.2.x` branch of the official repo
+**Announcement**: Since the release `post11`, the wheels are published to PyPI, and no longer to GitHub.
+
 * `triton.jit` and `torch.compile` just work
-* When I run Flux or CogVideoX in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
 * All unit tests passed
+* When I run Flux or HunyuanVideo in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
 * Only MSVC is supported, because it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only Nvidia GPU is supported, help wanted to support other backends
     * For AMD GPU, you may try https://github.com/Repeerc/triton-amdgpu-windows
     * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton
 * TODO: Set up CI (help wanted)
-* TODO: Make a minimal bundle of MSVC, Windows SDK, and CUDA SDK in the wheels (help wanted)
-    * CUDA SDK is mostly bundled if `TRITON_WINDOWS_COPY_NVIDIA_PACKAGES` is enabled in `setup.py`, but it's missing things like `cuda.lib`, and it's not minimal
-* TODO: Make an automatic installation script with WinGet, see https://github.com/woct0rdho/triton-windows/issues/74
 
 ## Install from wheel
 
@@ -37,21 +35,19 @@ Check your GPU model. Technically they're categorized by 'compute capability' (a
 <details>
 <summary>RTX 50xx (Blackwell)</summary>
 
-Triton 3.2 does not support Blackwell. The main branch of Triton has basic support for Blackwell and some optimizations are still ongoing. You can install the [pre-release wheel](https://github.com/woct0rdho/triton-windows/releases/tag/v3.2.0%2Bgit8f9b005b-windows.post11) (or compile `main-windows` branch).
-
-However, the main branch of Triton does not work with PyTorch 2.6 and older. You need to install the nightly version of PyTorch with CUDA 12.8 .
+This only works with Triton >= 3.3 (pre-release), PyTorch >= 2.7 (nightly), and CUDA 12.8 .
 </details>
 
 <details>
 <summary>RTX 40xx (Ada)</summary>
 
-This is best supported by Triton.
+This is officially supported by Triton.
 </details>
 
 <details>
 <summary>RTX 30xx (Ampere)</summary>
 
-This is mostly supported by Triton, but fp8 (also known as float8) will not work, see the [known issue](https://github.com/woct0rdho/triton-windows#fp8-is-not-supported-on-rtx-30xx-and-older-gpus). I recommend to use GGUF instead of fp8 models in this case.
+This is officially supported by Triton, but fp8 (also known as float8) will not work, see the [known issue](https://github.com/woct0rdho/triton-windows#fp8-is-not-supported-on-rtx-30xx-and-older-gpus). I recommend to use GGUF instead of fp8 models in this case.
 </details>
 
 <details>
@@ -83,15 +79,20 @@ Don't mix two environments, unless you know them very well.
 
 Although technically Triton can be used alone, in the following let's assume you use it with PyTorch. Check your PyTorch version:
 
-Triton 3.2 works with PyTorch >= 2.6 . I recommend to upgrade to PyTorch 2.6 because there are several improvements to `torch.compile`.
+Triton 3.2 works with PyTorch >= 2.6 . If you're using PyTorch < 2.6, I recommend to upgrade to 2.6 because there are several improvements to `torch.compile`.
 
-Triton 3.1 works with PyTorch >= 2.4 . PyTorch 2.3.x and older versions are not supported.
+Triton 3.3 (pre-release) works with PyTorch >= 2.7 (nightly).
 
-Remember to install PyTorch with CUDA 12.
+PyTorch tagged with CUDA 12 is required. CUDA 11 is not supported.
 
 ### 4. CUDA
 
-CUDA 12 is required. CUDA 11.x and older versions are not supported. The wheels here are built against CUDA 12.6, and they should work with other CUDA 12.x.
+Since the release `post11`, CUDA is bundled in the Triton wheels, so you don't need to manually install it.
+
+Triton 3.2 bundles CUDA 12.4, and Triton 3.3 bundles CUDA 12.8 . They should be compatible with other CUDA 12.x because of the [minor version compatibility](https://docs.nvidia.com/deploy/cuda-compatibility/) of CUDA. CUDA 11 and older versions are not supported.
+
+<details>
+<summary>Instructions for older or custom wheels without bundled CUDA</summary>
 
 Choose either of the following ways to install CUDA:
 
@@ -136,13 +137,14 @@ Choose either of the following ways to install CUDA:
     * Download it from https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0-windows.post9/cuda_12.6_lib.zip
     * Choose 12.6 or 12.8 according to your CUDA version
     * Put the folder `lib` into `cuda_runtime`
+</details>
 
 For details about version compatibility of various pip packages and CUDA, see https://github.com/woct0rdho/triton-windows/issues/43
 </details>
 
 ### 5. MSVC and Windows SDK
 
-MSVC and Windows SDK are required, because Triton compiles things on your computer.
+MSVC and Windows SDK are required.
 * You can install them in Visual Studio
     * If you don't want to install the whole Visual Studio, you can just install [Visual Studio Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe)
 * Visual Studio >= 2017 is supported
@@ -166,11 +168,14 @@ vcredist is required (also known as 'Visual C++ Redistributable for Visual Studi
 
 ### 7. Triton
 
-Now you can download the wheel from [releases](https://github.com/woct0rdho/triton-windows/releases), e.g.,
+Now you can install the wheel:
 ```pwsh
-pip install https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0-windows.post10/triton-3.2.0-cp312-cp312-win_amd64.whl
+pip install triton-windows
 ```
-* Choose the wheel according to your Python version. If you're using Python 3.11, then you need to change `cp312` to `cp311`
+For Triton 3.3 (pre-release), you need:
+```pwsh
+pip install --pre triton-windows
+```
 
 ### 8. Special notes for ComfyUI with embeded Python
 
@@ -289,126 +294,6 @@ If it shows `Failed \Device\...\cuda_utils.pyd`, please also:
 * Find `cuda_utils.pyd` at this location
 * Use [DependenciesGui](https://github.com/lucasg/Dependencies) (or similar tools) to check what DLLs this `cuda_utils.pyd` depends on, and send a screenshot (or other related information) in the issue
 
-## Build from source
-
-**(This is for developers)**
-
-Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA in PowerShell (help wanted to automatically find these in CMake, or using something equivalent to `vcvarsall.bat` in PowerShell):
-```pwsh
-$Env:Path =
-"C:\Windows\System32;" +
-"C:\Python312;" +
-"C:\Python312\Scripts;" +
-"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;" +
-"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.43.34808\bin\Hostx64\x64;" +
-"C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64;" +
-"C:\Program Files\Git\cmd"
-$Env:INCLUDE =
-"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.43.34808\include;" +
-"C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared;" +
-"C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt;" +
-"C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um;" +
-"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include;" +
-"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\extras\CUPTI\include"
-$Env:LIB =
-"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.43.34808\lib\x64;" +
-"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\ucrt\x64;" +
-"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64"
-```
-* cibuildwheel needs the binaries in `C:\Windows\System32\`
-* If you want to build the C++ unit tests and don't set `TRITON_BUILD_UT=0`, then you need git
-
-Then you can either download some dependencies online, or set up an offline build: (When switching between online/offline build, remember to delete `CMakeCache.txt`)
-
-<details>
-<summary>Download dependencies online</summary>
-
-`setup.py` will download LLVM and JSON into the cache folder set by `TRITON_HOME` (by default `C:\Users\<your username>\.triton\`).
-
-If you're in China, make sure to have a good Internet connection.
-</details>
-
-<details>
-<summary>Offline build</summary>
-
-Enable offline build:
-```pwsh
-$Env:TRITON_OFFLINE_BUILD = "1"
-```
-
-Build LLVM using MSVC according to the instructions of the official Triton:
-```pwsh
-# Check out the commit according to cmake/llvm-hash.txt (Sadly, you need to rebuild LLVM every week if you want to keep up to date)
-cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="mlir;llvm" -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" -DLLVM_BUILD_TOOLS=OFF -DLLVM_CCACHE_BUILD=ON llvm
-cmake --build build -j 8 --config Release
-```
-* See https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
-* When cloning LLVM, use `git clone --filter=blob:none https://github.com/llvm/llvm-project.git`. You don't want to clone the whole history as it's too large
-* The official Triton enables `-DLLVM_ENABLE_ASSERTIONS=ON` when compiling LLVM, and this will increase the binary size of Triton
-* You may need to add the following compiler options to make MSVC happy, see https://reviews.llvm.org/D90116 and https://github.com/llvm/llvm-project/issues/65255:
-```diff
-diff --git a/llvm/CMakeLists.txt b/llvm/CMakeLists.txt
-index c06e661573ed..80b31843f45d 100644
---- a/llvm/CMakeLists.txt
-+++ b/llvm/CMakeLists.txt
-@@ -821,6 +821,8 @@ if(MSVC)
-   if (BUILD_SHARED_LIBS)
-     message(FATAL_ERROR "BUILD_SHARED_LIBS options is not supported on Windows.")
-   endif()
-+  add_compile_options("/utf-8")
-+  add_compile_options("/D_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING")
- else()
-   option(LLVM_LINK_LLVM_DYLIB "Link tools against the libllvm dynamic library" OFF)
-   option(LLVM_BUILD_LLVM_C_DYLIB "Build libllvm-c re-export library (Darwin only)" OFF)
-```
-
-Download JSON according to `setup.py`:
-* https://github.com/nlohmann/json/releases/download/v3.11.3/include.zip
-
-Set their paths:
-```pwsh
-$Env:LLVM_SYSPATH = "C:/llvm-project/build"
-$Env:JSON_SYSPATH = "C:/json"
-```
-(For triton <= 3.1, you also need to download pybind11 and set its path according to `setup.py`)
-</details>
-
-You can disable these if you don't need them: (`TRITON_BUILD_BINARY` is added in my fork)
-```pwsh
-$Env:TRITON_BUILD_BINARY = "0"
-$Env:TRITON_BUILD_PROTON = "0"
-$Env:TRITON_BUILD_UT = "0"
-```
-
-I recommend to use ccache if you installed it:
-```pwsh
-$Env:TRITON_BUILD_WITH_CCACHE = "1"
-```
-
-Clone this repo, checkout `v3.2.x-windows` branch (or `main-windows` branch if you need it), make an editable build using pip:
-```pwsh
-pip install --no-build-isolation --verbose -e python
-```
-
-Build the wheels: (This is for distributing the wheels to others. You don't need this if you only use Triton on your own computer)
-```pwsh
-$Env:CIBW_BUILD = "{cp39-win_amd64,cp310-win_amd64,cp311-win_amd64,cp312-win_amd64,cp313-win_amd64}"
-$Env:CIBW_BUILD_VERBOSITY = "1"
-$Env:TRITON_WHEEL_VERSION_SUFFIX = "+windows"
-cibuildwheel python
-```
-
-## Dev notes
-
-* To implement `dlopen`:
-    * For building the package, [dlfcn-win32](https://github.com/dlfcn-win32/dlfcn-win32) is added to `thirdparty/` and linked in CMake, so I don't need to rewrite it every time
-    * For jitting, in `third_party/nvidia/backend/driver.c` and `driver.py` it's rewritten with `LoadLibrary`
-* In `lib/Analysis/Utility.cpp` and `lib/Dialect/TritonGPU/Transforms/Utility.cpp`, explicit namespaces are added to support the resolution behaviors of MSVC (This is no longer needed in the main branch)
-* In `python/src/interpreter.cc` the GCC built-in `__ATOMIC` memory orders are replaced with `std::memory_order`, see https://github.com/triton-lang/triton/pull/4976
-* `python/triton/windows_utils.py` contains many ways to find the paths of Python, MSVC, Windows SDK, and CUDA
-* In `third_party/nvidia/backend/driver.py`, function `make_launcher`, `int64_t` should map to `L` in `PyArg_ParseTuple`. This fixes the error `Python int too large to convert to C long`. See https://github.com/triton-lang/triton/pull/5351
-* How TorchInductor is designed to support Windows: https://github.com/pytorch/pytorch/issues/124245
-
 ## Known issues
 
 ### Windows file path length limit (260) causes compilation failure
@@ -470,3 +355,7 @@ then you may use `--gpu-only` when launching ComfyUI to disable model offloading
 ### No module named 'triton.ops'
 
 `triton.ops` was removed in Triton 3.1, and this is because some of your Python package is outdated (most likely `bitsandbytes`). See https://github.com/woct0rdho/triton-windows/issues/65
+
+## Build from source
+
+See `BUILD.md`. This is for developers.
