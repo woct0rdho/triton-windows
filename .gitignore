@@ -54,8 +54,9 @@ nvdisasm
 ptxas
 
 # Third-party include
+third_party/nvidia/backend/bin
 third_party/nvidia/backend/include
-third_party/nvidia/backend/lib/cupti
+third_party/nvidia/backend/lib
 
 # Docs
 docs/_build/
