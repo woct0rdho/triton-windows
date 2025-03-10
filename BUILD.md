@@ -103,7 +103,7 @@ pip install --no-build-isolation --verbose -e python
 
 Build the wheels: (This is for distributing the wheels to others. You don't need this if you only use Triton on your own computer)
 ```pwsh
-git clean -dfX python/triton third_party
+git clean -dfX
 $Env:CIBW_BUILD = "{cp39-win_amd64,cp310-win_amd64,cp311-win_amd64,cp312-win_amd64,cp313-win_amd64}"
 $Env:CIBW_BUILD_VERBOSITY = "1"
 $Env:TRITON_WHEEL_VERSION_SUFFIX = "+windows"
