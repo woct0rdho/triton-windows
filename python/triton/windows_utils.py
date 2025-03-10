@@ -255,122 +255,119 @@ def find_python() -> list[str]:
     return []
 
 
-def find_cuda_bundled() -> tuple[Optional[str], list[str], list[str]]:
-    cuda_base_path = (
-        Path(sysconfig.get_paths()["platlib"]) / "triton" / "backends" / "nvidia"
-    )
-    if check_cuda_system_wide(cuda_base_path):
+def check_and_find_cuda(base_path: Path) -> tuple[Optional[str], list[str], list[str]]:
+    # pip
+    if all(
+        x.exists()
+        for x in [
+            base_path / "cuda_nvcc" / "bin" / "ptxas.exe",
+            base_path / "cuda_runtime" / "include" / "cuda.h",
+            base_path / "cuda_runtime" / "lib" / "x64" / "cuda.lib",
+        ]
+    ):
         return (
-            str(cuda_base_path / "bin"),
-            [str(cuda_base_path / "include")],
-            [str(cuda_base_path / "lib" / "x64")],
+            str(base_path / "cuda_nvcc" / "bin"),
+            [str(base_path / "cuda_runtime" / "include")],
+            [str(base_path / "cuda_runtime" / "lib" / "x64")],
+        )
+
+    # conda
+    if all(
+        x.exists()
+        for x in [
+            base_path / "bin" / "ptxas.exe",
+            base_path / "include" / "cuda.h",
+            base_path / "lib" / "cuda.lib",
+        ]
+    ):
+        return (
+            str(base_path / "bin"),
+            [str(base_path / "include")],
+            [str(base_path / "lib")],
+        )
+
+    # bundled or system-wide
+    if all(
+        x.exists()
+        for x in [
+            base_path / "bin" / "ptxas.exe",
+            base_path / "include" / "cuda.h",
+            base_path / "lib" / "x64" / "cuda.lib",
+        ]
+    ):
+        return (
+            str(base_path / "bin"),
+            [str(base_path / "include")],
+            [str(base_path / "lib" / "x64")],
         )
 
     return None, [], []
 
 
-def check_cuda_pip(nvidia_base_path: Path) -> bool:
-    return all(
-        x.exists()
-        for x in [
-            nvidia_base_path / "cuda_nvcc" / "bin" / "ptxas.exe",
-            nvidia_base_path / "cuda_runtime" / "include" / "cuda.h",
-            nvidia_base_path / "cuda_runtime" / "lib" / "x64" / "cuda.lib",
-        ]
-    )
-
-
-def find_cuda_pip() -> tuple[Optional[str], list[str], list[str]]:
-    nvidia_base_path = Path(sysconfig.get_paths()["platlib"]) / "nvidia"
-    if check_cuda_pip(nvidia_base_path):
-        return (
-            str(nvidia_base_path / "cuda_nvcc" / "bin"),
-            [str(nvidia_base_path / "cuda_runtime" / "include")],
-            [str(nvidia_base_path / "cuda_runtime" / "lib" / "x64")],
-        )
-
-    return None, [], []
-
-
-def check_cuda_conda(cuda_base_path: Path) -> bool:
-    return all(
-        x.exists()
-        for x in [
-            cuda_base_path / "bin" / "ptxas.exe",
-            cuda_base_path / "include" / "cuda.h",
-            cuda_base_path / "lib" / "cuda.lib",
-        ]
-    )
-
-
-def find_cuda_conda() -> tuple[Optional[str], list[str], list[str]]:
-    cuda_base_path = Path(sys.exec_prefix) / "Library"
-    if check_cuda_conda(cuda_base_path):
-        return (
-            str(cuda_base_path / "bin"),
-            [str(cuda_base_path / "include")],
-            [str(cuda_base_path / "lib")],
-        )
-
-    return None, [], []
-
-
-def check_cuda_system_wide(cuda_base_path: Path) -> bool:
-    return all(
-        x.exists()
-        for x in [
-            cuda_base_path / "bin" / "ptxas.exe",
-            cuda_base_path / "include" / "cuda.h",
-            cuda_base_path / "lib" / "x64" / "cuda.lib",
-        ]
-    )
-
-
-def find_cuda_env() -> Optional[Path]:
+def find_cuda_env() -> tuple[Optional[str], list[str], list[str]]:
     for cuda_base_path in ["CUDA_PATH", "CUDA_HOME"]:
         cuda_base_path = os.getenv(cuda_base_path)
         if cuda_base_path is None:
             continue
 
         cuda_base_path = Path(cuda_base_path)
-        if check_cuda_system_wide(cuda_base_path):
-            return cuda_base_path
+        cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = check_and_find_cuda(
+            cuda_base_path
+        )
+        if cuda_bin_path:
+            return cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs
 
-    return None
+    return None, [], []
 
 
-def find_cuda_hardcoded() -> Optional[Path]:
+def find_cuda_bundled() -> tuple[Optional[str], list[str], list[str]]:
+    cuda_base_path = (
+        Path(sysconfig.get_paths()["platlib"]) / "triton" / "backends" / "nvidia"
+    )
+    return check_and_find_cuda(cuda_base_path)
+
+
+def find_cuda_pip() -> tuple[Optional[str], list[str], list[str]]:
+    nvidia_base_path = Path(sysconfig.get_paths()["platlib"]) / "nvidia"
+    return check_and_find_cuda(nvidia_base_path)
+
+
+def find_cuda_conda() -> tuple[Optional[str], list[str], list[str]]:
+    cuda_base_path = Path(sys.exec_prefix) / "Library"
+    return check_and_find_cuda(cuda_base_path)
+
+
+def find_cuda_hardcoded() -> tuple[Optional[str], list[str], list[str]]:
     parent = find_in_program_files(r"NVIDIA GPU Computing Toolkit\CUDA")
     if parent is None:
-        return None
+        return None, [], []
 
     paths = glob(str(parent / "v12*"))
     # First try the highest version
     paths = sorted(paths)[::-1]
-    for path in paths:
-        cuda_base_path = Path(path)
-        if check_cuda_system_wide(cuda_base_path):
-            return cuda_base_path
+    for cuda_base_path in paths:
+        cuda_base_path = Path(cuda_base_path)
+        cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = check_and_find_cuda(
+            cuda_base_path
+        )
+        if cuda_bin_path:
+            return cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs
 
-    return None
+    return None, [], []
 
 
 @functools.cache
 def find_cuda() -> tuple[Optional[str], list[str], list[str]]:
-    for f in [find_cuda_bundled, find_cuda_pip, find_cuda_conda]:
+    for f in [
+        find_cuda_env,
+        find_cuda_bundled,
+        find_cuda_pip,
+        find_cuda_conda,
+        find_cuda_hardcoded,
+    ]:
         cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = f()
         if cuda_bin_path:
             return cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs
 
-    cuda_base_path = find_cuda_env()
-    if cuda_base_path is None:
-        cuda_base_path = find_cuda_hardcoded()
-    if cuda_base_path is None:
-        warnings.warn("Failed to find CUDA.")
-        return None, [], []
-
-    return (
-        str(cuda_base_path / "bin"),
-        [str(cuda_base_path / "include")],
-        [str(cuda_base_path / "lib" / "x64")],
-    )
+    warnings.warn("Failed to find CUDA.")
+    return None, [], []
