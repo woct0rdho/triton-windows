@@ -4,6 +4,7 @@ import re
 import subprocess
 import sys
 import sysconfig
+import warnings
 import winreg
 from collections.abc import Iterable
 from functools import partial
@@ -150,7 +151,7 @@ def find_msvc() -> tuple[list[str], list[str]]:
     if msvc_base_path is None:
         msvc_base_path, version = find_msvc_hardcoded()
     if msvc_base_path is None:
-        print("WARNING: Failed to find MSVC.")
+        warnings.warn("Failed to find MSVC.")
         return [], []
 
     return (
@@ -216,7 +217,7 @@ def find_winsdk() -> tuple[list[str], list[str]]:
     if winsdk_base_path is None:
         winsdk_base_path, version = find_winsdk_hardcoded()
     if winsdk_base_path is None:
-        print("WARNING: Failed to find Windows SDK.")
+        warnings.warn("Failed to find Windows SDK.")
         return [], []
 
     return (
@@ -250,7 +251,7 @@ def find_python() -> list[str]:
         if (python_lib_dir / "python3.lib").exists():
             return [str(python_lib_dir)]
 
-    print("WARNING: Failed to find Python libs.")
+    warnings.warn("Failed to find Python libs.")
     return []
 
 
@@ -365,7 +366,7 @@ def find_cuda() -> tuple[Optional[str], list[str], list[str]]:
     if cuda_base_path is None:
         cuda_base_path = find_cuda_hardcoded()
     if cuda_base_path is None:
-        print("WARNING: Failed to find CUDA.")
+        warnings.warn("Failed to find CUDA.")
         return None, [], []
 
     return (
