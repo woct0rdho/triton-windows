@@ -1,5 +1,7 @@
 ## Build from source
 
+MSVC v143 is required to build the package with LLVM from `oaitriton.blob.core.windows.net`. However, a binary built by a newer MSVC may not work with an older vcredist on the user's computer (see https://learn.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017?view=msvc-170#restrictions , which is a cause of `ImportError: DLL load failed while importing libtriton`). So the user needs to install the latest vcredist.
+
 Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA in PowerShell (help wanted to automatically find these in CMake, or using something equivalent to `vcvarsall.bat` in PowerShell):
 ```pwsh
 $Env:Path =
@@ -22,19 +24,22 @@ $Env:LIB =
 "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\ucrt\x64;" +
 "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64"
 ```
-* cibuildwheel needs the binaries in `C:\Windows\System32\`
-* If you want to build the C++ unit tests and don't set `TRITON_BUILD_UT=0`, then you need git
+* CUDA toolkit is only required when building LLVM in the offline build (`TRITON_OFFLINE_BUILD=1`)
+* git is only required when building C++ unit tests (`TRITON_BUILD_UT=1`)
+* cibuildwheel requires the binaries in `C:\Windows\System32\`
 
 Then you can either download some dependencies online, or set up an offline build: (When switching between online/offline build, remember to delete `CMakeCache.txt`)
 
 <details>
 <summary>Download dependencies online</summary>
 
-`setup.py` will download LLVM and JSON into the cache folder set by `TRITON_HOME` (by default `C:\Users\<your username>\.triton\`) and link against them.
+`setup.py` will download LLVM and JSON into the cache folder set by `TRITON_HOME` (by default `C:\Users\<your username>\.triton\`) and link against them. The LLVM is built by https://github.com/triton-lang/triton/blob/main/.github/workflows/llvm-build.yml
 
-A minimal CUDA toolchain (`ptxas.exe`, `cuda.h`, `cuda.lib`) will also be downloaded and bundled in the wheel.
+A minimal CUDA toolchain (`ptxas.exe`, `cuda.h`, `cuda.lib`) and TinyCC will be downloaded and bundled in the wheel.
 
 If you're in China, make sure to have a good Internet connection.
+
+(For Triton <= 3.1, the pre-built LLVM is not provided. You still need to build LLVM and set `LLVM_SYSPATH`. Other dependencies can be automatically downloaded.)
 </details>
 
 <details>
@@ -79,9 +84,9 @@ Set their paths:
 $Env:LLVM_SYSPATH = "C:/llvm-project/build"
 $Env:JSON_SYSPATH = "C:/json"
 ```
-(For triton <= 3.1, you also need to download pybind11 and set its path according to `setup.py`)
+(For Triton <= 3.1, you also need to download pybind11 and set `PYBIND11_SYSPATH` according to `setup.py`)
 
-The CUDA toolchain is not bundled by default in the offline build.
+The CUDA toolchain and TinyCC are not bundled by default in the offline build.
 </details>
 
 You can disable these if you don't need them: (`TRITON_BUILD_BINARY` is added in my fork)
@@ -103,12 +108,29 @@ pip install --no-build-isolation --verbose -e python
 
 Build the wheels: (This is for distributing the wheels to others. You don't need this if you only use Triton on your own computer)
 ```pwsh
-git clean -dfX python/triton third_party
+git clean -dfX
 $Env:CIBW_BUILD = "{cp39-win_amd64,cp310-win_amd64,cp311-win_amd64,cp312-win_amd64,cp313-win_amd64}"
 $Env:CIBW_BUILD_VERBOSITY = "1"
 $Env:TRITON_WHEEL_VERSION_SUFFIX = "+windows"
 cibuildwheel python
 ```
+
+## Set up GitHub Actions self-hosted runner
+
+GPU is not required to build the package, but is required to run the unit tests.
+
+1. Disable Windows Defender. This greatly reduces the time to run everything. See https://github.com/ionuttbara/windows-defender-remover
+2. Enable [Developer Mode](https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development#activate-developer-mode) of Windows. This allows the runner to create symlinks
+3. Install environments:
+    * Nvidia driver (if the machine has GPU. No need to install CUDA toolkit)
+    * [Visual Studio Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe) (MSVC, Windows SDK)
+    * Python (disable path length limit when installing)
+    * Git
+4. Install the runner: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners
+    * Create a tag for the runner, and change the value of `runs-on:` in the workflow yml to this tag
+    * Start the runner service after setting PATH of Python and Git
+
+Then build the wheel and run the unit tests using https://github.com/woct0rdho/triton-windows/blob/readme/.github/workflows/build-and-test-triton.yml
 
 ## Dev notes
 
