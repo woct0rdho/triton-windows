@@ -21,13 +21,13 @@ libraries = ['cuda']
 
 @functools.lru_cache()
 def libcuda_dirs():
-    if os.name == "nt":
-        _, _, cuda_lib_dirs = find_cuda()
-        return cuda_lib_dirs
-
     env_libcuda_path = os.getenv("TRITON_LIBCUDA_PATH")
     if env_libcuda_path:
         return [env_libcuda_path]
+
+    if os.name == "nt":
+        _, _, cuda_lib_dirs = find_cuda()
+        return cuda_lib_dirs
 
     libs = subprocess.check_output(["/sbin/ldconfig", "-p"]).decode()
     # each line looks like the following:
