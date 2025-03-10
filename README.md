@@ -187,7 +187,7 @@ pip install --pre triton-windows
 
 ## Test if it works
 
-Run the following script. You need to save the code in a file, such as `test_triton.py`, then run `python test_triton.py`.
+Before using Triton in larger projects like ComfyUI, please run the following script to test if Triton itself works. You need to save the code in a file, such as `test_triton.py`, then run `python test_triton.py`.
 ```python
 import torch
 import triton
