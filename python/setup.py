@@ -713,10 +713,10 @@ def get_git_version_suffix():
 
 
 setup(
-    name=os.environ.get("TRITON_WHEEL_NAME", "triton"),
+    name=os.environ.get("TRITON_WHEEL_NAME", "triton-windows"),
     version="3.3.1" + get_git_version_suffix() + os.environ.get("TRITON_WHEEL_VERSION_SUFFIX", ""),
-    author="Philippe Tillet",
-    author_email="phil@openai.com",
+    author="Philippe Tillet, Dian Wu",
+    author_email="phil@openai.com, woctordho@outlook.com",
     description="A language and compiler for custom Deep Learning operations",
     long_description="",
     install_requires=["setuptools>=40.8.0"],
@@ -737,7 +737,7 @@ setup(
     zip_safe=False,
     # for PyPI
     keywords=["Compiler", "Deep Learning"],
-    url="https://github.com/triton-lang/triton/",
+    url="https://github.com/woct0rdho/triton-windows",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
