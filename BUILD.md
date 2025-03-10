@@ -1,5 +1,7 @@
 ## Build from source
 
+MSVC v143 is required to build this package with LLVM from `oaitriton.blob.core.windows.net`. However, a binary built by a newer MSVC may not work with an older vcredist on the user's computer (see https://learn.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017?view=msvc-170#restrictions , which is a cause of `ImportError: DLL load failed while importing libtriton`). So the user needs to install the latest vcredist.
+
 Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA in PowerShell (help wanted to automatically find these in CMake, or using something equivalent to `vcvarsall.bat` in PowerShell):
 ```pwsh
 $Env:Path =
@@ -32,7 +34,7 @@ Then you can either download some dependencies online, or set up an offline buil
 
 `setup.py` will download LLVM and JSON into the cache folder set by `TRITON_HOME` (by default `C:\Users\<your username>\.triton\`) and link against them.
 
-A minimal CUDA toolchain (`ptxas.exe`, `cuda.h`, `cuda.lib`) will also be downloaded and bundled in the wheel.
+A minimal CUDA toolchain (`ptxas.exe`, `cuda.h`, `cuda.lib`) and TinyCC will be downloaded and bundled in the wheel.
 
 If you're in China, make sure to have a good Internet connection.
 </details>
@@ -103,7 +105,7 @@ pip install --no-build-isolation --verbose -e python
 
 Build the wheels: (This is for distributing the wheels to others. You don't need this if you only use Triton on your own computer)
 ```pwsh
-git clean -dfX python/triton third_party
+git clean -dfX
 $Env:CIBW_BUILD = "{cp39-win_amd64,cp310-win_amd64,cp311-win_amd64,cp312-win_amd64,cp313-win_amd64}"
 $Env:CIBW_BUILD_VERBOSITY = "1"
 $Env:TRITON_WHEEL_VERSION_SUFFIX = "+windows"
