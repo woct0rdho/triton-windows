@@ -254,6 +254,20 @@ def find_python() -> list[str]:
     return []
 
 
+def find_cuda_bundled() -> tuple[Optional[str], list[str], list[str]]:
+    cuda_base_path = (
+        Path(sysconfig.get_paths()["platlib"]) / "triton" / "backends" / "nvidia"
+    )
+    if check_cuda_system_wide(cuda_base_path):
+        return (
+            str(cuda_base_path / "bin"),
+            [str(cuda_base_path / "include")],
+            [str(cuda_base_path / "lib" / "x64")],
+        )
+
+    return None, [], []
+
+
 def check_cuda_pip(nvidia_base_path: Path) -> bool:
     return all(
         x.exists()
@@ -342,13 +356,10 @@ def find_cuda_hardcoded() -> Optional[Path]:
 
 @functools.cache
 def find_cuda() -> tuple[Optional[str], list[str], list[str]]:
-    cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = find_cuda_pip()
-    if cuda_bin_path:
-        return cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs
-
-    cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = find_cuda_conda()
-    if cuda_bin_path:
-        return cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs
+    for f in [find_cuda_bundled, find_cuda_pip, find_cuda_conda]:
+        cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = f()
+        if cuda_bin_path:
+            return cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs
 
     cuda_base_path = find_cuda_env()
     if cuda_base_path is None:
