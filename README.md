@@ -13,7 +13,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ## Progress
 
-**Announcement**: Since the release `post11`, the wheels are published to PyPI, and no longer to GitHub.
+**Announcement**: Since the release `triton-windows==3.2.0.post11`, the wheels are published to PyPI, and no longer to GitHub.
 
 * `triton.jit` and `torch.compile` just work
 * All unit tests passed
@@ -87,7 +87,7 @@ PyTorch tagged with CUDA 12 is required. CUDA 11 is not supported.
 
 ### 4. CUDA
 
-Since the release `post11`, CUDA is bundled in the Triton wheels, so you don't need to manually install it.
+Since the release `triton-windows==3.2.0.post11`, CUDA is bundled in the Triton wheels, so you don't need to manually install it.
 
 Triton 3.2 bundles CUDA 12.4, and Triton 3.3 bundles CUDA 12.8 . They should be compatible with other CUDA 12.x because of the [minor version compatibility](https://docs.nvidia.com/deploy/cuda-compatibility/) of CUDA. CUDA 11 and older versions are not supported.
 
