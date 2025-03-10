@@ -612,10 +612,10 @@ def get_install_requires():
 
 
 setup(
-    name=os.environ.get("TRITON_WHEEL_NAME", "triton"),
+    name=os.environ.get("TRITON_WHEEL_NAME", "triton-windows"),
     version="3.1.0" + os.environ.get("TRITON_WHEEL_VERSION_SUFFIX", ""),
-    author="Philippe Tillet",
-    author_email="phil@openai.com",
+    author="Philippe Tillet, Dian Wu",
+    author_email="phil@openai.com, woctordho@outlook.com",
     description="A language and compiler for custom Deep Learning operations",
     long_description="",
     packages=get_packages(),
@@ -636,7 +636,7 @@ setup(
     zip_safe=False,
     # for PyPI
     keywords=["Compiler", "Deep Learning"],
-    url="https://github.com/triton-lang/triton/",
+    url="https://github.com/woct0rdho/triton-windows",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
