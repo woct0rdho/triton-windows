@@ -231,9 +231,9 @@ Don't name the test script `triton.py`. Also, check if there is a folder named `
 
 This is because your `setuptools` is outdated. Run the following and try again:
 ```pwsh
-python -m ensurepip --upgrade
-python -m pip install --upgrade pip
-python -m pip install --upgrade setuptools
+python -m ensurepip -U
+python -m pip install -U pip
+python -m pip install -U setuptools
 ```
 
 ### ImportError: DLL load failed while importing libtriton
