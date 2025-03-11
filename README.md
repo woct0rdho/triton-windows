@@ -18,6 +18,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 * `triton.jit` and `torch.compile` just work
 * All unit tests passed
 * When I run Flux or HunyuanVideo in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
+* Windows 10 and 11 are supported
 * Only MSVC is supported, because it's much more stable than GCC and Clang when working with CUDA on Windows
 * Only Nvidia GPU is supported, help wanted to support other backends
     * For AMD GPU, you may try https://github.com/Repeerc/triton-amdgpu-windows
@@ -70,6 +71,7 @@ Check how your Python is installed. Either of the following environments is supp
 For other environment managers like poetry or uv, if you find problems, please open an issue.
 
 Make sure what environment you're using. You can run `Get-Command -All python` in PowerShell (or `where python` in cmd) to see the installation path of Python, and `python --version` to see its version. If you see multiple Python installations, make sure that you install and run everything from the first one.
+* For example, if you think you're using Python 3.12, but pip downloads a wheel with `cp311` in its name, then it means you're not using the Python environment you think
 
 Don't mix two environments, unless you know them very well.
 * If you're using ComfyUI with embeded Python, then don't use conda or venv
