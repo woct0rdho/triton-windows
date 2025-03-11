@@ -247,6 +247,11 @@ If you see this and there are `vcruntime140.dll` and `vcruntime140_1.dll` in the
 1. Install the latest version of vcredist from https://aka.ms/vs/17/release/vc_redist.x64.exe
 2. Copy-paste `msvcp140.dll`, `vcruntime140.dll`, and `vcruntime140_1.dll` from `C:\Windows\System32\` to the folder containing `python.exe`, and replace the existing DLLs
 
+If you're using conda, then you may try:
+```pwsh
+conda install -c conda-forge vc14_runtime
+```
+
 ### ImportError: DLL load failed while importing cuda_utils
 
 1. If these cache folders exist on your computer, delete them:
