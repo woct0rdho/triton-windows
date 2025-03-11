@@ -13,7 +13,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ## Progress
 
-**Announcement**: Since the release `triton-windows==3.2.0.post11`, the wheels are published to PyPI, and no longer to GitHub.
+**Announcement**: Since the release `triton-windows==3.2.0.post11`, the wheels are published to PyPI, and no longer to GitHub. You still need to manually install MSVC, and we're discussing with people from the ComfyUI community to try to figure out a simpler way to set up everything.
 
 * `triton.jit` and `torch.compile` just work
 * All unit tests passed
