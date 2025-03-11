@@ -60,11 +60,11 @@ This is not officially supported by Triton. It can run some simple AI models, bu
 ### 2. Python environment
 
 Check how your Python is installed. Either of the following environments is supported:
-* **System-wide**: You install Python at a location like `C:\Python312\` and directly use it
-* **User-wide**: You install Python at a location like `C:\Users\<your username>\AppData\Local\Programs\Python\Python312\` and directly use it
 * **Embeded**: You use an all-in-one package of ComfyUI (or some other AI software), and there is a folder `python_embeded` in it
     * In this case, don't directly run `python`, but use the full path `C:\path\to\python_embeded\python.exe`
     * Also, don't directly run `pip`, but instead run `C:\path\to\python_embeded\python.exe -m pip`
+* **System-wide**: You install Python at a location like `C:\Python312\` and directly use it
+* **User-wide**: You install Python at a location like `C:\Users\<your username>\AppData\Local\Programs\Python\Python312\` and directly use it
 * **conda**: You create a virtual environment using `conda`
 * **Python venv**: You create a virtual environment using `venv` or `virtualenv`
 
