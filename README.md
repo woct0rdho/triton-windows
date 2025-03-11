@@ -171,9 +171,13 @@ vcredist is required (also known as 'Visual C++ Redistributable for Visual Studi
 
 ### 7. Triton
 
-Now you can install the wheel:
+Now you can install the wheel, or upgrade the already installed version:
 ```pwsh
 pip install -U triton-windows
+```
+Note again that if you're using the embeded Python, then instead of directly run `pip`, you need:
+```pwsh
+C:\path\to\python_embeded\python.exe -m pip install -U triton-windows
 ```
 For Triton 3.3 (pre-release), you need:
 ```pwsh
