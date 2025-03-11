@@ -1,6 +1,6 @@
 ## Build from source
 
-As of the release `post12`, the wheels are built with MSVC v143 (the default version in VS 2022). However, I just learned that PyTorch is built with MSVC v142 (the default version in VS 2019), and a binary built with a newer MSVC may not work with an older vcredist (which is a cause of `ImportError: DLL load failed while importing libtriton`). In future it's better to be a bit more conservative and use MSVC v142. 
+As of the release `post12`, the wheels are built with MSVC v143 (the default version in VS 2022). However, I just learned that PyTorch is built with MSVC v142 (the default version in VS 2019), and a binary built with a newer MSVC may not work with an older vcredist on the user's computer (which is a cause of `ImportError: DLL load failed while importing libtriton`). In future it's better to be a bit more conservative and use MSVC v142. 
 
 Set the binary, include, and library paths of Python, MSVC, Windows SDK, and CUDA in PowerShell (help wanted to automatically find these in CMake, or using something equivalent to `vcvarsall.bat` in PowerShell):
 ```pwsh
