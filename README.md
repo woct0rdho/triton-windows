@@ -371,4 +371,4 @@ then you may use `--gpu-only` when launching ComfyUI to disable model offloading
 
 ## Build from source
 
-See `BUILD.md`. This is for developers.
+See [BUILD.md](https://github.com/woct0rdho/triton-windows/blob/readme/BUILD.md). This is for developers.
