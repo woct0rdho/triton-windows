@@ -182,7 +182,7 @@ pip install --pre triton-windows
 
 * There should be a folder `python_embeded` in your ComfyUI installation path
 * You need to put two folders `include` and `libs` into `python_embeded` to make Triton work
-    * Be careful: It is 'libs', not 'lib'. The folder `Lib` should already exist in `python_embeded`
+    * Be careful: It is 'libs', not 'lib'. There may already be a folder `Lib` in `python_embeded`, containing files like `__future__.py`
     * If you're using ComfyUI_windows_portable >= 0.2.4 with Python 3.12.7, you can download the two folders here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.12.7_include_libs.zip
     * If you're using another Python version, you can copy-paste them from a usual installation of Python with the same version
 
