@@ -173,11 +173,11 @@ vcredist is required (also known as 'Visual C++ Redistributable for Visual Studi
 
 Now you can install the wheel:
 ```pwsh
-pip install triton-windows
+pip install -U triton-windows
 ```
 For Triton 3.3 (pre-release), you need:
 ```pwsh
-pip install --pre triton-windows
+pip install -U --pre triton-windows
 ```
 
 ### 8. Special notes for ComfyUI with embeded Python
