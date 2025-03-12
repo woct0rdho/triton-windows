@@ -150,8 +150,7 @@ MSVC and Windows SDK are required.
 * You can install them in Visual Studio
     * If you don't want to install the whole Visual Studio, you can just install [Visual Studio Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe)
 * Visual Studio >= 2017 is supported
-* When installing Visual Studio, choose 'Desktop development with C++'. This gives you MSVC and Windows SDK
-* Any recent version of MSVC and Windows SDK in Visual Studio >= 2017 should work
+* Choose the latest version of MSVC and Windows SDK from the list
 
 Then you need to add the path containing `cl.exe` to the Windows `PATH`:
 * The path is like `C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.43.34808\bin\Hostx64\x64`
