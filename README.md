@@ -19,7 +19,8 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 * All unit tests passed
 * When I run Flux or HunyuanVideo in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
 * Windows 10 and 11 are supported
-* Only MSVC is supported, because it's much more stable than GCC and Clang when working with CUDA on Windows
+* Only MSVC is supported to build the package, because it's much more stable than GCC and Clang when working with CUDA on Windows
+* MSVC, GCC, and Clang are supported for JIT compilation on the user's computer. Help wanted to bundle a minimal C compiler in the wheels
 * Only Nvidia GPU is supported, help wanted to support other backends
     * For AMD GPU, you may try https://github.com/Repeerc/triton-amdgpu-windows
     * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton
@@ -147,7 +148,7 @@ For details about version compatibility of various pip packages and CUDA, see ht
 
 ### 5. MSVC and Windows SDK
 
-MSVC and Windows SDK are required.
+C compiler is required. If you don't have one, I recommend to install MSVC and Windows SDK.
 * You can install them in Visual Studio
     * If you don't want to install the whole Visual Studio, you can just install [Visual Studio Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe)
 * Visual Studio >= 2017 is supported
