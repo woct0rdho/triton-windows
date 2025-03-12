@@ -297,8 +297,8 @@ def download_and_copy(name, src_func, dst_path, variable, version, url_func):
     supported = {"Linux": "linux", "Darwin": "linux", "Windows": "windows"}
     url = url_func(supported[system], arch, version)
     src_path = src_func(supported[system], arch, version)
-    tmp_path = os.path.join(triton_cache_path, "nvidia", name)  # path to cache the download
-    dst_path = os.path.join(base_dir, os.pardir, "third_party", "nvidia", "backend", dst_path)  # final binary path
+    tmp_path = os.path.join(triton_cache_path, name)  # path to cache the download
+    dst_path = os.path.join(base_dir, os.pardir, dst_path)  # final binary path
     platform_name = "sbsa-linux" if arch == "aarch64" else "x86_64-linux"
     src_path = src_path(platform_name, version) if callable(src_path) else src_path
     src_path = os.path.join(tmp_path, src_path)
@@ -520,31 +520,40 @@ def get_platform_dependent_src_path(subdir):
 exe_extension = sysconfig.get_config_var("EXE")
 archive_extension = ".zip" if platform.system() == "Windows" else ".tar.xz"
 download_and_copy(
-    name="nvcc-" + NVIDIA_TOOLCHAIN_VERSION["ptxas"],
+    name="nvidia/nvcc-" + NVIDIA_TOOLCHAIN_VERSION["ptxas"],
     src_func=lambda system, arch, version: f"cuda_nvcc-{system}-{arch}-{version}-archive/bin/ptxas{exe_extension}",
-    dst_path=f"bin/ptxas{exe_extension}",
+    dst_path=f"third_party/nvidia/backend/bin/ptxas{exe_extension}",
     variable="TRITON_PTXAS_PATH",
     version=NVIDIA_TOOLCHAIN_VERSION["ptxas"],
     url_func=lambda system, arch, version:
     f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/{system}-{arch}/cuda_nvcc-{system}-{arch}-{version}-archive{archive_extension}",
 )
 download_and_copy(
-    name="cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
+    name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
     src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/include/cuda.h",
-    dst_path="include/cuda.h",
+    dst_path="third_party/nvidia/backend/include/cuda.h",
     variable="TRITON_CUDART_PATH",
     version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
     url_func=lambda system, arch, version:
     f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
 )
 download_and_copy(
-    name="cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
+    name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
     src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/lib/x64/cuda.lib",
-    dst_path="lib/x64/cuda.lib",
+    dst_path="third_party/nvidia/backend/lib/x64/cuda.lib",
     variable="TRITON_CUDART_PATH",
     version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
     url_func=lambda system, arch, version:
     f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
+)
+
+download_and_copy(
+    name="tcc",
+    src_func=lambda system, arch, version: ".",
+    dst_path="python/triton/runtime/tcc",
+    variable="TRITON_TCC_PATH",
+    version="",
+    url_func=lambda system, arch, version: "https://github.com/woct0rdho/triton-windows/releases/download/tcc/tcc.zip",
 )
 
 backends = [*BackendInstaller.copy(["nvidia", "amd"]), *BackendInstaller.copy_externals()]
@@ -617,9 +626,10 @@ class plugin_egginfo(egg_info):
 
 
 package_data = {
-    "triton/tools": ["compile.h", "compile.c"], **{f"triton/backends/{b.name}": b.package_data
-                                                   for b in backends}, "triton/language/extra": sum(
-        (b.language_package_data for b in backends), [])
+    "triton/runtime": [os.path.join(os.path.relpath(p, "triton/runtime"), "*") for p, _, _, in os.walk("triton/runtime/tcc")],
+    "triton/tools": ["compile.h", "compile.c"],
+    **{f"triton/backends/{b.name}": b.package_data for b in backends},
+    "triton/language/extra": sum((b.language_package_data for b in backends), []),
 }
 
 
