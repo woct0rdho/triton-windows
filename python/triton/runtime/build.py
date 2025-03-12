@@ -21,8 +21,13 @@ def quiet():
         sys.stdout, sys.stderr = old_stdout, old_stderr
 
 
+def is_msvc(cc):
+    cc = os.path.basename(cc).lower()
+    return cc == "cl" or cc == "cl.exe"
+
+
 def _cc_cmd(cc, src, out, include_dirs, library_dirs, libraries):
-    if cc.lower().endswith("cl") or cc.lower().endswith("cl.exe"):
+    if is_msvc(cc):
         out_base = os.path.splitext(out)[0]
         cc_cmd = [cc, src, "/nologo", "/O2", "/LD", "/wd4819"]
         cc_cmd += [f"/I{dir}" for dir in include_dirs if dir is not None]
@@ -47,14 +52,15 @@ def _build(name, src, srcdir, library_dirs, include_dirs, libraries):
     so = os.path.join(srcdir, '{name}{suffix}'.format(name=name, suffix=suffix))
     # try to avoid setuptools if possible
     cc = os.environ.get("CC")
+    # TODO: support more things here.
     if cc is None:
-        # TODO: support more things here.
-        cl = shutil.which("cl")
-        gcc = shutil.which("gcc")
-        clang = shutil.which("clang")
-        cc = cl if cl is not None else gcc if gcc is not None else clang
-        if cc is None:
-            raise RuntimeError("Failed to find C compiler. Please specify via CC environment variable.")
+        cc = shutil.which("cl")
+    if cc is None:
+        cc = shutil.which("gcc")
+    if cc is None:
+        cc = shutil.which("clang")
+    if cc is None:
+        raise RuntimeError("Failed to find C compiler. Please specify via CC environment variable.")
     # This function was renamed and made public in Python 3.10
     if hasattr(sysconfig, 'get_default_scheme'):
         scheme = sysconfig.get_default_scheme()
@@ -68,7 +74,11 @@ def _build(name, src, srcdir, library_dirs, include_dirs, libraries):
     include_dirs = include_dirs + [srcdir, py_include_dir]
     if os.name == "nt":
         library_dirs += find_python()
+    # Link against Python stable ABI
+    # libraries is modified in place
+    if "python3" not in libraries:
         libraries += ["python3"]
+    if is_msvc(cc):
         msvc_winsdk_inc_dirs, msvc_winsdk_lib_dirs = find_msvc_winsdk()
         include_dirs += msvc_winsdk_inc_dirs
         library_dirs += msvc_winsdk_lib_dirs
@@ -78,7 +88,7 @@ def _build(name, src, srcdir, library_dirs, include_dirs, libraries):
         return so
     # fallback on setuptools
     extra_compile_args = []
-    if cc.lower().endswith("cl") or cc.lower().endswith("cl.exe"):
+    if is_msvc(cc):
         extra_compile_args += ["/O2"]
     else:
         extra_compile_args += ["-O3"]
