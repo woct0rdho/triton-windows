@@ -15,10 +15,12 @@ from pathlib import Path
 
 @functools.lru_cache()
 def _path_to_binary(binary: str):
-    if os.name == "nt":
-        binary += ".exe"
     paths = [
         os.environ.get(f"TRITON_{binary.upper()}_PATH", ""),
+    ]
+    if os.name == "nt":
+        binary += ".exe"
+    paths += [
         os.path.join(os.path.dirname(__file__), "bin", binary),
     ]
     if os.name == "nt":
