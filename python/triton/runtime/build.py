@@ -21,6 +21,24 @@ def quiet():
         sys.stdout, sys.stderr = old_stdout, old_stderr
 
 
+def get_cc():
+    cc = os.environ.get("CC")
+    if cc is None:
+        # Bundled TinyCC
+        cc = os.path.join(sysconfig.get_paths()["platlib"], "triton", "runtime", "tcc", "tcc.exe")
+        if not os.path.exists(cc):
+            cc = None
+    if cc is None:
+        cc = shutil.which("cl")
+    if cc is None:
+        cc = shutil.which("gcc")
+    if cc is None:
+        cc = shutil.which("clang")
+    if cc is None:
+        raise RuntimeError("Failed to find C compiler. Please specify via CC environment variable.")
+    return cc
+
+
 def is_msvc(cc):
     cc = os.path.basename(cc).lower()
     return cc == "cl" or cc == "cl.exe"
@@ -51,16 +69,7 @@ def _build(name, src, srcdir, library_dirs, include_dirs, libraries):
     suffix = sysconfig.get_config_var('EXT_SUFFIX')
     so = os.path.join(srcdir, '{name}{suffix}'.format(name=name, suffix=suffix))
     # try to avoid setuptools if possible
-    cc = os.environ.get("CC")
-    # TODO: support more things here.
-    if cc is None:
-        cc = shutil.which("cl")
-    if cc is None:
-        cc = shutil.which("gcc")
-    if cc is None:
-        cc = shutil.which("clang")
-    if cc is None:
-        raise RuntimeError("Failed to find C compiler. Please specify via CC environment variable.")
+    cc = get_cc()
     # This function was renamed and made public in Python 3.10
     if hasattr(sysconfig, 'get_default_scheme'):
         scheme = sysconfig.get_default_scheme()
