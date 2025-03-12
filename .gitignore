@@ -52,6 +52,8 @@ third_party/nvidia/backend/bin
 third_party/nvidia/backend/include
 third_party/nvidia/backend/lib
 
+python/triton/runtime/tcc
+
 # Docs
 docs/_build/
 docs/python-api/generated/
