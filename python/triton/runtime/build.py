@@ -19,9 +19,14 @@ if os.name == "nt":
     from triton.windows_utils import find_msvc_winsdk, find_python
 
 
+def is_msvc(cc):
+    cc = os.path.basename(cc).lower()
+    return cc == "cl" or cc == "cl.exe"
+
+
 def _cc_cmd(cc: str, src: str, out: str, include_dirs: list[str], library_dirs: list[str], libraries: list[str],
             ccflags: list[str]) -> list[str]:
-    if cc.lower().endswith("cl") or cc.lower().endswith("cl.exe"):
+    if is_msvc(cc):
         out_base = os.path.splitext(out)[0]
         cc_cmd = [cc, src, "/nologo", "/O2", "/LD", "/wd4819"]
         cc_cmd += [f"/I{dir}" for dir in include_dirs if dir is not None]
@@ -50,19 +55,13 @@ def _build(name: str, src: str, srcdir: str, library_dirs: list[str], include_di
     so = os.path.join(srcdir, '{name}{suffix}'.format(name=name, suffix=suffix))
     cc = os.environ.get("CC")
     if cc is None:
-        # Users may not know how to add cl to PATH. Let's do it for them
-        if os.name == "nt":
-            msvc_winsdk_inc_dirs, _ = find_msvc_winsdk()
-            if msvc_winsdk_inc_dirs:
-                cl_path = msvc_winsdk_inc_dirs[0].replace(r"\include", r"\bin\Hostx64\x64")
-            os.environ["PATH"] = cl_path + os.pathsep + os.environ["PATH"]
-        cl = shutil.which("cl")
-        gcc = shutil.which("gcc")
-        clang = shutil.which("clang")
-        cc = cl if cl is not None else gcc if gcc is not None else clang
-        if cc is None:
-            raise RuntimeError(
-                "Failed to find C compiler. Please specify via CC environment variable or set triton.knobs.build.impl.")
+        cc = shutil.which("cl")
+    if cc is None:
+        cc = shutil.which("gcc")
+    if cc is None:
+        cc = shutil.which("clang")
+    if cc is None:
+        raise RuntimeError("Failed to find C compiler. Please specify via CC environment variable.")
     # This function was renamed and made public in Python 3.10
     if hasattr(sysconfig, 'get_default_scheme'):
         scheme = sysconfig.get_default_scheme()
@@ -77,6 +76,7 @@ def _build(name: str, src: str, srcdir: str, library_dirs: list[str], include_di
     include_dirs = include_dirs + [srcdir, py_include_dir, *custom_backend_dirs]
     if os.name == "nt":
         library_dirs += find_python()
+    if is_msvc(cc):
         msvc_winsdk_inc_dirs, msvc_winsdk_lib_dirs = find_msvc_winsdk()
         include_dirs += msvc_winsdk_inc_dirs
         library_dirs += msvc_winsdk_lib_dirs
