@@ -32,9 +32,11 @@ def min_dot_size(target: GPUTarget):
 
 @functools.lru_cache()
 def _path_to_binary(binary: str):
-    binary += sysconfig.get_config_var("EXE")
     paths = [
         os.environ.get(f"TRITON_{binary.upper()}_PATH", ""),
+    ]
+    binary += sysconfig.get_config_var("EXE")
+    paths += [
         os.path.join(os.path.dirname(__file__), "bin", binary),
     ]
     if os.name == "nt":
