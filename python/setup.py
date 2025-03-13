@@ -530,7 +530,6 @@ with open(nvidia_version_path, "r") as nvidia_version_file:
     # parse this json file to get the version of the nvidia toolchain
     NVIDIA_TOOLCHAIN_VERSION = json.load(nvidia_version_file)
 
-
 exe_extension = sysconfig.get_config_var("EXE")
 archive_extension = ".zip" if platform.system() == "Windows" else ".tar.xz"
 download_and_copy(
@@ -636,10 +635,17 @@ class plugin_egginfo(egg_info):
         egg_info.run(self)
 
 
+def get_tcc_package_data():
+    if not os.path.exists("triton/runtime/tcc"):
+        return []
+    return [os.path.join(os.path.relpath(p, "triton/runtime"), "*") for p, _, _, in os.walk("triton/runtime/tcc")]
+
+
 package_data = {
-    "triton/runtime": [os.path.join(os.path.relpath(p, "triton/runtime"), "*") for p, _, _, in os.walk("triton/runtime/tcc")],
+    "triton/runtime": get_tcc_package_data(),
     "triton/tools/extra": sum((b.tools_package_data for b in backends), []),
-    **{f"triton/backends/{b.name}": b.package_data for b in backends},
+    **{f"triton/backends/{b.name}": b.package_data
+       for b in backends},
     "triton/language/extra": sum((b.language_package_data for b in backends), []),
 }
 
