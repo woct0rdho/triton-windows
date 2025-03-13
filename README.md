@@ -315,6 +315,8 @@ with dlltracer.Trace(out=sys.stdout):
 ```
 * Open an issue and paste the results
 
+If it shows `PermissionError: [WinError 5] failed to start trace (0x00000005)`, then you need to make sure to run it as administrator
+
 If it shows `Failed \Device\...\cuda_utils.pyd`, please also:
 * Find `cuda_utils.pyd` at this location
 * Use [DependenciesGui](https://github.com/lucasg/Dependencies) (or similar tools) to check what DLLs this `cuda_utils.pyd` depends on, and send a screenshot (or other related information) in the issue
