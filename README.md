@@ -150,7 +150,7 @@ For details about version compatibility of various pip packages and CUDA, see ht
 
 Since the release `triton-windows==3.2.0.post13`, TinyCC is bundled in the Triton wheels, so you don't need to manually install a C compiler to use Triton. Packages that directly call `triton.jit`, such as SageAttention, will just work.
 
-You still need to install a C++ compiler if you use `torch.compile` targeting CPU. This may happen when you use nodes like 'CompileModel' in ComfyUI.
+You still need to install a C++ compiler if you use `torch.compile` targeting CPU. This may happen when you use nodes like 'CompileModel' in ComfyUI. Triton does not affect how PyTorch configures the C++ compiler in this case.
 
 If you need to override the C compiler, you can set the environment variable `CC`. MSVC, GCC, and Clang are supported for the JIT compilation.
 
