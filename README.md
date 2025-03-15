@@ -207,7 +207,9 @@ pip install -U --pre triton-windows
 
 ## Test if it works
 
-Before using Triton in larger projects like ComfyUI, please run the following script to test if Triton itself works. You need to save the code in a file, such as `test_triton.py`, then run `python test_triton.py`.
+Before using Triton in larger projects like ComfyUI, please run the following script to test if Triton itself works.
+* You need to save the code in a file, such as `test_triton.py`, then run `python test_triton.py`
+* When you open an issue, please show the command you use to run this test, and the full error log
 ```python
 import torch
 import triton
@@ -313,7 +315,7 @@ with dlltracer.Trace(out=sys.stdout):
     print(b_compiled - b)
     print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
 ```
-* Open an issue and paste the results
+* Open an issue. Please show the command you use to run this test, and the full error log
 
 If it shows `PermissionError: [WinError 5] failed to start trace (0x00000005)`, then you need to make sure to run it as administrator. (Triton and other usual Python code do not need the administrator privilege. dlltracer needs it.)
 
