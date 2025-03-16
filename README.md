@@ -26,7 +26,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 ## Installation
 
-Triton accelerates your AI model by compiling things on your computer. It's not a simple package that just works with `pip install`, and you need to set up the compiler and the libraries used by it. This may be  unfamiliar for Windows users, and you can follow the instructions below.
+Triton accelerates your AI model by compiling things on your computer. It's not a simple package that just works with `pip install`, and you need to install it in the correct environment.
 
 ### 1. GPU
 
