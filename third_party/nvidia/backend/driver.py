@@ -206,6 +206,8 @@ def make_launcher(constants, signature):
     src = f"""
 #include \"cuda.h\"
 #include <stdbool.h>
+#define PY_SSIZE_T_CLEAN
+#define Py_LIMITED_API 0x03090000
 #include <Python.h>
 
 #ifndef _WIN32
