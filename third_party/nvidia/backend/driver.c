@@ -9,6 +9,7 @@
 
 #include <stdbool.h>
 #define PY_SSIZE_T_CLEAN
+#define Py_LIMITED_API 0x03090000
 #include <Python.h>
 
 // Raises a Python exception and returns false if code is not CUDA_SUCCESS.
