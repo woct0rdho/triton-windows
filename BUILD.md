@@ -83,7 +83,7 @@ $Env:JSON_SYSPATH = "C:/json"
 ```
 (For triton <= 3.1, you also need to download pybind11 and set its path according to `setup.py`)
 
-The CUDA toolchain is not bundled by default in the offline build.
+The CUDA toolchain and TinyCC are not bundled by default in the offline build.
 </details>
 
 You can disable these if you don't need them: (`TRITON_BUILD_BINARY` is added in my fork)
