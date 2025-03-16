@@ -8,7 +8,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 
 * Free software should run on non-free platforms, as per Richard Stallman
 * This is required by `torch.compile`, and used by torchao, SageAttention, ParaAttention, and more packages
-* Memory management on WSL is hard
+* Memory/disk swap on WSL is hard
 * Catgirl matters
 
 ## Progress
@@ -24,7 +24,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
     * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton
 * TODO: Set up CI (help wanted)
 
-## Install from wheel
+## Installation
 
 Triton accelerates your AI model by compiling things on your computer. It's not a simple package that just works with `pip install`, and you need to set up the compiler and the libraries used by it. This may be  unfamiliar for Windows users, and you can follow the instructions below.
 
