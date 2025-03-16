@@ -268,12 +268,13 @@ conda install -c conda-forge vc14_runtime
 
 ### ImportError: DLL load failed while importing cuda_utils
 
-1. If these cache folders exist on your computer, delete them:
+1. Delete the cache folders:
     ```
     C:\Users\<your username>\.triton\cache\
     C:\Users\<your username>\AppData\Local\Temp\torchinductor_<your username>\
     ```
-    You may also need to delete these cache folders when you change the Python version, install another version of Triton, or change the C compiler or CUDA
+    * You may also need to delete these cache folders when you change the Python version, install another version of Triton, or change the C compiler or CUDA
+    * It's ok if these folders do not exist on your computer. The first folder exists only if you have used `triton.jit` (which is used by packages like SageAttention), and the second folder exists only if you have used `torch.compile`
 2. Double check your Python version: You can run `Get-Command -All python` in PowerShell (or `where python` in cmd) to see the installation path of Python, and `python --version` to see its version. If you see multiple Python installations, make sure that you install and run everything from the first one
 3. If you're using ComfyUI with embeded Python, make sure that you copy-pasted the folders `include` and `libs` from the correct version of Python
 
