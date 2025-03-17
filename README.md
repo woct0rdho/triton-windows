@@ -9,7 +9,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 ## Why?
 
 * Free software should run on non-free platforms, as per Richard Stallman
-* This is required by `torch.compile`, and used by torchao, SageAttention, ParaAttention, and more packages
+* This is required by `torch.compile`, and torchao, SageAttention, Unsloth, and more packages
 * Memory/disk swap on WSL is hard
 * Catgirl matters
 
