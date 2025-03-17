@@ -1,5 +1,7 @@
 # [Triton](https://github.com/triton-lang/triton) fork for Windows support
 
+**Announcement**: As of the release `triton-windows==3.2.0.post13`, C compiler and CUDA are bundled in the wheels. Please read the instructions below to understand how to install the wheel.
+
 See `v3.2.x-windows` branch for the code, forked from `release/3.2.x` branch of the official repo.
 
 Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionut](https://github.com/mantaionut/triton/tree/windows_support), [eaplatanios](https://github.com/eaplatanios/triton/tree/windows-fix), [anmyachev](https://github.com/triton-lang/triton/issues?q=author%3Aanmyachev), and more development in the community. Thank you all!
@@ -12,8 +14,6 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 * Catgirl matters
 
 ## Progress
-
-**Announcement**: As of the release `triton-windows==3.2.0.post13`, C compiler and CUDA are bundled in the wheels. Please read the instructions below to understand how to install the wheel.
 
 * `triton.jit` and `torch.compile` just work
 * All unit tests passed
