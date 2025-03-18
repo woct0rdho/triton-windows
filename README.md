@@ -318,7 +318,9 @@ with dlltracer.Trace(out=sys.stdout):
 ```
 * Open an issue. Please show the command you use to run this test, and the full error log
 
-If it shows `PermissionError: [WinError 5] failed to start trace (0x00000005)`, then you need to make sure to run it as administrator. (Triton and other usual Python code do not need the administrator privilege. dlltracer needs it.)
+If it shows `PermissionError: [WinError 5] failed to start trace (0x00000005)`, then you need to make sure to run it as administrator.
+
+(**Security reminder**: You don't need the administrator privilege to run Triton and other usual Python code. It's only dlltracer that needs it.)
 
 If it shows `Failed \Device\...\cuda_utils.pyd`, please also:
 * Find `cuda_utils.pyd` at this location
