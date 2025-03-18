@@ -203,7 +203,7 @@ pip install -U --pre triton-windows
     * Be careful: It is 'libs', not 'lib'. There may already be a folder `Lib` in `python_embeded`, containing things like `site-packages` or `__future__.py`. You should not modify the `Lib` folder
     * If you're using ComfyUI_windows_portable >= 0.2.4 with Python 3.12.7, you can download the two folders here: https://github.com/woct0rdho/triton-windows/releases/download/v3.0.0-windows.post1/python_3.12.7_include_libs.zip
     * If you're using another Python version, you can find the two folders at https://github.com/woct0rdho/triton-windows/releases/v3.0.0-windows.post1/
-* (For developers: This is equivalent to `python-dev` on Linux, and you can obtain the two folders from nuget when packaging the embeded Python with your app, see https://github.com/comfyanonymous/ComfyUI/pull/7200 )
+* (For developers: This is equivalent to `python-dev` on Linux, and you can obtain the two folders from nuget when bundling Python in your app, see https://github.com/comfyanonymous/ComfyUI/pull/7200 )
 
 ## Test if it works
 
