@@ -123,7 +123,15 @@ class FileCacheManager(CacheManager):
             f.write(data)
         # Replace is guaranteed to be atomic on POSIX systems if it succeeds
         # so filepath cannot see a partial write
-        os.replace(temp_path, filepath)
+        try:
+            os.replace(temp_path, filepath)
+        except PermissionError:
+            # Ignore PermissionError on Windows because it happens when another process already
+            # put a file into the cache and locked it by opening it.
+            if os.name == "nt":
+                os.remove(temp_path)
+            else:
+                raise
         return filepath
 
 
