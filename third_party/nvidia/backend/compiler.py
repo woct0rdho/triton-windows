@@ -296,11 +296,10 @@ class CUDABackend(BaseBackend):
     @staticmethod
     def make_cubin(src, metadata, opt, capability):
         ptxas, _ = _path_to_binary("ptxas")
-        # On Windows, we need to set delete=False, close the temp file before reading it, and manually remove it
         with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.ptx') as fsrc, \
             tempfile.NamedTemporaryFile(delete=False, mode='r', suffix='.log') as flog:
             fsrc.write(src)
-            fsrc.close()
+            fsrc.flush()
             fbin = fsrc.name + '.o'
 
             line_info = [] if os.environ.get('TRITON_DISABLE_LINE_INFO') else ['-lineinfo']
@@ -311,12 +310,10 @@ class CUDABackend(BaseBackend):
                 ptxas, *line_info, *fmad, '-v', *opt_level, f'--gpu-name=sm_{capability}{suffix}', fsrc.name, '-o', fbin
             ]
             try:
-                subprocess.run(ptxas_cmd, check=True, close_fds=False, stdout=flog, stderr=flog)
+                subprocess.run(ptxas_cmd, check=True, close_fds=True, stdout=flog, stderr=flog)
             except subprocess.CalledProcessError as e:
-                flog.close()
                 with open(flog.name) as log_file:
                     log = log_file.read()
-                try_remove(flog.name)
 
                 if e.returncode == 255:
                     raise RuntimeError(f'Internal Triton PTX codegen error: \n{log}')
@@ -325,15 +322,14 @@ class CUDABackend(BaseBackend):
                         f'Please run `ptxas {fsrc.name}` to confirm that this is a bug in `ptxas`\n{log}')
                 else:
                     raise RuntimeError(f'`ptxas` failed with error code {e.returncode}: \n{log}')
-            finally:
-                fsrc.close()
-                try_remove(fsrc.name)
-                flog.close()
-                try_remove(flog.name)
 
-            with open(fbin, 'rb') as f:
-                cubin = f.read()
-            try_remove(fbin)
+        with open(fbin, 'rb') as f:
+            cubin = f.read()
+        try_remove(fbin)
+
+        # It's better to remove the temp files outside the context managers
+        try_remove(fsrc.name)
+        try_remove(flog.name)
         return cubin
 
     def add_stages(self, stages, options):
