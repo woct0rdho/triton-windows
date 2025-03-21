@@ -183,7 +183,11 @@ vcredist is required (also known as 'Visual C++ Redistributable for Visual Studi
 
 ### 7. Triton
 
-Now you can install the wheel, or upgrade the already installed version:
+If you've installed an old version of `triton`, first uninstall it:
+```pwsh
+pip uninstall triton
+```
+Now you can install `triton-windows`, or upgrade the already installed version:
 ```pwsh
 pip install -U triton-windows
 ```
