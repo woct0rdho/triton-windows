@@ -435,7 +435,9 @@ class CUDABackend(BaseBackend):
             opt_level = ['--opt-level', '0'] if os.environ.get("DISABLE_PTXAS_OPT", "0") == "1" else []
             ptxas_cmd = [ptxas, *line_info, *fmad, '-v', *opt_level, f'--gpu-name={arch}', fsrc.name, '-o', fbin]
             try:
-                subprocess.run(ptxas_cmd, check=True, close_fds=True, stdout=flog, stderr=flog)
+                # close_fds=True on Windows and False on Linux, see https://github.com/triton-lang/triton/pull/4357
+                # On Windows, both stdout and stderr need to be redirected to flog
+                subprocess.run(ptxas_cmd, check=True, close_fds=True if os.name == 'nt' else False, stdout=flog, stderr=flog)
             except subprocess.CalledProcessError as e:
                 with open(flog.name) as log_file:
                     log = log_file.read()
