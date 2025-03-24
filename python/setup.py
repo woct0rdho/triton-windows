@@ -485,29 +485,29 @@ with open(nvidia_version_path, "r") as nvidia_version_file:
 exe_extension = sysconfig.get_config_var("EXE")
 archive_extension = ".zip" if platform.system() == "Windows" else ".tar.xz"
 download_and_copy(
-    name="nvidia/nvcc-" + NVIDIA_TOOLCHAIN_VERSION["ptxas"],
+    name="nvidia/nvcc-" + NVIDIA_TOOLCHAIN_VERSION,
     src_func=lambda system, arch, version: f"cuda_nvcc-{system}-{arch}-{version}-archive/bin/ptxas{exe_extension}",
     dst_path=f"third_party/nvidia/backend/bin/ptxas{exe_extension}",
     variable="TRITON_PTXAS_PATH",
-    version=NVIDIA_TOOLCHAIN_VERSION["ptxas"],
+    version=NVIDIA_TOOLCHAIN_VERSION,
     url_func=lambda system, arch, version:
     f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/{system}-{arch}/cuda_nvcc-{system}-{arch}-{version}-archive{archive_extension}",
 )
 download_and_copy(
-    name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
+    name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION,
     src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/include/cuda.h",
     dst_path="third_party/nvidia/backend/include/cuda.h",
     variable="TRITON_CUDART_PATH",
-    version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
+    version=NVIDIA_TOOLCHAIN_VERSION,
     url_func=lambda system, arch, version:
     f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
 )
 download_and_copy(
-    name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
+    name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION,
     src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/lib/x64/cuda.lib",
     dst_path="third_party/nvidia/backend/lib/x64/cuda.lib",
     variable="TRITON_CUDART_PATH",
-    version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
+    version=NVIDIA_TOOLCHAIN_VERSION,
     url_func=lambda system, arch, version:
     f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
 )
