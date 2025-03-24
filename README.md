@@ -22,7 +22,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 * Only Nvidia GPU is supported, help wanted to support other backends
     * For AMD GPU, you may try https://github.com/Repeerc/triton-amdgpu-windows
     * For Intel XPU, you may try https://github.com/intel/intel-xpu-backend-for-triton
-* TODO: Set up CI (help wanted, see https://github.com/pytorch/pytorch/blob/main/.github/workflows/build-triton-wheel.yml )
+* CI is running at https://github.com/Comfy-Org/wheels . Thanks Comfy Org for generously providing the CI runners! 
 
 ## Installation
 
