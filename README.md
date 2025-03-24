@@ -183,6 +183,8 @@ vcredist is required (also known as 'Visual C++ Redistributable for Visual Studi
 
 ### 7. Triton
 
+Since the release `triton-windows==3.2.0.post11`, the wheels are published to https://pypi.org/project/triton-windows/
+
 If you've installed an old version of `triton`, first uninstall it:
 ```pwsh
 pip uninstall triton
