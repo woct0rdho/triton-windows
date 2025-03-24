@@ -24,8 +24,9 @@ $Env:LIB =
 "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\ucrt\x64;" +
 "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64"
 ```
-* cibuildwheel needs the binaries in `C:\Windows\System32\`
-* If you want to build the C++ unit tests and don't set `TRITON_BUILD_UT=0`, then you need git
+* Offline build (`TRITON_OFFLINE_BUILD=1`) requires CUDA toolkit when building LLVM
+* C++ unit tests (`TRITON_BUILD_UT=1`) require git
+* cibuildwheel requires the binaries in `C:\Windows\System32\`
 
 Then you can either download some dependencies online, or set up an offline build: (When switching between online/offline build, remember to delete `CMakeCache.txt`)
 
