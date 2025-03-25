@@ -38,6 +38,8 @@ Then you can either download some dependencies online, or set up an offline buil
 A minimal CUDA toolchain (`ptxas.exe`, `cuda.h`, `cuda.lib`) and TinyCC will be downloaded and bundled in the wheel.
 
 If you're in China, make sure to have a good Internet connection.
+
+(For Triton <= 3.1, the pre-built LLVM is not provided. You still need to build LLVM and set `LLVM_SYSPATH`. Other dependencies can be automatically downloaded.)
 </details>
 
 <details>
@@ -82,7 +84,7 @@ Set their paths:
 $Env:LLVM_SYSPATH = "C:/llvm-project/build"
 $Env:JSON_SYSPATH = "C:/json"
 ```
-(For triton <= 3.1, you also need to download pybind11 and set its path according to `setup.py`)
+(For Triton <= 3.1, you also need to download pybind11 and set `PYBIND11_SYSPATH` according to `setup.py`)
 
 The CUDA toolchain and TinyCC are not bundled by default in the offline build.
 </details>
