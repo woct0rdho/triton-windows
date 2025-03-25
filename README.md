@@ -81,6 +81,8 @@ Don't mix two environments, unless you know them very well.
 
 Although technically Triton can be used alone, in the following let's assume you use it with PyTorch. Check your PyTorch version:
 
+Triton 3.1 works with PyTorch >= 2.4 . PyTorch 2.3 and older are not supported.
+
 Triton 3.2 works with PyTorch >= 2.6 . If you're using PyTorch < 2.6, I recommend to upgrade to 2.6 because there are several improvements to `torch.compile`.
 
 Triton 3.3 (pre-release) works with PyTorch >= 2.7 (nightly).
@@ -91,7 +93,7 @@ PyTorch tagged with CUDA 12 is required. CUDA 11 is not supported.
 
 Since the release `triton-windows==3.2.0.post11`, a minimal CUDA toolchain is bundled in the Triton wheels, so you don't need to manually install it.
 
-Triton 3.2 bundles CUDA 12.4, and Triton 3.3 bundles CUDA 12.8 . They should be compatible with other CUDA 12.x because of the [minor version compatibility](https://docs.nvidia.com/deploy/cuda-compatibility/) of CUDA. CUDA 11 and older versions are not supported.
+Triton 3.2 bundles CUDA 12.4, and Triton 3.3 bundles CUDA 12.8 . They should be compatible with other CUDA 12.x because of the [minor version compatibility](https://docs.nvidia.com/deploy/cuda-compatibility/) of CUDA. CUDA 11 and older are not supported.
 
 If you need to override the CUDA toolchain, you can set the environment variable `CUDA_PATH`.
 
@@ -196,6 +198,10 @@ pip install -U triton-windows
 Note again that if you're using the embeded Python, then instead of directly run `pip`, you need:
 ```pwsh
 C:\path\to\python_embeded\python.exe -m pip install -U triton-windows
+```
+For Triton 3.1, you need:
+```pwsh
+pip install -U 'triton-windows<3.2'
 ```
 For Triton 3.3 (pre-release), you need:
 ```pwsh
