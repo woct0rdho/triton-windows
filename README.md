@@ -64,7 +64,7 @@ Check how your Python is installed. Either of the following environments is supp
     * Also, don't directly run `pip`, but instead run `C:\path\to\python_embeded\python.exe -m pip`
     * By default there is no `pip.exe` in the folder `python_embeded`. If you directly run `pip`, you're actually running a `pip.exe` installed somewhere else on your computer
     * It's ok to first `cd` to `python_embeded`, then run `.\python.exe`, but remember to add `.\` to run an executable in the current folder. In PowerShell, without `.\`, you're still running a `python.exe` installed somewhere else on your computer
-* **System-wide**: You install Python at a location like `C:\Python312\` and directly use it
+* **System-wide**: You install Python at a location like `C:\Python312\` or `C:\Program Files\Python312\` and directly use it
 * **User-wide**: You install Python at a location like `C:\Users\<your username>\AppData\Local\Programs\Python\Python312\` and directly use it
 * **conda**: You create a virtual environment using `conda`
 * **Python venv**: You create a virtual environment using `venv` or `virtualenv`
