@@ -297,11 +297,10 @@ If the above still doesn't work, you may try:
 * Install [dlltracer](https://github.com/microsoft/dlltracer-python) in the same Python environment
 * In an administrator PowerShell, run the following script:
 ```python
-import torch
-
 import sys
 import dlltracer
 with dlltracer.Trace(out=sys.stdout):
+    import torch
     import triton
     import triton.language as tl
 
