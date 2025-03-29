@@ -306,10 +306,11 @@ with dlltracer.Trace(out=sys.stdout):
 with dlltracer.Trace(out=sys.stdout):
     print("import triton")
     import triton
-    import triton.language as tl
 
 with dlltracer.Trace(out=sys.stdout):
     print("begin definition")
+    import triton.language as tl
+
     @triton.jit
     def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
         pid = tl.program_id(axis=0)
@@ -328,11 +329,13 @@ with dlltracer.Trace(out=sys.stdout):
         add_kernel[grid](x, y, output, n_elements, BLOCK_SIZE=1024)
         return output
 
+with dlltracer.Trace(out=sys.stdout):
+    print("begin torch add")
     a = torch.rand(3, device="cuda")
     b = a + a
 
 with dlltracer.Trace(out=sys.stdout):
-    print("begin jit")
+    print("begin jit add")
     b_compiled = add(a, a)
 
 print(b_compiled - b)
