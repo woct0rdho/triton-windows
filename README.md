@@ -300,10 +300,16 @@ If the above still doesn't work, you may try:
 import sys
 import dlltracer
 with dlltracer.Trace(out=sys.stdout):
+    print("import torch")
     import torch
+
+with dlltracer.Trace(out=sys.stdout):
+    print("import triton")
     import triton
     import triton.language as tl
 
+with dlltracer.Trace(out=sys.stdout):
+    print("begin definition")
     @triton.jit
     def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
         pid = tl.program_id(axis=0)
@@ -324,9 +330,13 @@ with dlltracer.Trace(out=sys.stdout):
 
     a = torch.rand(3, device="cuda")
     b = a + a
+
+with dlltracer.Trace(out=sys.stdout):
+    print("begin jit")
     b_compiled = add(a, a)
-    print(b_compiled - b)
-    print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
+
+print(b_compiled - b)
+print("If you see tensor([0., 0., 0.], device='cuda:0'), then it works")
 ```
 * Open an issue. Please show the command you use to run this test, and the full error log
 
