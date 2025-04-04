@@ -425,7 +425,9 @@ def indirect_matmul_kernel(
     tl.store(Out_ptrs, acc)
 
 
-@pytest.mark.parametrize("BLOCK_M, BLOCK_N, BLOCK_K", [(128, 128, 128), (128, 128, 64), (128, 64, 128)])
+# Skip 128x128@128x128 because it's too large on GPU with max_shared_mem = 101376
+# @pytest.mark.parametrize("BLOCK_M, BLOCK_N, BLOCK_K", [(128, 128, 128), (128, 128, 64), (128, 64, 128)])
+@pytest.mark.parametrize("BLOCK_M, BLOCK_N, BLOCK_K", [(128, 128, 64), (128, 64, 128)])
 @pytest.mark.parametrize("num_stages", [1, 3, 5])
 def test_indirect_matmul(BLOCK_M, BLOCK_N, BLOCK_K, num_stages, device):
     if num_stages > 3 and is_hip():
