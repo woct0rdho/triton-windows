@@ -14,9 +14,13 @@ def device(request):
 
 @pytest.fixture
 def fresh_triton_cache():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        try:
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
             os.environ["TRITON_CACHE_DIR"] = tmpdir
             yield tmpdir
-        finally:
-            os.environ.pop("TRITON_CACHE_DIR", None)
+    except OSError:
+        # On Windows, the compiled binary may not be deleted when tmpdir cleans up,
+        # because it's still loaded by the Python process
+        pass
+    finally:
+        os.environ.pop("TRITON_CACHE_DIR", None)
