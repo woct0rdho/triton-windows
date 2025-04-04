@@ -5335,7 +5335,9 @@ mma_pairs = [
 ]
 
 
-@pytest.mark.parametrize("M, N", [[64, 1], [1, 64], [64, 64], [128, 128], [256, 256]])
+# Skip 256x256 because it's too large on GPU with max_shared_mem = 101376
+# @pytest.mark.parametrize("M, N", [[64, 1], [1, 64], [64, 64], [128, 128], [256, 256]])
+@pytest.mark.parametrize("M, N", [[64, 1], [1, 64], [64, 64], [128, 128]])
 @pytest.mark.parametrize("dtype", ['float16'])
 @pytest.mark.parametrize("mma_pair", mma_pairs)
 def test_convertmma2mma(M, N, mma_pair, dtype, device):
