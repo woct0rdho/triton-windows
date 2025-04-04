@@ -1,0 +1,91 @@
+name: Build Triton
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_tag:
+        description: Git tag
+        required: true
+        type: string
+        default: main-windows
+      triton_wheel_version_suffix:
+        description: Triton wheel version suffix
+        required: false
+        type: string
+      triton_build_binary:
+        description: Build binary executables
+        required: true
+        type: string
+        default: '0'
+      triton_build_proton:
+        description: Build Proton
+        required: true
+        type: string
+        default: '0'
+      triton_build_ut:
+        description: Build C++ unit tests
+        required: true
+        type: string
+        default: '0'
+      cibw_build_override:
+        description: CIBW_BUILD override
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  build-triton:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # - uses: Jimver/cuda-toolkit@v0.2.22
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build wheel
+        shell: powershell
+        run: |
+          # Get-ChildItem Env:
+          # (Get-WmiObject Win32_Processor).Name
+          # (Get-WmiObject Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1GB
+          # (Get-WmiObject Win32_VideoController).Name
+
+          # Get-Command -All python
+          # python --version
+          python -m pip install --upgrade pip
+          pip install --upgrade cibuildwheel
+
+          git config --global core.autocrlf false
+          git clone --branch ${{ inputs.git_tag }} --depth 1 https://github.com/woct0rdho/triton-windows.git
+          cd triton-windows
+          git rev-parse HEAD
+
+          $Env:TRITON_BUILD_BINARY = "${{ inputs.triton_build_binary }}"
+          $Env:TRITON_BUILD_PROTON = "${{ inputs.triton_build_proton }}"
+          $Env:TRITON_BUILD_UT = "${{ inputs.triton_build_ut }}"
+          $Env:TRITON_WHEEL_VERSION_SUFFIX = "${{ inputs.triton_wheel_version_suffix }}"
+          if ("${{ inputs.cibw_build_override }}")
+          {
+            $Env:CIBW_BUILD = "${{ inputs.cibw_build_override }}"
+          }
+          else
+          {
+            $Env:CIBW_BUILD = "cp3{10,11,12,13,14}-win_amd64"
+          }
+          $Env:CIBW_BUILD_VERBOSITY = "1"
+          $Env:CIBW_ENABLE = "cpython-freethreading"
+          if (Test-Path -Path setup.py)
+          {
+            cibuildwheel .
+          }
+          else
+          {
+            cibuildwheel python
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          path: triton-windows/wheelhouse/*
