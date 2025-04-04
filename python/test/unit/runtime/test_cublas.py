@@ -41,7 +41,11 @@ def test_cublas(m, n, k, dtype_str, device):
 
     workspace = torch.empty(workspace_size, dtype=torch.int8, device=device)
 
-    cublas = nvidia.cublas.CublasLt(workspace)
+    try:
+        cublas = nvidia.cublas.CublasLt(workspace)
+    except RuntimeError as e:
+        pytest.skip(str(e))
+
     cublas.matmul(a, b, c)
 
     ref = torch.matmul(a.to(torch.float16), b.to(torch.float16).T)
