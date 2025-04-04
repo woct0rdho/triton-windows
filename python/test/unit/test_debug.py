@@ -4,6 +4,10 @@ import torch
 import triton.language as tl
 import triton
 
+if os.name == "nt":
+    pytest.skip("Device-side assertions are disabled on Windows by default", allow_module_level=True)
+
+
 @pytest.mark.parametrize('cond, opt_flag, env_var', [
     (cond, opt_flag, env_var) for cond in [True, False] \
                               for opt_flag in [True, False] \
