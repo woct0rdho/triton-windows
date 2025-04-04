@@ -4,6 +4,10 @@ from contextlib import contextmanager
 import torch
 import triton
 import triton.language as tl
+import pytest
+
+if os.name == "nt":
+    pytest.skip("Device-side assertions are disabled on Windows by default", allow_module_level=True)
 
 
 @contextmanager
