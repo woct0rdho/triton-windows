@@ -17,12 +17,17 @@ def device(request):
 
 @pytest.fixture
 def fresh_triton_cache():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        from triton import knobs
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            from triton import knobs
 
-        with knobs.cache.scope(), knobs.runtime.scope():
-            knobs.cache.dir = tmpdir
-            yield tmpdir
+            with knobs.cache.scope(), knobs.runtime.scope():
+                knobs.cache.dir = tmpdir
+                yield tmpdir
+    except OSError:
+        # On Windows, the compiled binary may not be deleted when tmpdir cleans up,
+        # because it's still loaded by the Python process
+        pass
 
 
 @pytest.fixture
