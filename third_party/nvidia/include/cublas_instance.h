@@ -41,7 +41,11 @@ private:
       const cublasLtMatrixLayout_t, const cublasLtMatmulAlgo_t *, void *,
       size_t, cudaStream_t);
 
+#ifdef _WIN32
+  static constexpr const char *name = "cublasLt64_12.dll";
+#else
   static constexpr const char *name = "libcublas.so";
+#endif
 
   cublasLtCreate_t cublasLtCreate;
   cublasLtDestroy_t cublasLtDestroy;
