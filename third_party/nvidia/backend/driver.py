@@ -69,6 +69,10 @@ def compile_module_from_src(src, name):
             so = _build(name, src_path, tmpdir, library_dirs(), include_dir, libraries)
             with open(so, "rb") as f:
                 cache_path = cache.put(f.read(), so_name, binary=True)
+
+    # Loading module with relative path may cause error
+    cache_path = os.path.abspath(cache_path)
+
     import importlib.util
     spec = importlib.util.spec_from_file_location(name, cache_path)
     mod = importlib.util.module_from_spec(spec)
