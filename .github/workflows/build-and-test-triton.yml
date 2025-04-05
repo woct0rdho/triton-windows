@@ -70,6 +70,7 @@ jobs:
           $Env:TRITON_BUILD_UT = "0"
           $Env:CIBW_BUILD = "{cp3${{ inputs.python_minor }}-win_amd64,}"
           $Env:CIBW_BUILD_VERBOSITY = "1"
+          $Env:CIBW_ENABLE = "cpython-freethreading"
           rm wheelhouse/*
           cibuildwheel python
 
