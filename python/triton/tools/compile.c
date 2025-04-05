@@ -64,4 +64,5 @@ CUresult {kernel_name}(CUstream stream, {signature}) {{
     // TODO: shared memory
     if(gX * gY * gZ > 0)
       return cuLaunchKernel({kernel_name}_func, gX, gY, gZ, {num_warps} * 32, 1, 1, {shared}, stream, args, NULL);
+    return (CUresult)NULL;
 }}
