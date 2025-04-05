@@ -1,3 +1,5 @@
+from typing import Union
+
 import pytest
 import torch
 
@@ -20,7 +22,7 @@ def create_tma_desc_gmem_ptr(ptr, dims, block_dims, element_size):
     return cpu_desc.cuda()
 
 
-def unwrap_tensor(t: torch.Tensor | triton.runtime.jit.TensorWrapper):
+def unwrap_tensor(t: Union[torch.Tensor, triton.runtime.jit.TensorWrapper]):
     if isinstance(t, triton.runtime.jit.TensorWrapper):
         return t.base
     return t
