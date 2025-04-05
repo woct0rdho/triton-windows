@@ -98,6 +98,8 @@ def platform_key() -> str:
 
 
 def _load_module_from_path(name: str, path: str) -> ModuleType:
+    # Loading module with relative path may cause error
+    path = os.path.abspath(path)
     spec = importlib.util.spec_from_file_location(name, path)
     if not spec or not spec.loader:
         raise RuntimeError(f"Failed to load newly compiled {name} from {path}")
