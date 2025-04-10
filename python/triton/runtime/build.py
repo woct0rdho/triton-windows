@@ -1,3 +1,4 @@
+import functools
 import sysconfig
 import os
 import shutil
@@ -7,8 +8,12 @@ if os.name == "nt":
     from triton.windows_utils import find_msvc_winsdk, find_python
 
 
+@functools.cache
 def get_cc():
     cc = os.environ.get("CC")
+    if cc is None:
+        # Find and check MSVC and Windows SDK from environment variables set by Launch-VsDevShell.ps1 or VsDevCmd.bat
+        cc, _, _ = find_msvc_winsdk(env_only=True)
     if cc is None:
         # Bundled TinyCC
         cc = os.path.join(sysconfig.get_paths()["platlib"], "triton", "runtime", "tcc", "tcc.exe")
@@ -75,7 +80,7 @@ def _build(name, src, srcdir, library_dirs, include_dirs, libraries):
     if "python3" not in libraries:
         libraries += ["python3"]
     if is_msvc(cc):
-        msvc_winsdk_inc_dirs, msvc_winsdk_lib_dirs = find_msvc_winsdk()
+        _, msvc_winsdk_inc_dirs, msvc_winsdk_lib_dirs = find_msvc_winsdk()
         include_dirs += msvc_winsdk_inc_dirs
         library_dirs += msvc_winsdk_lib_dirs
     cc_cmd = _cc_cmd(cc, src, so, include_dirs, library_dirs, libraries)

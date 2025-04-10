@@ -57,10 +57,29 @@ def check_msvc(msvc_base_path: Path, version: str) -> bool:
     return all(
         x.exists()
         for x in [
+            msvc_base_path / version / "bin" / "Hostx64" / "x64" / "cl.exe",
             msvc_base_path / version / "include" / "vcruntime.h",
             msvc_base_path / version / "lib" / "x64" / "vcruntime.lib",
         ]
     )
+
+
+def find_msvc_env() -> tuple[Optional[Path], Optional[str]]:
+    msvc_base_path = os.getenv("VCINSTALLDIR")
+    if msvc_base_path is None:
+        return None, None
+    msvc_base_path = Path(msvc_base_path) / "Tools" / "MSVC"
+
+    version = os.getenv("VCToolsVersion")
+    if not check_msvc(msvc_base_path, version):
+        warnings.warn(
+            f"Environment variables VCINSTALLDIR = {os.getenv('VCINSTALLDIR')}, "
+            f"VCToolsVersion = {os.getenv('VCToolsVersion')} are set, "
+            "but this MSVC installation is incomplete."
+        )
+        return None, None
+
+    return msvc_base_path, version
 
 
 def find_msvc_vswhere() -> tuple[Optional[Path], Optional[str]]:
@@ -144,20 +163,28 @@ def find_msvc_hardcoded() -> tuple[Optional[Path], Optional[str]]:
     return None, None
 
 
-def find_msvc() -> tuple[list[str], list[str]]:
-    msvc_base_path, version = find_msvc_vswhere()
-    if msvc_base_path is None:
-        msvc_base_path, version = find_msvc_envpath()
-    if msvc_base_path is None:
-        msvc_base_path, version = find_msvc_hardcoded()
-    if msvc_base_path is None:
-        warnings.warn("Failed to find MSVC.")
-        return [], []
+def find_msvc(env_only: bool) -> tuple[Optional[str], list[str], list[str]]:
+    if env_only:
+        fs = [find_msvc_env]
+    else:
+        fs = [
+            find_msvc_env,
+            find_msvc_vswhere,
+            find_msvc_envpath,
+            find_msvc_hardcoded,
+        ]
+    for f in fs:
+        msvc_base_path, version = f()
+        if msvc_base_path:
+            return (
+                str(msvc_base_path / version / "bin" / "Hostx64" / "x64" / "cl.exe"),
+                [str(msvc_base_path / version / "include")],
+                [str(msvc_base_path / version / "lib" / "x64")],
+            )
 
-    return (
-        [str(msvc_base_path / version / "include")],
-        [str(msvc_base_path / version / "lib" / "x64")],
-    )
+    if not env_only:
+        warnings.warn("Failed to find MSVC.")
+    return None, [], []
 
 
 def check_winsdk(winsdk_base_path: Path, version: str) -> bool:
@@ -168,6 +195,26 @@ def check_winsdk(winsdk_base_path: Path, version: str) -> bool:
             winsdk_base_path / "Lib" / version / "ucrt" / "x64" / "ucrt.lib",
         ]
     )
+
+
+def find_winsdk_env() -> tuple[Optional[Path], Optional[str]]:
+    winsdk_base_path = os.getenv("WindowsSdkDir")
+    if winsdk_base_path is None:
+        return None, None
+    winsdk_base_path = Path(winsdk_base_path)
+
+    version = os.getenv("WindowsSDKVersion")
+    if version:
+        version = version.rstrip("\\")
+    if not check_winsdk(winsdk_base_path, version):
+        warnings.warn(
+            f"Environment variables WindowsSdkDir = {os.getenv('WindowsSdkDir')}, "
+            f"WindowsSDKVersion = {os.getenv('WindowsSDKVersion')} are set, "
+            "but this Windows SDK installation is incomplete."
+        )
+        return None, None
+
+    return winsdk_base_path, version
 
 
 def find_winsdk_registry() -> tuple[Optional[Path], Optional[str]]:
@@ -212,32 +259,46 @@ def find_winsdk_hardcoded() -> tuple[Optional[Path], Optional[str]]:
     return winsdk_base_path, version
 
 
-def find_winsdk() -> tuple[list[str], list[str]]:
-    winsdk_base_path, version = find_winsdk_registry()
-    if winsdk_base_path is None:
-        winsdk_base_path, version = find_winsdk_hardcoded()
-    if winsdk_base_path is None:
-        warnings.warn("Failed to find Windows SDK.")
-        return [], []
+def find_winsdk(env_only: bool) -> tuple[list[str], list[str]]:
+    if env_only:
+        fs = [find_winsdk_env]
+    else:
+        fs = [
+            find_winsdk_env,
+            find_winsdk_registry,
+            find_winsdk_hardcoded,
+        ]
+    for f in fs:
+        winsdk_base_path, version = f()
+        if winsdk_base_path:
+            return (
+                [
+                    str(winsdk_base_path / "Include" / version / "shared"),
+                    str(winsdk_base_path / "Include" / version / "ucrt"),
+                    str(winsdk_base_path / "Include" / version / "um"),
+                ],
+                [
+                    str(winsdk_base_path / "Lib" / version / "ucrt" / "x64"),
+                    str(winsdk_base_path / "Lib" / version / "um" / "x64"),
+                ],
+            )
 
-    return (
-        [
-            str(winsdk_base_path / "Include" / version / "shared"),
-            str(winsdk_base_path / "Include" / version / "ucrt"),
-            str(winsdk_base_path / "Include" / version / "um"),
-        ],
-        [
-            str(winsdk_base_path / "Lib" / version / "ucrt" / "x64"),
-            str(winsdk_base_path / "Lib" / version / "um" / "x64"),
-        ],
-    )
+    if not env_only:
+        warnings.warn("Failed to find Windows SDK.")
+    return [], []
 
 
 @functools.cache
-def find_msvc_winsdk() -> tuple[list[str], list[str]]:
-    msvc_inc_dirs, msvc_lib_dirs = find_msvc()
-    winsdk_inc_dirs, winsdk_lib_dirs = find_winsdk()
-    return msvc_inc_dirs + winsdk_inc_dirs, msvc_lib_dirs + winsdk_lib_dirs
+def find_msvc_winsdk(
+    env_only: bool = False,
+) -> tuple[Optional[str], list[str], list[str]]:
+    msvc_bin_path, msvc_inc_dirs, msvc_lib_dirs = find_msvc(env_only)
+    winsdk_inc_dirs, winsdk_lib_dirs = find_winsdk(env_only)
+    return (
+        msvc_bin_path,
+        msvc_inc_dirs + winsdk_inc_dirs,
+        msvc_lib_dirs + winsdk_lib_dirs,
+    )
 
 
 @functools.cache
