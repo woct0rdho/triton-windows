@@ -528,24 +528,71 @@ download_and_copy(
     url_func=lambda system, arch, version:
     f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/{system}-{arch}/cuda_nvcc-{system}-{arch}-{version}-archive{archive_extension}",
 )
-download_and_copy(
-    name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
-    src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/include/cuda.h",
-    dst_path="third_party/nvidia/backend/include/cuda.h",
-    variable="TRITON_CUDART_PATH",
-    version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
-    url_func=lambda system, arch, version:
-    f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
-)
-download_and_copy(
-    name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
-    src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/lib/x64/cuda.lib",
-    dst_path="third_party/nvidia/backend/lib/x64/cuda.lib",
-    variable="TRITON_CUDART_PATH",
-    version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
-    url_func=lambda system, arch, version:
-    f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
-)
+if check_env_flag("TRITON_BUILD_PROTON", "ON"):  # Default ON
+    download_and_copy(
+        name="nvidia/nvcc-" + NVIDIA_TOOLCHAIN_VERSION["cudacrt"],
+        src_func=lambda system, arch, version: f"cuda_nvcc-{system}-{arch}-{version}-archive/include",
+        dst_path="third_party/nvidia/backend/include",
+        variable="TRITON_CUDACRT_PATH",
+        version=NVIDIA_TOOLCHAIN_VERSION["cudacrt"],
+        url_func=lambda system, arch, version:
+        f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/{system}-{arch}/cuda_nvcc-{system}-{arch}-{version}-archive{archive_extension}",
+    )
+    download_and_copy(
+        name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
+        src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/include",
+        dst_path="third_party/nvidia/backend/include",
+        variable="TRITON_CUDART_PATH",
+        version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
+        url_func=lambda system, arch, version:
+        f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
+    )
+    download_and_copy(
+        name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
+        src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/lib",
+        dst_path="third_party/nvidia/backend/lib",
+        variable="TRITON_CUDART_PATH",
+        version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
+        url_func=lambda system, arch, version:
+        f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
+    )
+    download_and_copy(
+        name="nvidia/cupti-" + NVIDIA_TOOLCHAIN_VERSION["cupti"],
+        src_func=lambda system, arch, version: f"cuda_cupti-{system}-{arch}-{version}-archive/include",
+        dst_path="third_party/nvidia/backend/include",
+        variable="TRITON_CUPTI_INCLUDE_PATH",
+        version=NVIDIA_TOOLCHAIN_VERSION["cupti"],
+        url_func=lambda system, arch, version:
+        f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cupti/{system}-{arch}/cuda_cupti-{system}-{arch}-{version}-archive{archive_extension}",
+    )
+    download_and_copy(
+        name="nvidia/cupti-" + NVIDIA_TOOLCHAIN_VERSION["cupti"],
+        src_func=lambda system, arch, version: f"cuda_cupti-{system}-{arch}-{version}-archive/lib",
+        dst_path="third_party/nvidia/backend/lib/cupti",
+        variable="TRITON_CUPTI_LIB_PATH",
+        version=NVIDIA_TOOLCHAIN_VERSION["cupti"],
+        url_func=lambda system, arch, version:
+        f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cupti/{system}-{arch}/cuda_cupti-{system}-{arch}-{version}-archive{archive_extension}",
+    )
+else:
+    download_and_copy(
+        name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
+        src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/include/cuda.h",
+        dst_path="third_party/nvidia/backend/include/cuda.h",
+        variable="TRITON_CUDART_PATH",
+        version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
+        url_func=lambda system, arch, version:
+        f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
+    )
+    download_and_copy(
+        name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
+        src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/lib/x64/cuda.lib",
+        dst_path="third_party/nvidia/backend/lib/x64/cuda.lib",
+        variable="TRITON_CUDART_PATH",
+        version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
+        url_func=lambda system, arch, version:
+        f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
+    )
 
 download_and_copy(
     name="tcc",
