@@ -95,7 +95,13 @@ def _build(name: str, src: str, srcdir: str, library_dirs: list[str], include_di
         include_dirs += msvc_winsdk_inc_dirs
         library_dirs += msvc_winsdk_lib_dirs
     cc_cmd = _cc_cmd(cc, src, so, include_dirs, library_dirs, libraries, ccflags)
-    subprocess.check_call(cc_cmd, stdout=subprocess.DEVNULL)
+
+    try:
+        ret = subprocess.check_call(cc_cmd)
+    except Exception as e:
+        print("Failed to compile. cc_cmd:", cc_cmd)
+        raise e
+
     return so
 
 
