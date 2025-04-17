@@ -15,9 +15,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 project(triton)
 include(CTest)
 
-if(NOT WIN32)
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-endif()
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 
 
