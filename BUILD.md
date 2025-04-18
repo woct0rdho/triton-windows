@@ -53,7 +53,7 @@ $Env:TRITON_OFFLINE_BUILD = "1"
 Build LLVM using MSVC according to the instructions of the official Triton:
 ```pwsh
 # Check out the commit according to cmake/llvm-hash.txt (Sadly, you need to rebuild LLVM every week if you want to keep up to date)
-cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="mlir;llvm" -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" -DLLVM_BUILD_TOOLS=OFF -DLLVM_CCACHE_BUILD=ON llvm
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="mlir;llvm" -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" -DLLVM_BUILD_TOOLS=OFF -DLLVM_CCACHE_BUILD=ON -DLLVM_ENABLE_DIA_SDK=OFF llvm
 cmake --build build -j 8 --config Release
 ```
 * See https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
