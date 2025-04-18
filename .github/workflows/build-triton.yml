@@ -12,12 +12,19 @@ on:
         description: Triton wheel version suffix
         required: false
         type: string
+      triton_build_all:
+        description: Build all components
+        required: true
+        type: string
+        default: '0'
 
 jobs:
   build-triton:
     runs-on: windows-latest
     steps:
       - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       # - uses: Jimver/cuda-toolkit@v0.2.22
 
@@ -36,13 +43,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install --upgrade cibuildwheel
 
+          git config --global core.autocrlf false
           git clone --branch ${{ inputs.git_tag }} --depth 1 https://github.com/woct0rdho/triton-windows.git
           cd triton-windows
           git rev-parse HEAD
 
-          $Env:TRITON_BUILD_BINARY = "0"
-          $Env:TRITON_BUILD_PROTON = "0"
-          $Env:TRITON_BUILD_UT = "0"
+          if (${{ inputs.triton_build_all }} -eq "0")
+          {
+            $Env:TRITON_BUILD_BINARY = "0"
+            $Env:TRITON_BUILD_PROTON = "0"
+            $Env:TRITON_BUILD_UT = "0"
+          }
           $Env:TRITON_WHEEL_VERSION_SUFFIX = "${{ inputs.triton_wheel_version_suffix }}"
           $Env:CIBW_BUILD = "{cp39-win_amd64,cp310-win_amd64,cp311-win_amd64,cp312-win_amd64,cp313-win_amd64}"
           $Env:CIBW_BUILD_VERBOSITY = "1"
