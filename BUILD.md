@@ -56,7 +56,7 @@ Build LLVM using MSVC according to the instructions of the official Triton:
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="mlir;llvm" -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" -DLLVM_BUILD_TOOLS=OFF -DLLVM_CCACHE_BUILD=ON -DLLVM_ENABLE_DIA_SDK=OFF llvm
 cmake --build build -j 8 --config Release
 ```
-* See https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm
+* See https://github.com/triton-lang/triton?tab=readme-ov-file#building-with-a-custom-llvm and https://github.com/triton-lang/triton/blob/main/.github/workflows/llvm-build.yml
 * When cloning LLVM, use `git clone --filter=blob:none https://github.com/llvm/llvm-project.git`. You don't want to clone the whole history as it's too large
 * The official Triton enables `-DLLVM_ENABLE_ASSERTIONS=ON` when compiling LLVM, and this will increase the binary size of Triton
 * You may need to add the following compiler options to make MSVC happy, see https://reviews.llvm.org/D90116 and https://github.com/llvm/llvm-project/issues/65255:
