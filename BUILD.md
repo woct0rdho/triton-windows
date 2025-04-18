@@ -89,7 +89,7 @@ $Env:JSON_SYSPATH = "C:/json"
 The CUDA toolchain and TinyCC are not bundled by default in the offline build.
 </details>
 
-You can disable these if you don't need them: (`TRITON_BUILD_BINARY` is added in my fork)
+You can disable these if you don't need them: (`TRITON_BUILD_BINARY` is added in my fork. It can be enabled only if `TRITON_BUILD_UT` is enabled)
 ```pwsh
 $Env:TRITON_BUILD_BINARY = "0"
 $Env:TRITON_BUILD_PROTON = "0"
