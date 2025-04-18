@@ -199,13 +199,13 @@ If you've installed an old version of `triton`, first uninstall it:
 ```pwsh
 pip uninstall triton
 ```
-Now you can install `triton-windows`, or upgrade the already installed version:
+Now you can install `triton-windows` 3.2, or upgrade the already installed version. Because a higher version of Triton does not work with your PyTorch, you need to limit the version to be < 3.3:
 ```pwsh
-pip install -U triton-windows
+pip install -U 'triton-windows<3.3'
 ```
 Note again that if you're using the embeded Python, then instead of directly run `pip`, you need:
 ```pwsh
-C:\path\to\python_embeded\python.exe -m pip install -U triton-windows
+C:\path\to\python_embeded\python.exe -m pip install -U 'triton-windows<3.3'
 ```
 For Triton 3.1, you need:
 ```pwsh
@@ -213,7 +213,7 @@ pip install -U 'triton-windows<3.2'
 ```
 For Triton 3.3 (pre-release), you need:
 ```pwsh
-pip install -U --pre triton-windows
+pip install -U --pre 'triton-windows<3.4'
 ```
 
 ### 8. Special notes for ComfyUI with embeded Python
