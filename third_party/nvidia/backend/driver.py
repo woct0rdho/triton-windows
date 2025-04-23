@@ -181,6 +181,7 @@ def make_launcher(constants, signature, ids):
     else:
         params_decl = "void **params = NULL;"
     src = f"""
+#define _CRT_SECURE_NO_WARNINGS
 #include \"cuda.h\"
 #include <stdbool.h>
 #define PY_SSIZE_T_CLEAN
