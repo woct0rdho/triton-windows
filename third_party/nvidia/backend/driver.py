@@ -270,6 +270,7 @@ def make_launcher(constants, signature, tensordesc_meta):
     params.append("&global_scratch")
     params.append("&profile_scratch")
     src = f"""
+#define _CRT_SECURE_NO_WARNINGS
 #include \"cuda.h\"
 
 #ifndef _WIN32
