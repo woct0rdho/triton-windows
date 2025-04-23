@@ -262,6 +262,7 @@ def make_launcher(constants, signature, tensordesc_meta):
     params = [f"&arg{i}" for i, ty in signature.items() if ty != "constexpr"]
     params.append("&global_scratch")
     src = f"""
+#define _CRT_SECURE_NO_WARNINGS
 #include \"cuda.h\"
 #include <stdbool.h>
 #include <Python.h>
