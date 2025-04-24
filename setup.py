@@ -787,6 +787,18 @@ def get_entry_points():
     return entry_points
 
 
+def get_tcc_package_data():
+    if not os.path.exists("python/triton/runtime/tcc"):
+        return []
+    return [
+        os.path.join(os.path.relpath(p, "python/triton/runtime"), "*")
+        for p, _, _, in os.walk("python/triton/runtime/tcc")
+    ]
+
+
+package_data = {"triton.runtime": get_tcc_package_data()}
+
+
 def get_git_commit_hash(length=8):
     try:
         cmd = ['git', 'rev-parse', f'--short={length}', 'HEAD']
@@ -854,6 +866,7 @@ setup(
     packages=list(get_packages()),
     package_dir=dict(get_package_dirs()),
     entry_points=get_entry_points(),
+    package_data=package_data,
     include_package_data=True,
     ext_modules=[CMakeExtension("triton", "triton/_C/")],
     cmdclass={
