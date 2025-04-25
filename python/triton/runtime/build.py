@@ -41,6 +41,11 @@ def get_cc():
     return cc
 
 
+def is_tcc(cc):
+    cc = os.path.basename(cc).lower()
+    return cc == "tcc" or cc == "tcc.exe"
+
+
 def is_msvc(cc):
     cc = os.path.basename(cc).lower()
     return cc == "cl" or cc == "cl.exe"
@@ -70,6 +75,8 @@ def _cc_cmd(cc: str, src: str, out: str, include_dirs: list[str], library_dirs: 
         if not (os.name == "nt" and is_clang(cc)):
             # Clang does not support -fPIC on Windows
             cc_cmd += ["-fPIC"]
+        if is_tcc(cc):
+            cc_cmd += ["-D_Py_USE_GCC_BUILTIN_ATOMICS"]
         cc_cmd += [f'-l{lib}' for lib in libraries]
         cc_cmd += [f"-L{dir}" for dir in library_dirs]
         cc_cmd += [f"-I{dir}" for dir in include_dirs if dir is not None]
