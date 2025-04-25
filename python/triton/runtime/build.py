@@ -94,6 +94,10 @@ def _build(name: str, src: str, srcdir: str, library_dirs: list[str], include_di
     include_dirs = include_dirs + [srcdir, py_include_dir, *custom_backend_dirs]
     if os.name == "nt":
         library_dirs += find_python()
+        version = sysconfig.get_python_version().replace(".", "")
+        if sysconfig.get_config_var("Py_GIL_DISABLED"):
+            version += "t"
+        libraries += [f"python{version}"]
     if is_msvc(cc):
         _, msvc_winsdk_inc_dirs, msvc_winsdk_lib_dirs = find_msvc_winsdk()
         include_dirs += msvc_winsdk_inc_dirs
