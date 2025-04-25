@@ -304,6 +304,8 @@ def find_msvc_winsdk(
 @functools.lru_cache
 def find_python() -> list[str]:
     version = sysconfig.get_python_version().replace(".", "")
+    if sysconfig.get_config_var("Py_GIL_DISABLED"):
+        version += "t"
     for python_base_path in [
         sys.exec_prefix,
         sys.base_exec_prefix,
