@@ -183,18 +183,34 @@ class NvidiaTool:
             return None
 
 
+def find_nvidia_tool(binary: str) -> str:
+    path = os.path.join(
+        os.path.dirname(__file__),
+        "backends",
+        "nvidia",
+        "bin",
+        binary,
+    )
+    if os.access(path, os.X_OK):
+        return path
+
+    if os.name == "nt":
+        from triton.windows_utils import find_cuda
+        cuda_bin_path, _, _ = find_cuda()
+        if cuda_bin_path:
+            path = os.path.join(cuda_bin_path, binary)
+            if os.access(path, os.X_OK):
+                return path
+
+    return ""
+
+
 class env_nvidia_tool(env_base[str, NvidiaTool]):
 
     def __init__(self, binary: str) -> None:
         binary += sysconfig.get_config_var("EXE")
         self.binary = binary
-        super().__init__(f"TRITON_{binary.upper()}_PATH", lambda: os.path.join(
-            os.path.dirname(__file__),
-            "backends",
-            "nvidia",
-            "bin",
-            self.binary,
-        ))
+        super().__init__(f"TRITON_{binary.upper()}_PATH", lambda: find_nvidia_tool(self.binary))
 
     def transform(self, path: str) -> NvidiaTool:
         paths = [
