@@ -329,6 +329,10 @@ You can right-click the DLL -> Properties -> Details to see its version. A new e
 2. Double check your Python version: You can run `Get-Command -All python` in PowerShell (or `where python` in cmd) to see the installation path of Python, and `python --version` to see its version. If you see multiple Python installations, make sure that you install and run everything from the first one
 3. If you're using ComfyUI with embeded Python, make sure that you copy-pasted the folders `include` and `libs` from the correct version of Python
 
+### `SystemError: PY_SSIZE_T_CLEAN macro must be defined for '#' formats`
+
+You also need to delete the cache folders above.
+
 ### dlltracer
 
 If the above still doesn't work, you may try:
