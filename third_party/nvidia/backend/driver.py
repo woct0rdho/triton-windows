@@ -427,6 +427,7 @@ static PyObject* launch(PyObject* self, PyObject* args) {{
     Py_DECREF(args);
     if (!ret)
       return NULL;
+    Py_DECREF(ret);
   }}
 
   // raise exception asap
@@ -445,7 +446,7 @@ static PyObject* launch(PyObject* self, PyObject* args) {{
     Py_DECREF(args);
     if (!ret)
       return NULL;
-
+    Py_DECREF(ret);
   }}
 
   // return None
