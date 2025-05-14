@@ -414,11 +414,15 @@ If it shows `Failed \Device\...\cuda_utils.pyd`, please also:
          ^^^^^^^^^^^^^^^^^^^^^
 torch._inductor.exc.InductorError: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\<your username>\\AppData\\Local\\Temp\\torchinductor_<your username>\\triton\\0\\...LONG...FILE...NAME...'
 ```
+Or errors like:
+```
+[WinError 206] The filename or extension is too long
+```
 The solution is to [enable Windows' long path support](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry#enable-long-paths-in-windows-10-version-1607-and-later). A reboot is required after the modification.
 
 ### fp8 is not supported on RTX 30xx and older GPUs
 
-If you see error messages like
+If you see errors like
 ```
 torch._dynamo.exc.BackendCompilerFailed: backend='inductor' raised:
 CompilationError: at 8:11:
@@ -442,7 +446,7 @@ This is not Windows-specific. It should be possible to emulate fp8 on older hard
 
 ### Error with `os.rename`
 
-If you see error messages like
+If you see errors like
 ```
 FileExistsError: [WinError 183] Cannot create a file when that file already exists: ...
 ```
