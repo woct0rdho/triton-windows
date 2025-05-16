@@ -178,7 +178,7 @@ Then you need to add the path containing `cl.exe` to the Windows `PATH`:
 
 Before running Python, if you use PowerShell, run the following: (Find the ps1 file according to your installation)
 ```pwsh
-&'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\Launch-VsDevShell.ps1' -Arch amd64
+&"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
 ```
 Or if you use cmd, run the following: (This is equivalent to 'x64 Native Tools Command Prompt' from the Start menu)
 ```cmd
@@ -201,15 +201,15 @@ pip uninstall triton
 ```
 Now you can install `triton-windows` 3.3, or upgrade the already installed version. To prevent breaking with your installed PyTorch when a new version of Triton is released in future, you can limit the version to be < 3.4:
 ```pwsh
-pip install -U 'triton-windows<3.4'
+pip install -U "triton-windows<3.4"
 ```
 Note again that if you're using the embeded Python, then instead of directly run `pip`, you need:
 ```pwsh
-C:\path\to\python_embeded\python.exe -m pip install -U 'triton-windows<3.4'
+C:\path\to\python_embeded\python.exe -m pip install -U "triton-windows<3.4"
 ```
 For Triton 3.2, you need:
 ```pwsh
-pip install -U 'triton-windows<3.3'
+pip install -U "triton-windows<3.3"
 ```
 
 ### 8. Special notes for ComfyUI with embeded Python
@@ -300,7 +300,7 @@ If you're not using conda, then you need to find the vcredist DLLs (`vcruntime14
 <details>
 <summary>Embeded Python (You use an all-in-one package of ComfyUI or some other AI software)</summary>
 
-The DLLs should be in the folder `python_embeded`.
+* For ComfyUI, the DLLs should be in the folder `python_embeded`.
 * For FramePack, it's `system\python` in the FramePack installation folder
 * Other AI software may put this folder at a different path
 </details>
