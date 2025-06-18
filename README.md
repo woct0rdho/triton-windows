@@ -68,6 +68,8 @@ Check how your Python is installed. Either of the following environments is supp
 * **conda**: You create a virtual environment using `conda`
 * **Python venv**: You create a virtual environment using `venv` or `virtualenv`
 
+I don't recommend installing Python from Windows Store.
+
 For other environment managers like poetry or uv, if you find problems, please open an issue.
 
 Make sure what environment you're using. You can run `Get-Command -All python` in PowerShell (or `where python` in cmd) to see the installation path of Python, and `python --version` to see its version. If you see multiple Python installations, make sure that you install and run everything from the first one.
