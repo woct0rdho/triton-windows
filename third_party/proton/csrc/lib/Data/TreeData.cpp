@@ -283,7 +283,7 @@ void TreeData::doDump(std::ostream &os, OutputFormat outputFormat) const {
   if (outputFormat == OutputFormat::Hatchet) {
     dumpHatchet(os);
   } else {
-    std::logic_error("OutputFormat not supported");
+    throw std::logic_error("OutputFormat not supported");
   }
 }
 
