@@ -10,7 +10,12 @@ namespace cupti {
 #define TOSTRING(x) STRINGIFY(x)
 struct ExternLibCupti : public ExternLibBase {
   using RetType = CUptiResult;
+#ifdef _WIN32
+  // On Windows, each version of CUPTI has a specific DLL name. Remember to update this with `nvidia-toolchain-version.json`.
+  static constexpr const char *name = "cupti64_2024.1.0.dll";
+#else
   static constexpr const char *name = "libcupti.so";
+#endif
 #ifdef CUPTI_LIB_DIR
   static constexpr const char *defaultDir = TOSTRING(CUPTI_LIB_DIR);
 #else
