@@ -426,11 +426,14 @@ static inline DevicePtrInfo getPointer(PyObject *obj, int idx) {{
     if (!PyLong_Check(ret)) {{
       PyErr_SetString(PyExc_TypeError, "data_ptr method of Pointer object must return 64-bit int");
       ptr_info.valid = false;
+      Py_DECREF(ret);
       return ptr_info;
     }}
     ptr_info.dev_ptr = (hipDeviceptr_t)PyLong_AsUnsignedLongLong(ret);
-    if(!ptr_info.dev_ptr)
+    if(!ptr_info.dev_ptr) {{
+      Py_DECREF(ret);
       return ptr_info;
+    }}
     uint64_t dev_ptr;
     hipError_t status = hipSymbolTable.hipPointerGetAttribute(&dev_ptr, HIP_POINTER_ATTRIBUTE_DEVICE_POINTER, ptr_info.dev_ptr);
     if (status == hipErrorInvalidValue) {{
