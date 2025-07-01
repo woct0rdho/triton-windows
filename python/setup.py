@@ -562,8 +562,8 @@ if check_env_flag("TRITON_BUILD_PROTON", "ON"):  # Default ON
     )
     download_and_copy(
         name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
-        src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/lib",
-        dst_path="third_party/nvidia/backend/lib",
+        src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/lib/x64/cuda.lib",
+        dst_path="third_party/nvidia/backend/lib/x64/cuda.lib",
         variable="TRITON_CUDART_PATH",
         version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
         url_func=lambda system, arch, version:
@@ -580,8 +580,9 @@ if check_env_flag("TRITON_BUILD_PROTON", "ON"):  # Default ON
     )
     download_and_copy(
         name="nvidia/cupti-" + NVIDIA_TOOLCHAIN_VERSION["cupti"],
-        src_func=lambda system, arch, version: f"cuda_cupti-{system}-{arch}-{version}-archive/lib",
-        dst_path="third_party/nvidia/backend/lib/cupti",
+        # On Windows, each version of CUPTI has a specific DLL name. Remember to update this with `nvidia-toolchain-version.json`.
+        src_func=lambda system, arch, version: f"cuda_cupti-{system}-{arch}-{version}-archive/lib/cupti64_2025.1.0.dll",
+        dst_path="third_party/nvidia/backend/lib/cupti/cupti64_2025.1.0.dll",
         variable="TRITON_CUPTI_LIB_PATH",
         version=NVIDIA_TOOLCHAIN_VERSION["cupti"],
         url_func=lambda system, arch, version:
