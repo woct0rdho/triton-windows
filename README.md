@@ -49,7 +49,7 @@ This is officially supported by Triton, but fp8 (also known as float8) will not 
 <details>
 <summary>RTX 20xx (Turing) or older</summary>
 
-This is not officially supported by Triton. It can run some simple AI models, but not always. fp8 (also known as float8) and bf16 (also known as bfloat16) will not work. I recommend to use GGUF instead of fp8 or bf16 models in this case.
+This is not officially supported by Triton. It can run some simple AI models, but not always. Things started to break on RTX 20xx since Triton 3.3, so I recommend to use Triton 3.2 . fp8 (also known as float8) and bf16 (also known as bfloat16) will not work, so I recommend to use GGUF instead of fp8 or bf16 models in this case.
 </details>
 
 ### 2. Python environment
