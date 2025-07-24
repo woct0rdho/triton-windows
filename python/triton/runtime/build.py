@@ -98,17 +98,18 @@ def _build(name: str, src: str, srcdir: str, library_dirs: list[str], include_di
         scheme = 'posix_prefix'
     py_include_dir = sysconfig.get_paths(scheme=scheme)["include"]
     custom_backend_dirs = knobs.build.backend_dirs
+    # Don't append in place
     include_dirs = include_dirs + [srcdir, py_include_dir, *custom_backend_dirs]
     if os.name == "nt":
-        library_dirs += find_python()
+        library_dirs = library_dirs + find_python()
         version = sysconfig.get_python_version().replace(".", "")
         if sysconfig.get_config_var("Py_GIL_DISABLED"):
             version += "t"
-        libraries += [f"python{version}"]
+        libraries = libraries + [f"python{version}"]
     if is_msvc(cc):
         _, msvc_winsdk_inc_dirs, msvc_winsdk_lib_dirs = find_msvc_winsdk()
-        include_dirs += msvc_winsdk_inc_dirs
-        library_dirs += msvc_winsdk_lib_dirs
+        include_dirs = include_dirs + msvc_winsdk_inc_dirs
+        library_dirs = library_dirs + msvc_winsdk_lib_dirs
     cc_cmd = _cc_cmd(cc, src, so, include_dirs, library_dirs, libraries, ccflags)
 
     try:
