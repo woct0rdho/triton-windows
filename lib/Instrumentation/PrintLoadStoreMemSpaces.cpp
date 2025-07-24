@@ -97,6 +97,10 @@ static PassPluginLibraryInfo getPassPluginInfo() {
           callback};
 };
 
+#ifdef _WIN32
+extern "C" __declspec(dllexport) PassPluginLibraryInfo llvmGetPassPluginInfo() {
+#else
 extern "C" LLVM_ATTRIBUTE_WEAK PassPluginLibraryInfo llvmGetPassPluginInfo() {
+#endif
   return getPassPluginInfo();
 }
