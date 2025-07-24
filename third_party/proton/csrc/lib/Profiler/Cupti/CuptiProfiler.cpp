@@ -229,7 +229,11 @@ struct CuptiProfiler::CuptiProfilerPimpl
 void CuptiProfiler::CuptiProfilerPimpl::allocBuffer(uint8_t **buffer,
                                                     size_t *bufferSize,
                                                     size_t *maxNumRecords) {
-  *buffer = static_cast<uint8_t *>(_aligned_malloc(AlignSize, BufferSize));
+#ifdef _WIN32
+  *buffer = static_cast<uint8_t *>(_aligned_malloc(BufferSize, AlignSize));
+#else
+  *buffer = static_cast<uint8_t *>(aligned_alloc(AlignSize, BufferSize));
+#endif
   if (*buffer == nullptr) {
     throw std::runtime_error("[PROTON] aligned_alloc failed");
   }
@@ -261,7 +265,11 @@ void CuptiProfiler::CuptiProfilerPimpl::completeBuffer(CUcontext ctx,
     }
   } while (true);
 
+#ifdef _WIN32
+  _aligned_free(buffer);
+#else
   std::free(buffer);
+#endif
 
   profiler.correlation.complete(maxCorrelationId);
 }
