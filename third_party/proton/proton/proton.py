@@ -49,8 +49,12 @@ def execute_as_main(script, args, instrumentation_pass=None):
     top_level_triton_path = os.path.dirname(triton.__file__)
 
     if instrumentation_pass == "print-mem-spaces":
+        if os.name == "nt":
+            lib_name = "PrintLoadStoreMemSpaces.dll"
+        else:
+            lib_name = "libPrintLoadStoreMemSpaces.so"
         instrumentation_pass_path = str(
-            next(pathlib.Path(top_level_triton_path).rglob("libPrintLoadStoreMemSpaces.so"), None))
+            next(pathlib.Path(top_level_triton_path).rglob(lib_name), None))
         os.environ['TRITON_ALWAYS_COMPILE'] = "1"
         os.environ['TRITON_DISABLE_LINE_INFO'] = "0"
         os.environ['LLVM_PASS_PLUGIN_PATH'] = instrumentation_pass_path
