@@ -183,19 +183,19 @@ def filter_traceback(e: BaseException):
 class CompileTimer:
 
     def __init__(self) -> None:
-        self.start: float = time.time()
+        self.start: float = time.perf_counter()
         self.ir_initialization_end: float | None = None
         self.lowering_stage_ends: list[tuple[str, float]] = []
         self.store_results_end: float | None = None
 
     def finished_ir_initialization(self) -> None:
-        self.ir_initialization_end = time.time()
+        self.ir_initialization_end = time.perf_counter()
 
     def stage_finished(self, stage_name: str) -> None:
-        self.lowering_stage_ends.append((stage_name, time.time()))
+        self.lowering_stage_ends.append((stage_name, time.perf_counter()))
 
     def end(self) -> knobs.CompileTimes:
-        timestamp = time.time()
+        timestamp = time.perf_counter()
         if self.ir_initialization_end is None:
             self.ir_initialization_end = timestamp
         else:
