@@ -269,7 +269,7 @@ def get_thirdparty_packages(packages: list):
             raise RuntimeError(f"Requested an offline build but {p.syspath_var_name} is not set")
         if not is_offline_build() and not input_defined and not input_compatible:
             with contextlib.suppress(Exception):
-                shutil.rmtree(package_root_dir)
+                shutil.rmtree(package_dir)
             os.makedirs(package_root_dir, exist_ok=True)
             print(f'downloading and extracting {p.url} ...')
             download_and_extract_archive(p.url, package_root_dir)
