@@ -787,16 +787,40 @@ def get_entry_points():
     return entry_points
 
 
-def get_tcc_package_data():
-    if not os.path.exists("python/triton/runtime/tcc"):
+def get_backend_package_data(path, exclude_dirs=("__pycache__", "include"), include_files=("include/cuda.h",)):
+    if path is None or not os.path.exists(path):
         return []
-    return [
-        os.path.join(os.path.relpath(p, "python/triton/runtime"), "*")
-        for p, _, _, in os.walk("python/triton/runtime/tcc")
+    out = [
+        os.path.join(os.path.relpath(p, path), "*")
+        for p, _, _, in os.walk(path)
+        if not any(x in p.split(os.path.sep) for x in exclude_dirs)
     ]
+    for x in include_files:
+        if os.path.exists(os.path.join(path, x)):
+            out.append(x)
+    return out
 
 
-package_data = {"triton.runtime": get_tcc_package_data()}
+def get_package_data():
+    # TODO: Avoid calling download_and_copy_dependencies twice
+    download_and_copy_dependencies()
+
+    for backend in backends:
+        # we use symlinks for external plugins
+        if backend.is_external:
+            continue
+
+        yield (f"triton.backends.{backend.name}", get_backend_package_data(backend.backend_dir))
+
+        if backend.language_dir:
+            for x in os.listdir(backend.language_dir):
+                yield (f"triton.language.extra.{x}", get_backend_package_data(os.path.join(backend.language_dir, x)))
+
+        if backend.tools_dir:
+            for x in os.listdir(backend.tools_dir):
+                yield (f"triton.tools.extra.{x}", get_backend_package_data(os.path.join(backend.tools_dir, x)))
+
+    yield ("triton.runtime", get_backend_package_data("python/triton/runtime", exclude_dirs=("__pycache__",)))
 
 
 def get_git_commit_hash(length=8):
@@ -868,8 +892,8 @@ setup(
     packages=list(get_packages()),
     package_dir=dict(get_package_dirs()),
     entry_points=get_entry_points(),
-    package_data=package_data,
-    include_package_data=True,
+    package_data=dict(get_package_data()),
+    # include_package_data=True,
     ext_modules=[CMakeExtension("triton", "triton/_C/")],
     cmdclass={
         "bdist_wheel": plugin_bdist_wheel,
