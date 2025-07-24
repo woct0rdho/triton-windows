@@ -116,6 +116,8 @@ cibuildwheel python
 # Or `cibuildwheel .` for Triton >= 3.4
 ```
 
+If you see errors about defining `llvmGetPassPluginInfo` when building `lib/Instrumentation/PrintLoadStoreMemSpaces.cpp`, then you need to replace `LLVM_ATTRIBUTE_WEAK` with `__declspec(dllexport)` in `include/llvm/Passes/PassPlugin.h` of your LLVM, see https://github.com/llvm/llvm-project/pull/115431
+
 ## Set up GitHub Actions self-hosted runner
 
 GPU is not required to build the package, but is required to run the unit tests.
