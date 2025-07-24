@@ -223,9 +223,9 @@ class Autotuner(KernelInterface):
                 pruned_configs = self.prune_configs(kwargs)
 
                 def benchmark():
-                    bench_start = time.time()
+                    bench_start = time.perf_counter()
                     timings = {config: self._bench(*args, config=config, **kwargs) for config in pruned_configs}
-                    bench_end = time.time()
+                    bench_end = time.perf_counter()
                     self.bench_time = bench_end - bench_start
                     self.cache[key] = builtins.min(timings, key=timings.get)
                     full_nargs = {**self.nargs, **kwargs, **self.cache[key].all_kwargs()}
