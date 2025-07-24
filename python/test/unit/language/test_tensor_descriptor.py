@@ -813,7 +813,8 @@ def batched_gemm_2d_tma_kernel(a_ptr, b_ptr, c_ptr,  #
 
 @pytest.mark.interpreter
 def test_tensor_descriptor_batched_gemm_2d_tma(device):
-    BLOCK_M, BLOCK_N, BLOCK_K = 128, 256, 64
+    # BLOCK_M, BLOCK_N, BLOCK_K = 128, 256, 64
+    BLOCK_M, BLOCK_N, BLOCK_K = 128, 128, 64
 
     if is_hip():
         # Insufficient share memory for the larger block size
@@ -917,7 +918,8 @@ def batched_gemm_3d_tma_kernel(a_ptr, b_ptr, c_ptr,  #
 
 @pytest.mark.interpreter
 def test_tensor_descriptor_batched_gemm_3d_tma(device):
-    BLOCK_M, BLOCK_N, BLOCK_K = 128, 256, 64
+    # BLOCK_M, BLOCK_N, BLOCK_K = 128, 256, 64
+    BLOCK_M, BLOCK_N, BLOCK_K = 128, 128, 64
 
     if is_hip():
         # Insufficient share memory for the larger block size
