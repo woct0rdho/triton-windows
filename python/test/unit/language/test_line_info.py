@@ -1,4 +1,5 @@
 import inspect
+import re
 import subprocess
 import tempfile
 
@@ -123,7 +124,11 @@ def check_file_lines(file_lines, file_name, lineno, should_contain=True):
         lineno: line number, -1 means do not check line number
         should_contain: whether the file name and line number should be in the file_lines
     """
+    file_name = file_name.replace("\\", "/")
+    file_name = re.compile(r"/pytest-\d+/").sub("/pytest-0/", file_name)
     for file, line in file_lines:
+        file = file.replace("\\\\", "\\").replace("\\", "/")
+        file = re.compile(r"/pytest-\d+/").sub("/pytest-0/", file)
         if lineno == -1 and file_name in file:
             return True
         if file_name in file and str(lineno) in line:
