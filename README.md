@@ -14,11 +14,12 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 ## Progress
 
 * `triton.jit` and `torch.compile` just work
-* All unit tests passed (Thanks Comfy Org for generously providing the CI runners!)
+* All unit tests passed
 * When I run Flux or HunyuanVideo in ComfyUI on Windows, it's almost as fast as on WSL on the same machine
 * Windows 10 and 11 are supported
 * Only Nvidia GPU is supported, help wanted to support other backends
     * For AMD GPU, you may try https://github.com/Repeerc/triton-amdgpu-windows
+* Proton profiler does not fully work yet. If you want to try it, you can build from source
 
 ## Installation
 
