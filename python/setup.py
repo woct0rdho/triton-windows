@@ -85,7 +85,9 @@ class BackendInstaller:
             assert os.path.exists(os.path.join(backend_path, file)), f"${file} does not exist in ${backend_path}"
 
         install_dir = os.path.join(os.path.dirname(__file__), "triton", "backends", backend_name)
-        package_data = [f"{os.path.relpath(p, backend_path)}/*" for p, _, _, in os.walk(backend_path)]
+        package_data = [f"{os.path.relpath(p, backend_path)}/*" for p, _, _, in os.walk(backend_path)
+                        if not "include" in p.split(os.path.sep)]
+        package_data += ["include/cuda.h"]
 
         language_package_data = []
         if language_dir is not None:
@@ -795,7 +797,7 @@ setup(
     packages=get_packages(),
     entry_points=get_entry_points(),
     package_data=package_data,
-    include_package_data=True,
+    # include_package_data=True,
     ext_modules=[CMakeExtension("triton", "triton/_C/")],
     cmdclass={
         "build_ext": CMakeBuild,
