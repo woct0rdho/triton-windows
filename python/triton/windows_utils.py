@@ -205,16 +205,18 @@ def find_winsdk_env() -> tuple[Optional[Path], Optional[str]]:
 
     version = os.getenv("WindowsSDKVersion")
     if version is None:
+        version = os.getenv("WindowsSDKVer")
+    if version is None:
         warnings.warn(
-            f"Environment variable WindowsSdkDir = {os.getenv('WindowsSdkDir')}, "
-            "but WindowsSDKVersion is not set."
+            f"Environment variable WindowsSdkDir = {winsdk_base_path}, "
+            "but WindowsSDKVersion (or WindowsSDKVer) is not set."
         )
         return None, None
     version = version.rstrip("\\")
     if not check_winsdk(winsdk_base_path, version):
         warnings.warn(
-            f"Environment variables WindowsSdkDir = {os.getenv('WindowsSdkDir')}, "
-            f"WindowsSDKVersion = {os.getenv('WindowsSDKVersion')} are set, "
+            f"Environment variables WindowsSdkDir = {winsdk_base_path}, "
+            f"WindowsSDKVersion (or WindowsSDKVer) = {version} are set, "
             "but this Windows SDK installation is incomplete."
         )
         return None, None
