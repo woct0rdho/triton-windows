@@ -456,8 +456,10 @@ struct FpToFpOpConversion
       llvm::errs() << "\n";
       llvm::report_fatal_error("Unsupported rounding mode for conversion.");
     }
-    if (computeCapability < 89 && (llvm::isa<Float8E4M3FNType>(srcTy) || llvm::isa<Float8E4M3FNUZType>(srcTy) ||
-                                   llvm::isa<Float8E4M3FNType>(dstTy) || llvm::isa<Float8E4M3FNUZType>(dstTy))) {
+    if (computeCapability < 89 && (llvm::isa<Float8E4M3FNType>(srcTy) ||
+                                   llvm::isa<Float8E4M3FNUZType>(srcTy) ||
+                                   llvm::isa<Float8E4M3FNType>(dstTy) ||
+                                   llvm::isa<Float8E4M3FNUZType>(dstTy))) {
       return {nullptr, 0};
     }
     auto convDesc = srcMap.lookup(key);

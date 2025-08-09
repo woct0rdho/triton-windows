@@ -2,11 +2,11 @@ import torch
 import triton
 import triton.language as tl
 import traceback
-import sys
 
 # =============================================================================
 # Test Runner with Enhanced Feedback
 # =============================================================================
+
 
 class AnsiColors:
     HEADER = '\033[95m'
@@ -19,7 +19,9 @@ class AnsiColors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 class TestRunner:
+
     def __init__(self):
         self.passed_tests = 0
         self.failed_tests = 0
@@ -62,9 +64,11 @@ class TestRunner:
                 print(f"  - {name}")
         print("=" * 50)
 
+
 # =============================================================================
 # Vector Addition Test
 # =============================================================================
+
 
 @triton.jit
 def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
@@ -77,15 +81,17 @@ def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
     output = x + y
     tl.store(output_ptr + offsets, output, mask=mask)
 
+
 def run_vector_addition_test(runner):
     test_name = "Vector Addition"
     runner.print_test_header(test_name)
     try:
+
         def add(x: torch.Tensor, y: torch.Tensor):
             output = torch.empty_like(x)
             assert x.is_cuda and y.is_cuda and output.is_cuda
             n_elements = output.numel()
-            grid = lambda meta: (triton.cdiv(n_elements, meta['BLOCK_SIZE']),)
+            grid = lambda meta: (triton.cdiv(n_elements, meta['BLOCK_SIZE']), )
             add_kernel[grid](x, y, output, n_elements, BLOCK_SIZE=1024)
             return output
 
@@ -101,12 +107,16 @@ def run_vector_addition_test(runner):
         runner.print_test_result(False, test_name, f"- Error: {e}")
         traceback.print_exc()
 
+
 # =============================================================================
 # Matrix Multiplication Test (Float16)
 # =============================================================================
 
+
 @triton.jit
-def matmul_kernel_f16(a_ptr, b_ptr, c_ptr, M, N, K, stride_am, stride_ak, stride_bk, stride_bn, stride_cm, stride_cn, BLOCK_SIZE_M: tl.constexpr, BLOCK_SIZE_N: tl.constexpr, BLOCK_SIZE_K: tl.constexpr, GROUP_SIZE_M: tl.constexpr):
+def matmul_kernel_f16(a_ptr, b_ptr, c_ptr, M, N, K, stride_am, stride_ak, stride_bk, stride_bn, stride_cm, stride_cn,
+                      BLOCK_SIZE_M: tl.constexpr, BLOCK_SIZE_N: tl.constexpr, BLOCK_SIZE_K: tl.constexpr,
+                      GROUP_SIZE_M: tl.constexpr):
     # ... (kernel implementation remains the same)
     pid = tl.program_id(axis=0)
     num_pid_m = tl.cdiv(M, BLOCK_SIZE_M)
@@ -136,16 +146,19 @@ def matmul_kernel_f16(a_ptr, b_ptr, c_ptr, M, N, K, stride_am, stride_ak, stride
     c_mask = (offs_cm[:, None] < M) & (offs_cn[None, :] < N)
     tl.store(c_ptrs, c, mask=c_mask)
 
+
 def run_matmul_f16_test(runner):
     test_name = "Matrix Multiplication (Float16)"
     runner.print_test_header(test_name)
     try:
+
         def matmul(a: torch.Tensor, b: torch.Tensor):
             M, K = a.shape
             K, N = b.shape
             c = torch.empty((M, N), device=a.device, dtype=a.dtype)
-            grid = lambda META: (triton.cdiv(M, META['BLOCK_SIZE_M']) * triton.cdiv(N, META['BLOCK_SIZE_N']),)
-            matmul_kernel_f16[grid](a, b, c, M, N, K, a.stride(0), a.stride(1), b.stride(0), b.stride(1), c.stride(0), c.stride(1), BLOCK_SIZE_M=64, BLOCK_SIZE_N=64, BLOCK_SIZE_K=32, GROUP_SIZE_M=8)
+            grid = lambda META: (triton.cdiv(M, META['BLOCK_SIZE_M']) * triton.cdiv(N, META['BLOCK_SIZE_N']), )
+            matmul_kernel_f16[grid](a, b, c, M, N, K, a.stride(0), a.stride(1), b.stride(0), b.stride(1), c.stride(0),
+                                    c.stride(1), BLOCK_SIZE_M=64, BLOCK_SIZE_N=64, BLOCK_SIZE_K=32, GROUP_SIZE_M=8)
             return c
 
         torch.manual_seed(0)
@@ -160,9 +173,11 @@ def run_matmul_f16_test(runner):
         runner.print_test_skipped(test_name, f"Error: {e}")
         traceback.print_exc()
 
+
 # =============================================================================
 # FP Conversion Tests (with enhanced feedback)
 # =============================================================================
+
 
 # Kernels remain the same
 @triton.jit
@@ -171,17 +186,20 @@ def kernel_fp32_to_fp16_roundtrip(X, Y, BLOCK_SIZE: tl.constexpr):
     y = x.to(tl.float16).to(tl.float32)
     tl.store(Y + tl.arange(0, BLOCK_SIZE), y)
 
+
 @triton.jit
 def kernel_fp16_to_fp32(X, Y, BLOCK_SIZE: tl.constexpr):
     x = tl.load(X + tl.arange(0, BLOCK_SIZE))
     y = x.to(tl.float32)
     tl.store(Y + tl.arange(0, BLOCK_SIZE), y)
 
+
 @triton.jit
 def kernel_fp32_to_bf16_roundtrip(X, Y, BLOCK_SIZE: tl.constexpr):
     x = tl.load(X + tl.arange(0, BLOCK_SIZE))
     y = x.to(tl.bfloat16).to(tl.float32)
     tl.store(Y + tl.arange(0, BLOCK_SIZE), y)
+
 
 @triton.jit
 def kernel_bf16_to_fp32(X, Y, BLOCK_SIZE: tl.constexpr):
@@ -194,23 +212,22 @@ def run_conversion_test(runner, test_name, kernel, x, y_ref, atol, rtol):
     runner.print_test_header(test_name)
     try:
         y = torch.empty_like(y_ref)
-        kernel[(1,)](x, y, BLOCK_SIZE=x.shape[0])
+        kernel[(1, )](x, y, BLOCK_SIZE=x.shape[0])
         max_diff = torch.max(torch.abs(y - y_ref)).item()
         passed = torch.allclose(y, y_ref, atol=atol, rtol=rtol)
-        details = {
-            'Max Diff': f'{max_diff:.6f}',
-            'Tolerance': f'atol={atol}, rtol={rtol}'
-        }
+        details = {'Max Diff': f'{max_diff:.6f}', 'Tolerance': f'atol={atol}, rtol={rtol}'}
         if not passed:
             details['Actual'] = y
             details['Expected'] = y_ref
             details['Difference'] = torch.abs(y - y_ref)
-        
-        runner.print_test_result(passed, test_name, f"- Max Diff: {max_diff:.6f}", details_on_fail=details if not passed else None)
+
+        runner.print_test_result(passed, test_name, f"- Max Diff: {max_diff:.6f}",
+                                 details_on_fail=details if not passed else None)
 
     except Exception as e:
         runner.print_test_result(False, test_name, f"- Error: {e}")
         traceback.print_exc()
+
 
 def run_all_fp_conversion_tests(runner):
     print("=" * 50)
@@ -220,7 +237,8 @@ def run_all_fp_conversion_tests(runner):
     # FP32 <-> FP16
     x_f32 = torch.tensor([1.0, 2.5, -10.1, 20.2, 100.3, 200.4, 65504, -65504], dtype=torch.float32, device='cuda')
     y_ref_f16_rt = x_f32.to(torch.float16).to(torch.float32)
-    run_conversion_test(runner, "FP32 -> FP16 Roundtrip", kernel_fp32_to_fp16_roundtrip, x_f32, y_ref_f16_rt, atol=1e-3, rtol=1e-3)
+    run_conversion_test(runner, "FP32 -> FP16 Roundtrip", kernel_fp32_to_fp16_roundtrip, x_f32, y_ref_f16_rt, atol=1e-3,
+                        rtol=1e-3)
 
     x_f16 = torch.tensor([1.0, 2.5, -10.1, 20.2], dtype=torch.float16, device='cuda')
     y_ref_f16_up = x_f16.to(torch.float32)
@@ -229,11 +247,13 @@ def run_all_fp_conversion_tests(runner):
     # FP32 <-> BF16
     x_bf16_rt = torch.tensor([1.0, 2.5, -10.1, 20.2, 100.3, 200.4, 300.5, -400.6], dtype=torch.float32, device='cuda')
     y_ref_bf16_rt = x_bf16_rt.to(torch.bfloat16).to(torch.float32)
-    run_conversion_test(runner, "FP32 -> BF16 Roundtrip", kernel_fp32_to_bf16_roundtrip, x_bf16_rt, y_ref_bf16_rt, atol=1e-2, rtol=1e-2)
+    run_conversion_test(runner, "FP32 -> BF16 Roundtrip", kernel_fp32_to_bf16_roundtrip, x_bf16_rt, y_ref_bf16_rt,
+                        atol=1e-2, rtol=1e-2)
 
     x_bf16 = torch.tensor([1.0, 2.5, -10.1, 20.2], dtype=torch.bfloat16, device='cuda')
     y_ref_bf16_up = x_bf16.to(torch.float32)
     run_conversion_test(runner, "BF16 -> FP32", kernel_bf16_to_fp32, x_bf16, y_ref_bf16_up, atol=1e-2, rtol=1e-2)
+
 
 # =============================================================================
 # Main
@@ -244,12 +264,12 @@ if __name__ == "__main__":
     print("=" * 50)
     print(f"{AnsiColors.HEADER}Starting Triton Tests...{AnsiColors.ENDC}")
     print("=" * 50)
-    
+
     run_vector_addition_test(runner)
     run_matmul_f16_test(runner)
     # The f8 matmul test is skipped as it's highly dependent on specific hardware features
-    # run_matmul_f8_emulated_test(runner) 
-    
+    # run_matmul_f8_emulated_test(runner)
+
     run_all_fp_conversion_tests(runner)
-    
+
     runner.print_summary()

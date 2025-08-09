@@ -262,20 +262,20 @@ class CUDABackend(BaseBackend):
         passes.ttir.add_convert_to_ttgpuir(pm, f"cuda:{capability}", opt.num_warps, 32, opt.num_ctas)
         # optimize TTGIR
         passes.ttgpuir.add_coalesce(pm)
-        if capability >= 70: # SM 70+
+        if capability >= 70:  # SM 70+
             if capability // 10 >= 8:
                 passes.ttgpuir.add_f32_dot_tc(pm)
             # TODO(Qingyi): Move PlanCTAPass to the front of CoalescePass
             nvidia.passes.ttnvgpuir.add_plan_cta(pm, cluster_info)
         passes.ttgpuir.add_remove_layout_conversions(pm)
         passes.ttgpuir.add_optimize_thread_locality(pm)
-        if capability >= 70: # SM 70+
+        if capability >= 70:  # SM 70+
             passes.ttgpuir.add_accelerate_matmul(pm)
             passes.ttgpuir.add_remove_layout_conversions(pm)
             passes.ttgpuir.add_optimize_dot_operands(pm, capability >= 80)
             nvidia.passes.ttnvgpuir.add_optimize_descriptor_encoding(pm)
         passes.ttir.add_loop_aware_cse(pm)
-        if capability >= 70: # SM 70+
+        if capability >= 70:  # SM 70+
             if capability // 10 in [8, 9]:
                 passes.ttgpuir.add_fuse_nested_loops(pm)
                 passes.common.add_canonicalizer(pm)
@@ -304,13 +304,13 @@ class CUDABackend(BaseBackend):
         passes.common.add_canonicalizer(pm)
         passes.ttir.add_loop_aware_cse(pm)
         passes.ttgpuir.add_prefetch(pm)
-        if capability >= 70: # SM 70+
+        if capability >= 70:  # SM 70+
             passes.ttgpuir.add_optimize_dot_operands(pm, capability >= 80)
         passes.ttgpuir.add_coalesce_async_copy(pm)
-        if capability >= 70: # SM 70+
+        if capability >= 70:  # SM 70+
             nvidia.passes.ttnvgpuir.add_optimize_tmem_layouts(pm)
         passes.ttgpuir.add_remove_layout_conversions(pm)
-        if capability >= 70: # SM 70+
+        if capability >= 70:  # SM 70+
             nvidia.passes.ttnvgpuir.add_interleave_tmem(pm)
         passes.ttgpuir.add_reduce_data_duplication(pm)
         passes.ttgpuir.add_reorder_instructions(pm)
@@ -350,19 +350,19 @@ class CUDABackend(BaseBackend):
         pm = ir.pass_manager(mod.context)
         pm.enable_debug()
 
-        if capability >= 70: # SM 70+
+        if capability >= 70:  # SM 70+
             nvidia.passes.ttnvgpuir.add_lower_mma(pm)
         passes.ttgpuir.add_combine_tensor_select_and_if(pm)
         passes.ttgpuir.add_allocate_warp_groups(pm)
         passes.convert.add_scf_to_cf(pm)
         passes.ttgpuir.add_allocate_shared_memory(pm)
-        if capability >= 70: # SM 70+
+        if capability >= 70:  # SM 70+
             nvidia.passes.ttnvgpuir.add_allocate_tensor_memory(pm)
         passes.ttgpuir.add_allocate_global_scratch_memory(pm)
         nvidia.passes.ttgpuir.add_to_llvmir(pm, capability, ptx_version)
         passes.common.add_canonicalizer(pm)
         passes.common.add_cse(pm)
-        if capability >= 70: # SM 70+
+        if capability >= 70:  # SM 70+
             nvidia.passes.ttnvgpuir.add_nvgpu_to_llvm(pm)
             nvidia.passes.ttnvgpuir.add_warp_specialize_to_llvm(pm)
         passes.common.add_canonicalizer(pm)
