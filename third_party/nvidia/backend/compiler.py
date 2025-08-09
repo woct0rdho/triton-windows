@@ -171,19 +171,29 @@ class CUDABackend(BaseBackend):
         self.binary_ext = "cubin"
 
     def parse_options(self, opts) -> Any:
+        import os
+        allow_legacy_sm = os.environ.get('TRITON_ALLOW_LEGACY_SM', '0') == '1'
+
         args = {'arch': knobs.runtime.override_arch or f"sm{self.target.arch}"}
         args.update({k: opts[k] for k in CUDAOptions.__dataclass_fields__.keys() if k in opts if opts[k] is not None})
         capability = int(self._parse_arch(args["arch"]))
 
-        if "supported_fp8_dtypes" not in args:
+        if allow_legacy_sm and capability < 70:
             supported_fp8_dtypes = set(CUDAOptions.supported_fp8_dtypes)
-            if capability >= 89:
-                supported_fp8_dtypes.add("fp8e4nv")
+            supported_fp8_dtypes.add("fp8e4nv")
             args["supported_fp8_dtypes"] = tuple(sorted(supported_fp8_dtypes))
+            args.setdefault('num_warps', 4)
+            args.setdefault('num_stages', 2)
+        else:
+            if "supported_fp8_dtypes" not in args:
+                supported_fp8_dtypes = set(CUDAOptions.supported_fp8_dtypes)
+                if capability >= 89:
+                    supported_fp8_dtypes.add("fp8e4nv")
+                args["supported_fp8_dtypes"] = tuple(sorted(supported_fp8_dtypes))
 
-        if "deprecated_fp8_dot_operand_dtypes" not in args:
-            if capability >= 90:
-                args["deprecated_fp8_dot_operand_dtypes"] = ("fp8e4b15", )
+            if "deprecated_fp8_dot_operand_dtypes" not in args:
+                if capability >= 90:
+                    args["deprecated_fp8_dot_operand_dtypes"] = ("fp8e4b15", )
 
         if "enable_fp_fusion" not in args:
             args["enable_fp_fusion"] = knobs.language.default_fp_fusion
@@ -252,50 +262,56 @@ class CUDABackend(BaseBackend):
         passes.ttir.add_convert_to_ttgpuir(pm, f"cuda:{capability}", opt.num_warps, 32, opt.num_ctas)
         # optimize TTGIR
         passes.ttgpuir.add_coalesce(pm)
-        if capability // 10 >= 8:
-            passes.ttgpuir.add_f32_dot_tc(pm)
-        # TODO(Qingyi): Move PlanCTAPass to the front of CoalescePass
-        nvidia.passes.ttnvgpuir.add_plan_cta(pm, cluster_info)
+        if capability >= 70: # SM 70+
+            if capability // 10 >= 8:
+                passes.ttgpuir.add_f32_dot_tc(pm)
+            # TODO(Qingyi): Move PlanCTAPass to the front of CoalescePass
+            nvidia.passes.ttnvgpuir.add_plan_cta(pm, cluster_info)
         passes.ttgpuir.add_remove_layout_conversions(pm)
         passes.ttgpuir.add_optimize_thread_locality(pm)
-        passes.ttgpuir.add_accelerate_matmul(pm)
-        passes.ttgpuir.add_remove_layout_conversions(pm)
-        passes.ttgpuir.add_optimize_dot_operands(pm, capability >= 80)
-        nvidia.passes.ttnvgpuir.add_optimize_descriptor_encoding(pm)
+        if capability >= 70: # SM 70+
+            passes.ttgpuir.add_accelerate_matmul(pm)
+            passes.ttgpuir.add_remove_layout_conversions(pm)
+            passes.ttgpuir.add_optimize_dot_operands(pm, capability >= 80)
+            nvidia.passes.ttnvgpuir.add_optimize_descriptor_encoding(pm)
         passes.ttir.add_loop_aware_cse(pm)
-        if capability // 10 in [8, 9]:
-            passes.ttgpuir.add_fuse_nested_loops(pm)
-            passes.common.add_canonicalizer(pm)
-            passes.ttir.add_triton_licm(pm)
-            passes.common.add_canonicalizer(pm)
-            passes.ttgpuir.add_combine_tensor_select_and_if(pm)
-            nvidia.passes.hopper.add_hopper_warpspec(pm, opt.num_stages, dump_enabled)
-            passes.ttgpuir.add_assign_latencies(pm, opt.num_stages)
-            passes.ttgpuir.add_schedule_loops(pm)
-            passes.ttgpuir.add_pipeline(pm, opt.num_stages, dump_enabled)
-        elif capability // 10 >= 10:
-            passes.ttgpuir.add_fuse_nested_loops(pm)
-            passes.common.add_canonicalizer(pm)
-            passes.ttir.add_triton_licm(pm)
-            passes.ttgpuir.add_optimize_accumulator_init(pm)
-            passes.ttgpuir.add_hoist_tmem_alloc(pm)
-            nvidia.passes.ttnvgpuir.add_promote_lhs_to_tmem(pm)
-            passes.ttgpuir.add_assign_latencies(pm, opt.num_stages)
-            passes.ttgpuir.add_schedule_loops(pm)
-            passes.ttgpuir.add_warp_specialize(pm, opt.num_stages)
-            passes.ttgpuir.add_pipeline(pm, opt.num_stages, dump_enabled)
-            passes.ttgpuir.add_combine_tensor_select_and_if(pm)
-            nvidia.passes.ttnvgpuir.add_remove_tmem_tokens(pm)
+        if capability >= 70: # SM 70+
+            if capability // 10 in [8, 9]:
+                passes.ttgpuir.add_fuse_nested_loops(pm)
+                passes.common.add_canonicalizer(pm)
+                passes.ttir.add_triton_licm(pm)
+                passes.common.add_canonicalizer(pm)
+                passes.ttgpuir.add_combine_tensor_select_and_if(pm)
+                nvidia.passes.hopper.add_hopper_warpspec(pm, opt.num_stages, dump_enabled)
+                passes.ttgpuir.add_assign_latencies(pm, opt.num_stages)
+                passes.ttgpuir.add_schedule_loops(pm)
+                passes.ttgpuir.add_pipeline(pm, opt.num_stages, dump_enabled)
+            elif capability // 10 >= 10:
+                passes.ttgpuir.add_fuse_nested_loops(pm)
+                passes.common.add_canonicalizer(pm)
+                passes.ttir.add_triton_licm(pm)
+                passes.ttgpuir.add_optimize_accumulator_init(pm)
+                passes.ttgpuir.add_hoist_tmem_alloc(pm)
+                nvidia.passes.ttnvgpuir.add_promote_lhs_to_tmem(pm)
+                passes.ttgpuir.add_assign_latencies(pm, opt.num_stages)
+                passes.ttgpuir.add_schedule_loops(pm)
+                passes.ttgpuir.add_warp_specialize(pm, opt.num_stages)
+                passes.ttgpuir.add_pipeline(pm, opt.num_stages, dump_enabled)
+                passes.ttgpuir.add_combine_tensor_select_and_if(pm)
+                nvidia.passes.ttnvgpuir.add_remove_tmem_tokens(pm)
         else:
             passes.ttir.add_triton_licm(pm)
         passes.common.add_canonicalizer(pm)
         passes.ttir.add_loop_aware_cse(pm)
         passes.ttgpuir.add_prefetch(pm)
-        passes.ttgpuir.add_optimize_dot_operands(pm, capability >= 80)
+        if capability >= 70: # SM 70+
+            passes.ttgpuir.add_optimize_dot_operands(pm, capability >= 80)
         passes.ttgpuir.add_coalesce_async_copy(pm)
-        nvidia.passes.ttnvgpuir.add_optimize_tmem_layouts(pm)
+        if capability >= 70: # SM 70+
+            nvidia.passes.ttnvgpuir.add_optimize_tmem_layouts(pm)
         passes.ttgpuir.add_remove_layout_conversions(pm)
-        nvidia.passes.ttnvgpuir.add_interleave_tmem(pm)
+        if capability >= 70: # SM 70+
+            nvidia.passes.ttnvgpuir.add_interleave_tmem(pm)
         passes.ttgpuir.add_reduce_data_duplication(pm)
         passes.ttgpuir.add_reorder_instructions(pm)
         passes.ttir.add_loop_aware_cse(pm)
@@ -334,18 +350,21 @@ class CUDABackend(BaseBackend):
         pm = ir.pass_manager(mod.context)
         pm.enable_debug()
 
-        nvidia.passes.ttnvgpuir.add_lower_mma(pm)
+        if capability >= 70: # SM 70+
+            nvidia.passes.ttnvgpuir.add_lower_mma(pm)
         passes.ttgpuir.add_combine_tensor_select_and_if(pm)
         passes.ttgpuir.add_allocate_warp_groups(pm)
         passes.convert.add_scf_to_cf(pm)
         passes.ttgpuir.add_allocate_shared_memory(pm)
-        nvidia.passes.ttnvgpuir.add_allocate_tensor_memory(pm)
+        if capability >= 70: # SM 70+
+            nvidia.passes.ttnvgpuir.add_allocate_tensor_memory(pm)
         passes.ttgpuir.add_allocate_global_scratch_memory(pm)
         nvidia.passes.ttgpuir.add_to_llvmir(pm, capability, ptx_version)
         passes.common.add_canonicalizer(pm)
         passes.common.add_cse(pm)
-        nvidia.passes.ttnvgpuir.add_nvgpu_to_llvm(pm)
-        nvidia.passes.ttnvgpuir.add_warp_specialize_to_llvm(pm)
+        if capability >= 70: # SM 70+
+            nvidia.passes.ttnvgpuir.add_nvgpu_to_llvm(pm)
+            nvidia.passes.ttnvgpuir.add_warp_specialize_to_llvm(pm)
         passes.common.add_canonicalizer(pm)
         passes.common.add_cse(pm)
         passes.common.add_symbol_dce(pm)

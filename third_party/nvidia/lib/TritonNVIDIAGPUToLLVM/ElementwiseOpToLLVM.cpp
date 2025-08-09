@@ -409,6 +409,7 @@ struct FpToFpOpConversion
   getConversionFunc(Type srcTy, Type dstTy,
                     std::optional<RoundingMode> roundingMode) const {
     auto F8E4M3TyID = TypeID::get<Float8E4M3FNType>();
+    auto F8E4M3FNUZTyID = TypeID::get<Float8E4M3FNUZType>();
     auto F8E5M2TyID = TypeID::get<Float8E5M2Type>();
     auto F16TyID = TypeID::get<Float16Type>();
     auto BF16TyID = TypeID::get<BFloat16Type>();
@@ -421,6 +422,7 @@ struct FpToFpOpConversion
         srcMap = {
             // F8 -> F16
             {{F8E4M3TyID, F16TyID, undefRounding}, Fp8E4M3Nv_to_Fp16},
+            {{F8E4M3FNUZTyID, F16TyID, undefRounding}, Fp8E4M3Nv_to_Fp16},
             {{F8E5M2TyID, F16TyID, undefRounding},
              Fp8E5M2_to_Fp16(computeCapability >= 89)},
             {{F16TyID, F8E4M3TyID, RoundingMode::RTNE}, Fp16_to_Fp8E4M3Nv},
@@ -454,10 +456,9 @@ struct FpToFpOpConversion
       llvm::errs() << "\n";
       llvm::report_fatal_error("Unsupported rounding mode for conversion.");
     }
-    if (computeCapability < 89 && (llvm::isa<Float8E4M3FNType>(srcTy) ||
-                                   llvm::isa<Float8E4M3FNType>(dstTy))) {
-      llvm::report_fatal_error("Conversion from/to f8e4m3nv is only supported "
-                               "on compute capability >= 89\n");
+    if (computeCapability < 89 && (llvm::isa<Float8E4M3FNType>(srcTy) || llvm::isa<Float8E4M3FNUZType>(srcTy) ||
+                                   llvm::isa<Float8E4M3FNType>(dstTy) || llvm::isa<Float8E4M3FNUZType>(dstTy))) {
+      return {nullptr, 0};
     }
     auto convDesc = srcMap.lookup(key);
     return {makeConverterFromPtx(

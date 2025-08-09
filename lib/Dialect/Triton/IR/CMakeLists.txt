@@ -15,8 +15,8 @@ add_triton_library(TritonIR
   TritonCanonicalizeIncGen
 
   LINK_LIBS PUBLIC
-  MLIRIR
-  MLIRArithDialect
-  MLIRMathDialect
   MLIRSCFDialect
+  MLIRMathDialect
+  MLIRArithDialect
+  MLIRIR
 )

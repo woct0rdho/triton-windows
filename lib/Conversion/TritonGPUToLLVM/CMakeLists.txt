@@ -23,17 +23,19 @@ add_triton_library(TritonGPUToLLVM
 
     DEPENDS
     TritonGPUConversionPassIncGen
+    TritonIR
 
     LINK_LIBS PUBLIC
-    MLIRIR
-    MLIRPass
-    MLIRGPUDialect
+    TritonNvidiaGPUTransforms
+    TritonGPUTransforms
+    TritonGPUIR
+    TritonIR
+    TritonAnalysis
     MLIRGPUToNVVMTransforms
     MLIRGPUToROCDLTransforms
     MLIRGPUTransforms
-    TritonAnalysis
-    TritonIR
-    TritonGPUIR
-    TritonGPUTransforms
-    TritonNvidiaGPUTransforms
+    MLIRGPUDialect
+    MLIRPass
+    MLIRIR
+    MLIRSupport
 )
