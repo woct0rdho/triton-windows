@@ -603,7 +603,8 @@ def download_and_copy_dependencies():
         download_and_copy(
             name="nvidia/cupti-" + NVIDIA_TOOLCHAIN_VERSION["cupti"],
             # On Windows, each version of CUPTI has a specific DLL name. Remember to update this with `nvidia-toolchain-version.json`.
-            src_func=lambda system, arch, version: f"cuda_cupti-{system}-{arch}-{version}-archive/lib/cupti64_2025.1.1.dll",
+            src_func=lambda system, arch, version:
+            f"cuda_cupti-{system}-{arch}-{version}-archive/lib/cupti64_2025.1.1.dll",
             dst_path="third_party/nvidia/backend/lib/cupti/cupti64_2025.1.1.dll",
             variable="TRITON_CUPTI_LIB_PATH",
             version=NVIDIA_TOOLCHAIN_VERSION["cupti"],
@@ -787,13 +788,12 @@ def get_entry_points():
     return entry_points
 
 
-def get_backend_package_data(path, exclude_dirs=("__pycache__", "include"), include_files=("include/cuda.h",)):
+def get_backend_package_data(path, exclude_dirs=("__pycache__", "include"), include_files=("include/cuda.h", )):
     if path is None or not os.path.exists(path):
         return []
     out = [
-        os.path.join(os.path.relpath(p, path), "*")
-        for p, _, _, in os.walk(path)
-        if not any(x in p.split(os.path.sep) for x in exclude_dirs)
+        os.path.join(os.path.relpath(p, path), "*") for p, _, _, in os.walk(path) if not any(x in p.split(os.path.sep)
+                                                                                             for x in exclude_dirs)
     ]
     for x in include_files:
         if os.path.exists(os.path.join(path, x)):
@@ -820,7 +820,7 @@ def get_package_data():
             for x in os.listdir(backend.tools_dir):
                 yield (f"triton.tools.extra.{x}", get_backend_package_data(os.path.join(backend.tools_dir, x)))
 
-    yield ("triton.runtime", get_backend_package_data("python/triton/runtime", exclude_dirs=("__pycache__",)))
+    yield ("triton.runtime", get_backend_package_data("python/triton/runtime", exclude_dirs=("__pycache__", )))
 
 
 def get_git_commit_hash(length=8):
