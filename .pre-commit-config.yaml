@@ -72,5 +72,6 @@ exclude: |
     ^third_party/amd/backend/include/roctracer/|
     ^third_party/amd/backend/lib/|
     ^third_party/nvidia/backend/include/cuda.h|
+    ^third_party/dlfcn|
     ^third_party/f2reduce
   )
