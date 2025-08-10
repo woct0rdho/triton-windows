@@ -433,7 +433,8 @@ class CUDABackend(BaseBackend):
             try:
                 # close_fds=True on Windows and False on Linux, see https://github.com/triton-lang/triton/pull/4357
                 # On Windows, both stdout and stderr need to be redirected to flog
-                subprocess.run(ptxas_cmd, check=True, close_fds=True if os.name == 'nt' else False, stdout=flog, stderr=flog)
+                subprocess.run(ptxas_cmd, check=True, close_fds=True if os.name == 'nt' else False, stdout=flog,
+                               stderr=flog)
             except subprocess.CalledProcessError as e:
                 with open(flog.name) as log_file:
                     log = log_file.read()
