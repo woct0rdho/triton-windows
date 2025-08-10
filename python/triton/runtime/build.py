@@ -116,7 +116,7 @@ def _build(name: str, src: str, srcdir: str, library_dirs: list[str], include_di
     cc_cmd = _cc_cmd(cc, src, so, include_dirs, library_dirs, libraries)
 
     try:
-        ret = subprocess.check_call(cc_cmd)
+        subprocess.check_call(cc_cmd)
     except Exception as e:
         print("Failed to compile. cc_cmd:", cc_cmd)
         raise e
