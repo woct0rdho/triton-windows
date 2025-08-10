@@ -54,14 +54,11 @@ def max_version(
 
 
 def check_msvc(msvc_base_path: Path, version: str) -> bool:
-    return all(
-        x.exists()
-        for x in [
-            msvc_base_path / version / "bin" / "Hostx64" / "x64" / "cl.exe",
-            msvc_base_path / version / "include" / "vcruntime.h",
-            msvc_base_path / version / "lib" / "x64" / "vcruntime.lib",
-        ]
-    )
+    return all(x.exists() for x in [
+        msvc_base_path / version / "bin" / "Hostx64" / "x64" / "cl.exe",
+        msvc_base_path / version / "include" / "vcruntime.h",
+        msvc_base_path / version / "lib" / "x64" / "vcruntime.lib",
+    ])
 
 
 def find_msvc_env() -> tuple[Optional[Path], Optional[str]]:
@@ -72,20 +69,16 @@ def find_msvc_env() -> tuple[Optional[Path], Optional[str]]:
 
     version = os.getenv("VCToolsVersion")
     if not check_msvc(msvc_base_path, version):
-        warnings.warn(
-            f"Environment variables VCINSTALLDIR = {os.getenv('VCINSTALLDIR')}, "
-            f"VCToolsVersion = {os.getenv('VCToolsVersion')} are set, "
-            "but this MSVC installation is incomplete."
-        )
+        warnings.warn(f"Environment variables VCINSTALLDIR = {os.getenv('VCINSTALLDIR')}, "
+                      f"VCToolsVersion = {os.getenv('VCToolsVersion')} are set, "
+                      "but this MSVC installation is incomplete.")
         return None, None
 
     return msvc_base_path, version
 
 
 def find_msvc_vswhere() -> tuple[Optional[Path], Optional[str]]:
-    vswhere_path = find_in_program_files(
-        r"Microsoft Visual Studio\Installer\vswhere.exe"
-    )
+    vswhere_path = find_in_program_files(r"Microsoft Visual Studio\Installer\vswhere.exe")
     if vswhere_path is None:
         return None, None
 
@@ -111,9 +104,7 @@ def find_msvc_vswhere() -> tuple[Optional[Path], Optional[str]]:
     if not msvc_base_path.exists():
         return None, None
 
-    version = max_version(
-        os.listdir(msvc_base_path), check=partial(check_msvc, msvc_base_path)
-    )
+    version = max_version(os.listdir(msvc_base_path), check=partial(check_msvc, msvc_base_path))
     if version is None:
         return None, None
 
@@ -132,9 +123,7 @@ def find_msvc_envpath() -> tuple[Optional[Path], Optional[str]]:
         if not msvc_base_path.exists():
             continue
 
-        version = max_version(
-            os.listdir(msvc_base_path), check=partial(check_msvc, msvc_base_path)
-        )
+        version = max_version(os.listdir(msvc_base_path), check=partial(check_msvc, msvc_base_path))
         if version is None:
             continue
 
@@ -153,9 +142,7 @@ def find_msvc_hardcoded() -> tuple[Optional[Path], Optional[str]]:
     paths = sorted(paths)[::-1]
     for msvc_base_path in paths:
         msvc_base_path = Path(msvc_base_path)
-        version = max_version(
-            os.listdir(msvc_base_path), check=partial(check_msvc, msvc_base_path)
-        )
+        version = max_version(os.listdir(msvc_base_path), check=partial(check_msvc, msvc_base_path))
         if version is None:
             continue
         return msvc_base_path, version
@@ -188,13 +175,10 @@ def find_msvc(env_only: bool) -> tuple[Optional[str], list[str], list[str]]:
 
 
 def check_winsdk(winsdk_base_path: Path, version: str) -> bool:
-    return all(
-        x.exists()
-        for x in [
-            winsdk_base_path / "Include" / version / "ucrt" / "stdlib.h",
-            winsdk_base_path / "Lib" / version / "ucrt" / "x64" / "ucrt.lib",
-        ]
-    )
+    return all(x.exists() for x in [
+        winsdk_base_path / "Include" / version / "ucrt" / "stdlib.h",
+        winsdk_base_path / "Lib" / version / "ucrt" / "x64" / "ucrt.lib",
+    ])
 
 
 def find_winsdk_env() -> tuple[Optional[Path], Optional[str]]:
@@ -207,18 +191,14 @@ def find_winsdk_env() -> tuple[Optional[Path], Optional[str]]:
     if version is None:
         version = os.getenv("WindowsSDKVer")
     if version is None:
-        warnings.warn(
-            f"Environment variable WindowsSdkDir = {winsdk_base_path}, "
-            "but WindowsSDKVersion (or WindowsSDKVer) is not set."
-        )
+        warnings.warn(f"Environment variable WindowsSdkDir = {winsdk_base_path}, "
+                      "but WindowsSDKVersion (or WindowsSDKVer) is not set.")
         return None, None
     version = version.rstrip("\\")
     if not check_winsdk(winsdk_base_path, version):
-        warnings.warn(
-            f"Environment variables WindowsSdkDir = {winsdk_base_path}, "
-            f"WindowsSDKVersion (or WindowsSDKVer) = {version} are set, "
-            "but this Windows SDK installation is incomplete."
-        )
+        warnings.warn(f"Environment variables WindowsSdkDir = {winsdk_base_path}, "
+                      f"WindowsSDKVersion (or WindowsSDKVer) = {version} are set, "
+                      "but this Windows SDK installation is incomplete.")
         return None, None
 
     return winsdk_base_path, version
@@ -227,9 +207,7 @@ def find_winsdk_env() -> tuple[Optional[Path], Optional[str]]:
 def find_winsdk_registry() -> tuple[Optional[Path], Optional[str]]:
     try:
         reg = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
-        key = winreg.OpenKeyEx(
-            reg, r"SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0"
-        )
+        key = winreg.OpenKeyEx(reg, r"SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0")
         folder = winreg.QueryValueEx(key, "InstallationFolder")[0]
         winreg.CloseKey(key)
     except OSError:
@@ -296,9 +274,7 @@ def find_winsdk(env_only: bool) -> tuple[list[str], list[str]]:
 
 
 @functools.lru_cache
-def find_msvc_winsdk(
-    env_only: bool = False,
-) -> tuple[Optional[str], list[str], list[str]]:
+def find_msvc_winsdk(env_only: bool = False, ) -> tuple[Optional[str], list[str], list[str]]:
     msvc_bin_path, msvc_inc_dirs, msvc_lib_dirs = find_msvc(env_only)
     winsdk_inc_dirs, winsdk_lib_dirs = find_winsdk(env_only)
     return (
@@ -314,9 +290,9 @@ def find_python() -> list[str]:
     if sysconfig.get_config_var("Py_GIL_DISABLED"):
         version += "t"
     for python_base_path in [
-        sys.exec_prefix,
-        sys.base_exec_prefix,
-        os.path.dirname(sys.executable),
+            sys.exec_prefix,
+            sys.base_exec_prefix,
+            os.path.dirname(sys.executable),
     ]:
         python_lib_dir = Path(python_base_path) / "libs"
         if (python_lib_dir / f"python{version}.lib").exists():
@@ -328,14 +304,11 @@ def find_python() -> list[str]:
 
 def check_and_find_cuda(base_path: Path) -> tuple[Optional[str], list[str], list[str]]:
     # pip
-    if all(
-        x.exists()
-        for x in [
+    if all(x.exists() for x in [
             base_path / "cuda_nvcc" / "bin" / "ptxas.exe",
             base_path / "cuda_runtime" / "include" / "cuda.h",
             base_path / "cuda_runtime" / "lib" / "x64" / "cuda.lib",
-        ]
-    ):
+    ]):
         return (
             str(base_path / "cuda_nvcc" / "bin"),
             [str(base_path / "cuda_runtime" / "include")],
@@ -343,14 +316,11 @@ def check_and_find_cuda(base_path: Path) -> tuple[Optional[str], list[str], list
         )
 
     # conda
-    if all(
-        x.exists()
-        for x in [
+    if all(x.exists() for x in [
             base_path / "bin" / "ptxas.exe",
             base_path / "include" / "cuda.h",
             base_path / "lib" / "cuda.lib",
-        ]
-    ):
+    ]):
         return (
             str(base_path / "bin"),
             [str(base_path / "include")],
@@ -358,14 +328,11 @@ def check_and_find_cuda(base_path: Path) -> tuple[Optional[str], list[str], list
         )
 
     # bundled or system-wide
-    if all(
-        x.exists()
-        for x in [
+    if all(x.exists() for x in [
             base_path / "bin" / "ptxas.exe",
             base_path / "include" / "cuda.h",
             base_path / "lib" / "x64" / "cuda.lib",
-        ]
-    ):
+    ]):
         return (
             str(base_path / "bin"),
             [str(base_path / "include")],
@@ -382,9 +349,7 @@ def find_cuda_env() -> tuple[Optional[str], list[str], list[str]]:
             continue
 
         cuda_base_path = Path(cuda_base_path)
-        cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = check_and_find_cuda(
-            cuda_base_path
-        )
+        cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = check_and_find_cuda(cuda_base_path)
         if cuda_bin_path:
             return cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs
 
@@ -392,9 +357,7 @@ def find_cuda_env() -> tuple[Optional[str], list[str], list[str]]:
 
 
 def find_cuda_bundled() -> tuple[Optional[str], list[str], list[str]]:
-    cuda_base_path = (
-        Path(sysconfig.get_paths()["platlib"]) / "triton" / "backends" / "nvidia"
-    )
+    cuda_base_path = (Path(sysconfig.get_paths()["platlib"]) / "triton" / "backends" / "nvidia")
     return check_and_find_cuda(cuda_base_path)
 
 
@@ -418,9 +381,7 @@ def find_cuda_hardcoded() -> tuple[Optional[str], list[str], list[str]]:
     paths = sorted(paths)[::-1]
     for cuda_base_path in paths:
         cuda_base_path = Path(cuda_base_path)
-        cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = check_and_find_cuda(
-            cuda_base_path
-        )
+        cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = check_and_find_cuda(cuda_base_path)
         if cuda_bin_path:
             return cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs
 
@@ -430,11 +391,11 @@ def find_cuda_hardcoded() -> tuple[Optional[str], list[str], list[str]]:
 @functools.lru_cache
 def find_cuda() -> tuple[Optional[str], list[str], list[str]]:
     for f in [
-        find_cuda_env,
-        find_cuda_bundled,
-        find_cuda_pip,
-        find_cuda_conda,
-        find_cuda_hardcoded,
+            find_cuda_env,
+            find_cuda_bundled,
+            find_cuda_pip,
+            find_cuda_conda,
+            find_cuda_hardcoded,
     ]:
         cuda_bin_path, cuda_inc_dirs, cuda_lib_dirs = f()
         if cuda_bin_path:
