@@ -54,13 +54,15 @@ def test_print(func_type: str, data_type: str, device: str):
 
     # On Windows, some info are sent to stdout, so we filter them out
     if os.name == "nt":
-        outs = [line for line in outs if not any(x in line for x in [
-            "ptxas info",
-            "bytes stack frame",
-            "main.c",
-            "warning C4819: The file contains a character that cannot be represented in the current code page",
-            "Creating library main.lib and object main.exp",
-        ])]
+        outs = [
+            line for line in outs if not any(x in line for x in [
+                "ptxas info",
+                "bytes stack frame",
+                "main.c",
+                "warning C4819: The file contains a character that cannot be represented in the current code page",
+                "Creating library main.lib and object main.exp",
+            ])
+        ]
 
     # The total number of elements in the 1-D tensor to print.
     N = 128
