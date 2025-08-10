@@ -26,6 +26,7 @@ repos:
         exclude: |
           (?x)(
             ^docs/conf.py$
+            | ^python/test/unit/test_legacy_dot.py$
           )
 
   - repo: https://github.com/google/yapf
