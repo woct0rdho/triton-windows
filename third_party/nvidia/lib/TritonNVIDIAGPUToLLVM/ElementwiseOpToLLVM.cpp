@@ -177,65 +177,180 @@ static const Fp8ConversionDesc Bf16_to_Fp8E5M2(bool hasNativeFP) {
   return ret;
 }
 
-// Fp8E4M3 (x2) -> Fp16 (x2) (packed)
-static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16 = {
-    "{ \n"
-    "cvt.rn.f16x2.e4m3x2 $0, $1; \n"
-    "}",
-    16, 32, 2};
+/* ----- FP8E4M3 ------ */
+// Note: when handled by software, this format
+// does not handle denormals and has
+// more than a single NaN values.
 
-// Fp16 (x2) -> Fp8E4M3 (x2) (packed)
-static const Fp8ConversionDesc Fp16_to_Fp8E4M3Nv = {
-    "{ \n"
-    "cvt.rn.satfinite.e4m3x2.f16x2 $0, $1; \n"
-    "}",
-    32, 16, 2};
-
-static const Fp8ConversionDesc Fp8E4M3Nv_to_Bf16(bool hasNativeFP) {
+static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16(bool hasNativeFP) {
   Fp8ConversionDesc ret;
-  // Fp8E4M3 (x2) -> Fp16 (x2) (packed)
   if (!hasNativeFP) {
-    ret = {"{                                       \n"
-           ".reg .b32 a;                            \n"
-           ".reg .f16 a<2>;                         \n"
-           ".reg .f32 b<2>;                         \n"
-           ".reg .b16 c<2>;                         \n"
-           "cvt.rn.f16x2.e4m3x2 a, $1;              \n"
-           "mov.b32 {a0, a1}, a;                    \n"
-           "cvt.f32.f16 b0, a0;                     \n"
-           "cvt.f32.f16 b1, a1;                     \n"
-           "cvt.rn.bf16.f32 c0, b0;                 \n"
-           "cvt.rn.bf16.f32 c1, b1;                 \n"
-           "mov.b32 $0, {c0, c1};                   \n"
-           "}",
-           16, 32, 2};
+    // Fp8E4M3 (x4) -> Fp16 (x4) (packed)
+    ret = {
+        "{                                      \n"
+        ".reg .b32 a<2>, b<2>;                  \n" // if input = 0xf1f2f3f4
+        "prmt.b32 a0, 0, $2, 0x0504;            \n" // a0 = 0x00f300f4
+        "prmt.b32 a1, 0, $2, 0x0706;            \n" // a1 = 0x00f100f2
+        "and.b32  b0, a0, 0x00800080;           \n" // b0 = a0 & 0x00800080
+        "and.b32  b1, a1, 0x00800080;           \n" // (extract sign)
+        "add.u32  b0, b0, a0;                   \n" // b0 = b0 + a0
+        "add.u32  b1, b1, a1;                   \n" // (move sign to the left)
+        "mad.lo.u32 $0, b0, 128, 0x20002000;    \n" // out0 = (b0<<7)+0x20002000
+        "mad.lo.u32 $1, b1, 128, 0x20002000;    \n" // (shift into position and
+                                                    // bias exponent)
+        "}",
+        32, 32, 4};
   } else {
-    ret = {"{                                       \n"
-           ".reg .b32 a;                            \n"
-           ".reg .f16 a<2>;                         \n"
-           ".reg .b16 b<2>;                         \n"
-           "cvt.rn.f16x2.e4m3x2 a, $1;              \n"
-           "mov.b32 {a0, a1}, a;                    \n"
-           "cvt.bf16.f16 b0, a0;                    \n"
-           "cvt.bf16.f16 b1, a1;                    \n"
-           "mov.b32 $0, {b0, b1};                   \n"
+    // Fp8E4M3 (x2) -> Fp16 (x2) (packed)
+    ret = {"{ \n"
+           "cvt.rn.f16x2.e4m3x2 $0, $1; \n"
            "}",
            16, 32, 2};
   }
   return ret;
 }
 
-// Bf16 (x2) -> Fp8E4M3 (x2) (packed)
-static const Fp8ConversionDesc Bf16_to_Fp8E4M3Nv = {
-    "{                                       \n"
-    ".reg .b16 a<2>;                         \n"
-    ".reg .f32 b<2>;                         \n"
-    "mov.b32 {a0, a1}, $1;                   \n"
-    "cvt.f32.bf16 b0, a0;                    \n"
-    "cvt.f32.bf16 b1, a1;                    \n"
-    "cvt.rn.satfinite.e4m3x2.f32 $0, b1, b0; \n"
-    "}",
-    32, 16, 2};
+static const Fp8ConversionDesc Fp16_to_Fp8E4M3Nv(bool hasNativeFP) {
+  Fp8ConversionDesc ret;
+  if (!hasNativeFP) {
+    // Fp16 (x4) -> Fp8E4M3 (x4) (packed)
+    ret = {
+        "{                                      \n"
+        ".reg .b32 a<2>, b<2>;                  \n" // see Fp8E4M3x4ToFp16x4
+        "and.b32 a0, $1, 0x7fff7fff;            \n" // a0 = input0 & 0x7fff7fff
+        "and.b32 a1, $2, 0x7fff7fff;            \n" // (strip sign)
+        "mad.lo.u32 a0, a0, 2, 0x40804080;      \n" // shift exponent (<< 1),
+        "mad.lo.u32 a1, a1, 2, 0x40804080;      \n" // correct bias (0x40004000)
+                                                    // and round to nearest
+        "lop3.b32 b0, $1, 0x80008000, a0, 0xe2; \n" // b0=0x80008000 ? in0 : a0
+        "lop3.b32 b1, $2, 0x80008000, a1, 0xe2; \n" // (restore sign)
+        "prmt.b32 $0, b0, b1, 0x7531;           \n" // output = b1b0
+        "}",
+        32, 32, 4};
+  } else {
+    // Fp16 (x2) -> Fp8E4M3 (x2) (packed)
+    ret = {"{ \n"
+           "cvt.rn.satfinite.e4m3x2.f16x2 $0, $1; \n"
+           "}",
+           32, 16, 2};
+  }
+  return ret;
+}
+
+static const Fp8ConversionDesc Fp8E4M3Nv_to_Bf16(bool hasNativeFP8,
+                                                 bool hasNativeBF16F16) {
+  Fp8ConversionDesc ret;
+  if (!hasNativeFP8) {
+    // Fp8E4M3 (x4) -> Bf16 (x4) (packed)
+    // WARN: subnormal (0bs0000xxx) are not handled
+    ret = {
+        "{                                      \n"
+        ".reg .b32 a<2>, b<2>;                  \n" // if input = 0xf1f2f3f4
+        "prmt.b32 a0, 0, $2, 0x0504;            \n" // a0 = 0x00f300f4
+        "prmt.b32 a1, 0, $2, 0x0706;            \n" // a1 = 0x00f100f2
+        "and.b32  b0, a0, 0x00800080;           \n" // b0 = a0 & 0x00800080
+        "and.b32  b1, a1, 0x00800080;           \n" // (extract sign)
+        "mad.lo.u32 b0, b0, 15, a0;             \n" // b0 = b0 * 15 + a0
+        "mad.lo.u32 b1, b1, 15, a1;             \n" // (move sign to the left)
+        "mad.lo.u32 $0, b0, 16, 0x3c003c00;     \n" // out0 = (b0<<4)+0x3c003c00
+        "mad.lo.u32 $1, b1, 16, 0x3c003c00;     \n" // (shift into position and
+                                                    // bias exponent)
+        "}",
+        32, 32, 4};
+  } else {
+    // Fp8E4M3 (x2) -> Bf16 (x2) (packed)
+    if (!hasNativeBF16F16) {
+      ret = {"{                                       \n"
+             ".reg .b32 a;                            \n"
+             ".reg .f16 a<2>;                         \n"
+             ".reg .f32 b<2>;                         \n"
+             ".reg .b16 c<2>;                         \n"
+             "cvt.rn.f16x2.e4m3x2 a, $1;              \n"
+             "mov.b32 {a0, a1}, a;                    \n"
+             "cvt.f32.f16 b0, a0;                     \n"
+             "cvt.f32.f16 b1, a1;                     \n"
+             "cvt.rn.bf16.f32 c0, b0;                 \n"
+             "cvt.rn.bf16.f32 c1, b1;                 \n"
+             "mov.b32 $0, {c0, c1};                   \n"
+             "}",
+             16, 32, 2};
+    } else {
+      ret = {"{                                       \n"
+             ".reg .b32 a;                            \n"
+             ".reg .f16 a<2>;                         \n"
+             ".reg .b16 b<2>;                         \n"
+             "cvt.rn.f16x2.e4m3x2 a, $1;              \n"
+             "mov.b32 {a0, a1}, a;                    \n"
+             "cvt.bf16.f16 b0, a0;                    \n"
+             "cvt.bf16.f16 b1, a1;                    \n"
+             "mov.b32 $0, {b0, b1};                   \n"
+             "}",
+             16, 32, 2};
+    }
+  }
+  return ret;
+}
+
+static const Fp8ConversionDesc Bf16_to_Fp8E4M3Nv(bool hasNativeFP) {
+  Fp8ConversionDesc ret;
+  if (!hasNativeFP) {
+    // Bf16 (x4) -> Fp8E4M3 (x4) (packed)
+    ret = {
+        "{                                           \n" // bf16=fp8>>4 + 120<<7
+        ".reg .u32 sign, sign<2>, nosign, nosign<2>; \n" // fp8_min = 0b00000000
+        ".reg .u32 fp8_min, fp8_max, rn_;            \n" // fp8_max = 0b11111111
+        "mov.u32 fp8_min, 0x3c003c00;                \n" // so bf16_min = 0x3c00
+        "mov.u32 fp8_max, 0x43f043f0;                \n" // so bf16_max = 0x43f0
+        "mov.u32 rn_, 0x80008;                       \n" // round to nearest
+        "and.b32 sign0, $1, 0x80008000;              \n" // sign0=in0&0x80008000
+        "and.b32 sign1, $2, 0x80008000;              \n" // (store sign)
+        "prmt.b32 sign, sign0, sign1, 0x7531;        \n"
+        "and.b32 nosign0, $1, 0x7fff7fff;            \n" // nosign0=in0&0x7fff7fff
+        "and.b32 nosign1, $2, 0x7fff7fff;            \n" // (strip sign)
+
+        // nosign = clamp(nosign, min, max)
+        ".reg .u32 nosign_0_<2>, nosign_1_<2>;       \n"
+        "and.b32 nosign_0_0, nosign0, 0xffff0000;    \n"
+        "max.u32 nosign_0_0, nosign_0_0, 0x3c000000; \n"
+        "min.u32 nosign_0_0, nosign_0_0, 0x43f00000; \n"
+        "and.b32 nosign_0_1, nosign0, 0x0000ffff;    \n"
+        "max.u32 nosign_0_1, nosign_0_1, 0x3c00;     \n"
+        "min.u32 nosign_0_1, nosign_0_1, 0x43f0;     \n"
+        "or.b32 nosign0, nosign_0_0, nosign_0_1;     \n"
+        "and.b32 nosign_1_0, nosign1, 0xffff0000;    \n"
+        "max.u32 nosign_1_0, nosign_1_0, 0x3c000000; \n"
+        "min.u32 nosign_1_0, nosign_1_0, 0x43f00000; \n"
+        "and.b32 nosign_1_1, nosign1, 0x0000ffff;    \n"
+        "max.u32 nosign_1_1, nosign_1_1, 0x3c00;     \n"
+        "min.u32 nosign_1_1, nosign_1_1, 0x43f0;     \n"
+        "or.b32 nosign1, nosign_1_0, nosign_1_1;     \n"
+
+        "add.u32 nosign0, nosign0, rn_;              \n" // nosign0 += rn_
+        "add.u32 nosign1, nosign1, rn_;              \n" // (round to nearest)
+        "sub.u32 nosign0, nosign0, 0x3c003c00;       \n" // nosign0-=0x3c003c00
+        "sub.u32 nosign1, nosign1, 0x3c003c00;       \n" // (compensate offset)
+        "shr.u32 nosign0, nosign0, 4;                \n" // nosign0 >>= 4
+        "shr.u32 nosign1, nosign1, 4;                \n" // shift into to fp8e4
+        "prmt.b32 nosign, nosign0, nosign1, 0x6420;  \n" // nosign0 = 0x00f100f2
+                                                         // nosign1 = 0x00f300f4
+                                                         // nosign = 0xf3f4f1f2
+        "or.b32 $0, nosign, sign;                    \n" // restore sign
+        "}",
+        32, 32, 4};
+  } else {
+    // Bf16 (x2) -> Fp8E4M3 (x2) (packed)
+    ret = {"{                                       \n"
+           ".reg .b16 a<2>;                         \n"
+           ".reg .f32 b<2>;                         \n"
+           "mov.b32 {a0, a1}, $1;                   \n"
+           "cvt.f32.bf16 b0, a0;                    \n"
+           "cvt.f32.bf16 b1, a1;                    \n"
+           "cvt.rn.satfinite.e4m3x2.f32 $0, b1, b0; \n"
+           "}",
+           32, 16, 2};
+  }
+  return ret;
+}
 
 // Fp32 (x2) -> Fp8 (x2) (packed)
 static const Fp8ConversionDesc Fp32_to_Fp8E4M3Nv = {
@@ -420,10 +535,12 @@ struct FpToFpOpConversion
     static DenseMap<std::tuple<TypeID, TypeID, RoundingMode>, Fp8ConversionDesc>
         srcMap = {
             // F8 -> F16
-            {{F8E4M3TyID, F16TyID, undefRounding}, Fp8E4M3Nv_to_Fp16},
+            {{F8E4M3TyID, F16TyID, undefRounding},
+             Fp8E4M3Nv_to_Fp16(computeCapability >= 89)},
             {{F8E5M2TyID, F16TyID, undefRounding},
              Fp8E5M2_to_Fp16(computeCapability >= 89)},
-            {{F16TyID, F8E4M3TyID, RoundingMode::RTNE}, Fp16_to_Fp8E4M3Nv},
+            {{F16TyID, F8E4M3TyID, RoundingMode::RTNE},
+             Fp16_to_Fp8E4M3Nv(computeCapability >= 89)},
             {{F16TyID, F8E5M2TyID, RoundingMode::RTNE},
              Fp16_to_Fp8E5M2_RTNE(computeCapability >= 89)},
             {{F16TyID, F8E5M2TyID, RoundingMode::RTZ}, Fp16_to_Fp8E5M2_RTZ},
@@ -433,11 +550,13 @@ struct FpToFpOpConversion
              Fp8E5M2_to_Bf16(computeCapability >= 90)},
             // cvt with .bf16.f16' requires .target sm_90 or higher
             {{F8E4M3TyID, BF16TyID, undefRounding},
-             Fp8E4M3Nv_to_Bf16(computeCapability >= 90)},
+             Fp8E4M3Nv_to_Bf16(computeCapability >= 89,
+                               computeCapability >= 90)},
             // BF16 -> F8
             {{BF16TyID, F8E5M2TyID, RoundingMode::RTNE},
              Bf16_to_Fp8E5M2(computeCapability >= 89)},
-            {{BF16TyID, F8E4M3TyID, RoundingMode::RTNE}, Bf16_to_Fp8E4M3Nv},
+            {{BF16TyID, F8E4M3TyID, RoundingMode::RTNE},
+             Bf16_to_Fp8E4M3Nv(computeCapability >= 89)},
             // F32 -> F8
             {{F32TyID, F8E4M3TyID, RoundingMode::RTNE}, Fp32_to_Fp8E4M3Nv},
             {{F32TyID, F8E5M2TyID, RoundingMode::RTNE}, Fp32_to_Fp8E5M2},
@@ -453,11 +572,6 @@ struct FpToFpOpConversion
                      << stringifyRoundingMode(roundingMode.value());
       llvm::errs() << "\n";
       llvm::report_fatal_error("Unsupported rounding mode for conversion.");
-    }
-    if (computeCapability < 89 && (llvm::isa<Float8E4M3FNType>(srcTy) ||
-                                   llvm::isa<Float8E4M3FNType>(dstTy))) {
-      llvm::report_fatal_error("Conversion from/to f8e4m3nv is only supported "
-                               "on compute capability >= 89\n");
     }
     auto convDesc = srcMap.lookup(key);
     return {makeConverterFromPtx(
