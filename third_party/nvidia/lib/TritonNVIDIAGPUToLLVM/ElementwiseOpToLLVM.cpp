@@ -178,8 +178,7 @@ static const Fp8ConversionDesc Bf16_to_Fp8E5M2(bool hasNativeFP) {
 }
 
 /* ----- FP8E4M3 ------ */
-// Note: when handled by software, this format
-// does not handle denormals and has
+// Note: when handled by software, this format has
 // more than a single NaN values.
 
 static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16(bool hasNativeFP) {
@@ -187,17 +186,32 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16(bool hasNativeFP) {
   if (!hasNativeFP) {
     // Fp8E4M3 (x4) -> Fp16 (x4) (packed)
     ret = {
-        "{                                      \n"
-        ".reg .b32 a<2>, b<2>;                  \n" // if input = 0xf1f2f3f4
-        "prmt.b32 a0, 0, $2, 0x0504;            \n" // a0 = 0x00f300f4
-        "prmt.b32 a1, 0, $2, 0x0706;            \n" // a1 = 0x00f100f2
-        "and.b32  b0, a0, 0x00800080;           \n" // b0 = a0 & 0x00800080
-        "and.b32  b1, a1, 0x00800080;           \n" // (extract sign)
-        "add.u32  b0, b0, a0;                   \n" // b0 = b0 + a0
-        "add.u32  b1, b1, a1;                   \n" // (move sign to the left)
-        "mad.lo.u32 $0, b0, 128, 0x20002000;    \n" // out0 = (b0<<7)+0x20002000
-        "mad.lo.u32 $1, b1, 128, 0x20002000;    \n" // (shift into position and
-                                                    // bias exponent)
+        "{                                        \n"
+        ".reg .b32 a<2>, b<2>, c<4>, d<4>, e112;  \n" // if input = 0xf1f2f3f4
+        "mov.u32 e112, 0x43800000;                \n"
+        "prmt.b32 a0, 0, $2, 0x5140;              \n" // a0 = 0xf300f400
+        "prmt.b32 a1, 0, $2, 0x7362;              \n" // a1 = 0xf100f200
+        "lop3.b32 b0, a0, 0x7fff7fff, 0, 0xc0;    \n" // b0 = a0 & 0x7fff7fff
+        "lop3.b32 b1, a1, 0x7fff7fff, 0, 0xc0;    \n" // (strip sign)
+        "shr.b32 b0, b0, 4;                       \n" // b0 >>= 4
+        "shr.b32 b1, b1, 4;                       \n" // shift into bf16
+                                                      // position
+        "and.b32 c0, b0, 0xFFFF0000;              \n" // c0 = f3
+        "shl.b32 c1, b0, 16;                      \n" // c1 = f4
+        "and.b32 c2, b1, 0xFFFF0000;              \n" // c2 = f1
+        "shl.b32 c3, b1, 16;                      \n" // c3 = f2
+        // move exponent bias from 7 to 15
+        "mul.f32 d0, c0, e112;                    \n" // d0 = c0 * 0x43800000
+        "mul.f32 d1, c1, e112;                    \n" // d1 = c1 * 0x43800000
+        "mul.f32 d2, c2, e112;                    \n" // d2 = c2 * 0x43800000
+        "mul.f32 d3, c3, e112;                    \n" // d3 = c3 * 0x43800000
+        "prmt.b32 b0, d0, d1, 0x3276;             \n" // b0 = 0xd0d1
+        "prmt.b32 b1, d2, d3, 0x3276;             \n" // b1 = 0xd2d3
+        "shl.b32 b0, b0, 3;                       \n" // b0 <<= 3
+        "shl.b32 b1, b1, 3;                       \n" // shift into fp16
+                                                      // position
+        "lop3.b32 $0, b0, 0x80008000, a0, 0xf8;   \n" // out0=b0|(0x80008000&a0)
+        "lop3.b32 $1, b1, 0x80008000, a1, 0xf8;   \n" // (restore sign)
         "}",
         32, 32, 4};
   } else {
@@ -257,6 +271,7 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Bf16(bool hasNativeFP8,
         "shl.b32 c1, b0, 16;                      \n" // c1 = f4
         "and.b32 c2, b1, 0xFFFF0000;              \n" // c2 = f1
         "shl.b32 c3, b1, 16;                      \n" // c3 = f2
+        // move exponent bias from 7 to 127
         "mul.f32 d0, c0, e112;                    \n" // d0 = c0 * 0x7b800000
         "mul.f32 d1, c1, e112;                    \n" // d1 = c1 * 0x7b800000
         "mul.f32 d2, c2, e112;                    \n" // d2 = c2 * 0x7b800000
