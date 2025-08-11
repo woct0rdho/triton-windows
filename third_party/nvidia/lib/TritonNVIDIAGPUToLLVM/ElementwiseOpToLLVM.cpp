@@ -187,8 +187,8 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16(bool hasNativeFP) {
     // Fp8E4M3 (x4) -> Fp16 (x4) (packed)
     ret = {
         "{                                        \n"
-        ".reg .b32 a<2>, b<2>, c<4>, d<4>, e112;  \n" // if input = 0xf1f2f3f4
-        "mov.u32 e112, 0x43800000;                \n"
+        ".reg .b32 a<2>, b<2>, c<4>, d<4>, e8;    \n" // if input = 0xf1f2f3f4
+        "mov.u32 e8, 0x43800000;                  \n"
         "prmt.b32 a0, 0, $2, 0x5140;              \n" // a0 = 0xf300f400
         "prmt.b32 a1, 0, $2, 0x7362;              \n" // a1 = 0xf100f200
         "lop3.b32 b0, a0, 0x7fff7fff, 0, 0xc0;    \n" // b0 = a0 & 0x7fff7fff
@@ -201,10 +201,10 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16(bool hasNativeFP) {
         "and.b32 c2, b1, 0xFFFF0000;              \n" // c2 = f1
         "shl.b32 c3, b1, 16;                      \n" // c3 = f2
         // move exponent bias from 7 to 15
-        "mul.f32 d0, c0, e112;                    \n" // d0 = c0 * 0x43800000
-        "mul.f32 d1, c1, e112;                    \n" // d1 = c1 * 0x43800000
-        "mul.f32 d2, c2, e112;                    \n" // d2 = c2 * 0x43800000
-        "mul.f32 d3, c3, e112;                    \n" // d3 = c3 * 0x43800000
+        "mul.f32 d0, c0, e8;                      \n" // d0 = c0 * 0x43800000
+        "mul.f32 d1, c1, e8;                      \n" // d1 = c1 * 0x43800000
+        "mul.f32 d2, c2, e8;                      \n" // d2 = c2 * 0x43800000
+        "mul.f32 d3, c3, e8;                      \n" // d3 = c3 * 0x43800000
         "prmt.b32 b0, d0, d1, 0x3276;             \n" // b0 = 0xd0d1
         "prmt.b32 b1, d2, d3, 0x3276;             \n" // b1 = 0xd2d3
         "shl.b32 b0, b0, 3;                       \n" // b0 <<= 3
@@ -258,8 +258,8 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Bf16(bool hasNativeFP8,
     // Fp8E4M3 (x4) -> Bf16 (x4) (packed)
     ret = {
         "{                                        \n"
-        ".reg .b32 a<2>, b<2>, c<4>, d<4>, e112;  \n" // if input = 0xf1f2f3f4
-        "mov.u32 e112, 0x7b800000;                \n"
+        ".reg .b32 a<2>, b<2>, c<4>, d<4>, e120;  \n" // if input = 0xf1f2f3f4
+        "mov.u32 e120, 0x7b800000;                \n"
         "prmt.b32 a0, 0, $2, 0x5140;              \n" // a0 = 0xf300f400
         "prmt.b32 a1, 0, $2, 0x7362;              \n" // a1 = 0xf100f200
         "lop3.b32 b0, a0, 0x7fff7fff, 0, 0xc0;    \n" // b0 = a0 & 0x7fff7fff
@@ -272,10 +272,10 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Bf16(bool hasNativeFP8,
         "and.b32 c2, b1, 0xFFFF0000;              \n" // c2 = f1
         "shl.b32 c3, b1, 16;                      \n" // c3 = f2
         // move exponent bias from 7 to 127
-        "mul.f32 d0, c0, e112;                    \n" // d0 = c0 * 0x7b800000
-        "mul.f32 d1, c1, e112;                    \n" // d1 = c1 * 0x7b800000
-        "mul.f32 d2, c2, e112;                    \n" // d2 = c2 * 0x7b800000
-        "mul.f32 d3, c3, e112;                    \n" // d3 = c3 * 0x7b800000
+        "mul.f32 d0, c0, e120;                    \n" // d0 = c0 * 0x7b800000
+        "mul.f32 d1, c1, e120;                    \n" // d1 = c1 * 0x7b800000
+        "mul.f32 d2, c2, e120;                    \n" // d2 = c2 * 0x7b800000
+        "mul.f32 d3, c3, e120;                    \n" // d3 = c3 * 0x7b800000
         "prmt.b32 b0, d0, d1, 0x3276;             \n" // b0 = 0xd0d1
         "prmt.b32 b1, d2, d3, 0x3276;             \n" // b1 = 0xd2d3
         "lop3.b32 $0, b0, 0x80008000, a0, 0xf8;   \n" // out0=b0|(0x80008000&a0)
