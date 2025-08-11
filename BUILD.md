@@ -103,7 +103,8 @@ $Env:TRITON_BUILD_WITH_CCACHE = "1"
 
 Clone this repo, checkout `release/3.4.x-windows` branch, make an editable build using pip:
 ```pwsh
-pip install --no-build-isolation --verbose -e python
+pip install --no-build-isolation --verbose -e .
+# Or `pip install --no-build-isolation --verbose -e python` for Triton <= 3.3
 ```
 
 Build the wheels: (This is for distributing the wheels to others. You don't need this if you only use Triton on your own computer)
