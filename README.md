@@ -470,7 +470,7 @@ AssertionError: fp8e4nv data type is not supported on CUDA arch < 89
 ```
 then it's because in Triton, fp8 only works on Nvidia GPUs with sm >= 89, such as RTX 40xx and newer. You may disable fp8 in the node or the code.
 
-This is not Windows-specific. It should be possible to emulate fp8 on older hardware like XLA does (see https://github.com/openxla/xla/discussions/23124 ), even if without time or memory improvement compared to fp16. Help wanted if anyone has time for this.
+I'm trying to fix this, see https://github.com/woct0rdho/triton-windows/pull/140
 
 ### Error with `os.rename`
 
