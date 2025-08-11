@@ -128,7 +128,7 @@ class CUDAOptions:
     enable_reflect_ftz: bool = True  # ftz in libdevice
     launch_cooperative_grid: bool = False
     launch_pdl: bool = False
-    supported_fp8_dtypes: Tuple[str] = ("fp8e5", "fp8e4b15")
+    supported_fp8_dtypes: Tuple[str] = ("fp8e4nv", "fp8e5", "fp8e4b15")
     deprecated_fp8_dot_operand_dtypes: Tuple[str] = ()
     default_dot_input_precision: str = "tf32"
     allowed_dot_input_precisions: Tuple[str] = ("tf32", "tf32x3", "ieee", 'bf16x3', 'bf16x6')
@@ -195,8 +195,6 @@ class CUDABackend(BaseBackend):
 
         if "supported_fp8_dtypes" not in args:
             supported_fp8_dtypes = set(CUDAOptions.supported_fp8_dtypes)
-            if capability >= 89:
-                supported_fp8_dtypes.add("fp8e4nv")
             args["supported_fp8_dtypes"] = tuple(sorted(supported_fp8_dtypes))
 
         if "deprecated_fp8_dot_operand_dtypes" not in args:
