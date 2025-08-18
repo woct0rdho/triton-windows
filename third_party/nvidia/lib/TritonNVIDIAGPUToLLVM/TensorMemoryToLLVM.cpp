@@ -34,14 +34,17 @@ struct TMemAccessAtom {
   const char *opShape;
 };
 
-constexpr TMemAccessAtom TMemAccess32x32b{
-    .colsPerThread = 1, .rowsPerThread = 1, .opShape = "32x32b"};
+constexpr TMemAccessAtom TMemAccess32x32b{/* .colsPerThread = */ 1,
+                                          /* .rowsPerThread = */ 1,
+                                          /* .opShape = */ "32x32b"};
 
-constexpr TMemAccessAtom TMemAccess16x256b{
-    .colsPerThread = 2, .rowsPerThread = 2, .opShape = "16x256b"};
+constexpr TMemAccessAtom TMemAccess16x256b{/* .colsPerThread = */ 2,
+                                           /* .rowsPerThread = */ 2,
+                                           /* .opShape = */ "16x256b"};
 
-constexpr TMemAccessAtom TMemAccess16x32bx2{
-    .colsPerThread = 1, .rowsPerThread = 1, .opShape = "16x32bx2"};
+constexpr TMemAccessAtom TMemAccess16x32bx2{/* .colsPerThread = */ 1,
+                                            /* .rowsPerThread = */ 1,
+                                            /* .opShape = */ "16x32bx2"};
 
 std::optional<LinearLayout> getReps(const LinearLayout &cvt,
                                     const LinearLayout &tile) {
