@@ -77,8 +77,8 @@ static const Fp8ConversionDesc Fp8E5M2_to_Bf16(bool hasNativeFP) {
         "prmt.b32 a1, 0, $2, 0x7362;              \n" // a1 = 0xf100f200
         "and.b32 b0, a0, 0x7fff7fff;              \n" // strip sign
         "and.b32 b1, a1, 0x7fff7fff;              \n"
-        "shr.b32 b0, b0, 3;                       \n" // b0 >>= 3
-        "shr.b32 b1, b1, 3;                       \n" // shift to bf16 position
+        "shr.b32 b0, b0, 3;                       \n" // shift to bf16 position
+        "shr.b32 b1, b1, 3;                       \n"
         "and.b32 c0, b0, 0xffff0000;              \n" // c0 = f3
         "shl.b32 c1, b0, 16;                      \n" // c1 = f4
         "and.b32 c2, b1, 0xffff0000;              \n" // c2 = f1
@@ -203,8 +203,8 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16(bool hasNativeFP) {
         "prmt.b32 a1, 0, $2, 0x7362;              \n" // a1 = 0xf100f200
         "and.b32 b0, a0, 0x7fff7fff;              \n" // strip sign
         "and.b32 b1, a1, 0x7fff7fff;              \n"
-        "shr.b32 b0, b0, 4;                       \n" // b0 >>= 4
-        "shr.b32 b1, b1, 4;                       \n" // shift to bf16 position
+        "shr.b32 b0, b0, 4;                       \n" // shift to bf16 position
+        "shr.b32 b1, b1, 4;                       \n"
         "and.b32 c0, b0, 0xffff0000;              \n" // c0 = f3
         "shl.b32 c1, b0, 16;                      \n" // c1 = f4
         "and.b32 c2, b1, 0xffff0000;              \n" // c2 = f1
@@ -215,8 +215,8 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16(bool hasNativeFP) {
         "mul.f32 c3, c3, e8;                      \n"
         "prmt.b32 b0, c0, c1, 0x3276;             \n" // b0 = 0xc0c1
         "prmt.b32 b1, c2, c3, 0x3276;             \n" // b1 = 0xc2c3
-        "shl.b32 b0, b0, 3;                       \n" // b0 <<= 3
-        "shl.b32 b1, b1, 3;                       \n" // shift to fp16 position
+        "shl.b32 b0, b0, 3;                       \n" // shift to fp16 position
+        "shl.b32 b1, b1, 3;                       \n"
         "lop3.b32 $0, b0, 0x80008000, a0, 0xf8;   \n" // out0=b0|(0x80008000&a0)
         "lop3.b32 $1, b1, 0x80008000, a1, 0xf8;   \n" // (restore sign)
         "}",
@@ -313,8 +313,8 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Bf16(bool hasNativeFP8,
         "prmt.b32 a1, 0, $2, 0x7362;              \n" // a1 = 0xf100f200
         "and.b32 b0, a0, 0x7fff7fff;              \n" // strip sign
         "and.b32 b1, a1, 0x7fff7fff;              \n"
-        "shr.b32 b0, b0, 4;                       \n" // b0 >>= 4
-        "shr.b32 b1, b1, 4;                       \n" // shift to bf16 position
+        "shr.b32 b0, b0, 4;                       \n" // shift to bf16 position
+        "shr.b32 b1, b1, 4;                       \n"
         "and.b32 c0, b0, 0xffff0000;              \n" // c0 = f3
         "shl.b32 c1, b0, 16;                      \n" // c1 = f4
         "and.b32 c2, b1, 0xffff0000;              \n" // c2 = f1
