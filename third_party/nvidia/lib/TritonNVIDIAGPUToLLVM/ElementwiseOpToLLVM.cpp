@@ -441,11 +441,31 @@ static const Fp8ConversionDesc Fp32_to_Fp8E4M3Nv(bool hasNativeFP) {
     // Fp32 (x4) -> Fp8E4M3 (x4) (packed)
     ret = {
         "{                                           \n"
-        ".reg .b32 c<4>;                             \n"
+        ".reg .b32 c<4>, d<4>;                       \n"
+        ".reg .pred p<4>;                            \n"
         "and.b32 c0, $1, 0x7fffffff;                 \n" // strip sign
         "and.b32 c1, $2, 0x7fffffff;                 \n"
         "and.b32 c2, $3, 0x7fffffff;                 \n"
         "and.b32 c3, $4, 0x7fffffff;                 \n"
+
+        ".reg .b32 e141;                             \n"
+        "mov.b32 e141, 0x46800000;                   \n"
+        "setp.lt.u32 p0, c0, 0x3c800000;             \n" // handle smaller
+        "setp.lt.u32 p1, c1, 0x3c800000;             \n" // denormal
+        "setp.lt.u32 p2, c2, 0x3c800000;             \n"
+        "setp.lt.u32 p3, c3, 0x3c800000;             \n"
+        "add.f32 d0, c0, e141;                       \n"
+        "add.f32 d1, c1, e141;                       \n"
+        "add.f32 d2, c2, e141;                       \n"
+        "add.f32 d3, c3, e141;                       \n"
+        "sub.u32 d0, d0, e141;                       \n"
+        "sub.u32 d1, d1, e141;                       \n"
+        "sub.u32 d2, d2, e141;                       \n"
+        "sub.u32 d3, d3, e141;                       \n"
+        "shl.b32 d0, d0, 24;                         \n"
+        "shl.b32 d1, d1, 24;                         \n"
+        "shl.b32 d2, d2, 24;                         \n"
+        "shl.b32 d3, d3, 24;                         \n"
 
         ".reg .b32 e120;                             \n" // move exponent bias
         "mov.b32 e120, 0x03800000;                   \n" // from 127 to 7
@@ -481,6 +501,12 @@ static const Fp8ConversionDesc Fp32_to_Fp8E4M3Nv(bool hasNativeFP) {
         "shl.b32 c1, c1, 4;                          \n"
         "shl.b32 c2, c2, 4;                          \n"
         "shl.b32 c3, c3, 4;                          \n"
+
+        "selp.b32 c0, d0, c0, p0;                    \n" // use the result for
+        "selp.b32 c1, d1, c1, p1;                    \n" // smaller denormal
+        "selp.b32 c2, d2, c2, p2;                    \n"
+        "selp.b32 c3, d3, c3, p3;                    \n"
+
         "lop3.b32 c0, c0, 0x80008000, $1, 0xf8;      \n" // c0=c0|(0x80008000&in0)
         "lop3.b32 c1, c1, 0x80008000, $2, 0xf8;      \n" // (restore sign)
         "lop3.b32 c2, c2, 0x80008000, $3, 0xf8;      \n"
