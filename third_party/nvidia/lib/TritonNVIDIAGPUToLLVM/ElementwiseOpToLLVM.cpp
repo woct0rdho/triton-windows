@@ -28,10 +28,10 @@ struct Fp8ConversionDesc {
 static const Fp8ConversionDesc Fp16_to_Fp8E5M2_RTNE(bool hasNativeFP) {
   Fp8ConversionDesc ret;
   if (!hasNativeFP) {
-    // TODO: Handle NaN
+    // TODO: NaN may become +-inf or +-0
     ret = {"{                            \n"
            ".reg .b32 a<2>, b<2>;        \n"
-           "and.b32 b0, $1, 0x01000100;  \n" // round to nearest even:
+           "and.b32 b0, $1, 0x01000100;  \n" // RTNE:
            "and.b32 b1, $2, 0x01000100;  \n" // if LSB of fp8 mantissa is 1
            "add.u32 a0, $1, 0x007f007f;  \n" // then add 0x80 to fp16 mantissa
            "add.u32 a1, $2, 0x007f007f;  \n" // else add 0x7f to fp16 mantissa
@@ -68,7 +68,7 @@ static const Fp8ConversionDesc Fp8E5M2_to_Fp16(bool hasNativeFP) {
 static const Fp8ConversionDesc Fp8E5M2_to_Bf16(bool hasNativeFP) {
   Fp8ConversionDesc ret;
   if (!hasNativeFP) {
-    // TODO: Handle inf and NaN
+    // TODO: +-inf and NaN may become +-large finite numbers
     ret = {
         "{                                        \n"
         ".reg .b32 a<2>, b<2>, c<4>, e112;        \n" // if input = 0xf1f2f3f4
@@ -128,11 +128,11 @@ static const Fp8ConversionDesc Bf16_to_Fp8E5M2(bool hasNativeFP) {
         "and.b32 nosign0, $1, 0x7fff7fff;            \n" // nosign0=in0&0x7fff7fff
         "and.b32 nosign1, $2, 0x7fff7fff;            \n" // (strip sign)
 
-        ".reg .b32 c<4>;                             \n" // nosign0 = 0xf300f400
-        "and.b32 c0, nosign0, 0xffff0000;            \n" // c0 = 0xf3000000
-        "shl.b32 c1, nosign0, 16;                    \n" // c1 = 0xf4000000
-        "and.b32 c2, nosign1, 0xffff0000;            \n" // c2 = 0xf1000000
-        "shl.b32 c3, nosign1, 16;                    \n" // c3 = 0xf2000000
+        ".reg .b32 c<4>;                             \n" // nosign0 = 0xf333f444
+        "and.b32 c0, nosign0, 0xffff0000;            \n" // c0 = 0xf3330000
+        "shl.b32 c1, nosign0, 16;                    \n" // c1 = 0xf4440000
+        "and.b32 c2, nosign1, 0xffff0000;            \n" // c2 = 0xf1110000
+        "shl.b32 c3, nosign1, 16;                    \n" // c3 = 0xf2220000
 
         ".reg .b32 e112;                             \n" // move exponent bias
         "mov.u32 e112, 0x07800000;                   \n" // from 127 to 15
@@ -164,9 +164,9 @@ static const Fp8ConversionDesc Bf16_to_Fp8E5M2(bool hasNativeFP) {
         "add.u32 c2, c2, lsb2;                       \n"
         "add.u32 c3, c3, lsb3;                       \n"
 
-        "prmt.b32 nosign0, c0, c1, 0x3276;           \n" // c0 = 0xf3000000
-        "prmt.b32 nosign1, c2, c3, 0x3276;           \n" // c1 = 0xf4000000
-                                                         // nosign0 = 0xf300f400
+        "prmt.b32 nosign0, c0, c1, 0x3276;           \n" // c0 = 0xf3330000
+        "prmt.b32 nosign1, c2, c3, 0x3276;           \n" // c1 = 0xf4440000
+                                                         // nosign0 = 0xf333f444
 
         "shl.b32 nosign0, nosign0, 3;                \n" // nosign0 <<= 3
         "shl.b32 nosign1, nosign1, 3;                \n" // shift to fp8e5
@@ -196,7 +196,7 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16(bool hasNativeFP) {
   Fp8ConversionDesc ret;
   if (!hasNativeFP) {
     // Fp8E4M3 (x4) -> Fp16 (x4) (packed)
-    // TODO: Handle NaN
+    // TODO: NaN may become +-480
     ret = {
         "{                                        \n"
         ".reg .b32 a<2>, b<2>, c<4>, e8;          \n" // if input = 0xf1f2f3f4
@@ -259,7 +259,7 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Bf16(bool hasNativeFP8,
   Fp8ConversionDesc ret;
   if (!hasNativeFP8) {
     // Fp8E4M3 (x4) -> Bf16 (x4) (packed)
-    // TODO: Handle NaN
+    // TODO: NaN may become +-480
     ret = {
         "{                                        \n"
         ".reg .b32 a<2>, b<2>, c<4>, e120;        \n" // if input = 0xf1f2f3f4
