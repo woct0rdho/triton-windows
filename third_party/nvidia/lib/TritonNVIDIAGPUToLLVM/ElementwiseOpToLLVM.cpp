@@ -801,7 +801,8 @@ struct FpToFpOpConversion
             // F32 -> F8
             {{F32TyID, F8E4M3TyID, RoundingMode::RTNE},
              Fp32_to_Fp8E4M3Nv(computeCapability >= 90)},
-            {{F32TyID, F8E5M2TyID, RoundingMode::RTNE}, Fp32_to_Fp8E5M2},
+            {{F32TyID, F8E5M2TyID, RoundingMode::RTNE},
+             Fp32_to_Fp8E5M2(computeCapability >= 90)},
         };
     std::tuple<TypeID, TypeID, RoundingMode> key = {
         srcTy.getTypeID(), dstTy.getTypeID(),
