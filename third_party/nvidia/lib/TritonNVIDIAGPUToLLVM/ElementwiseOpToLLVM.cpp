@@ -138,10 +138,10 @@ static const Fp8ConversionDesc Bf16_to_Fp8E5M2(bool hasNativeFP) {
         "mul.f32 c2, c2, e112;                       \n"
         "mul.f32 c3, c3, e112;                       \n"
 
-        "min.u32 c0, c0, 0x0fef0000;                 \n" // avoid overflow
-        "min.u32 c1, c1, 0x0fef0000;                 \n" // when RTNE
-        "min.u32 c2, c2, 0x0fef0000;                 \n"
-        "min.u32 c3, c3, 0x0fef0000;                 \n"
+        "min.u32 c0, c0, 0x0fefffff;                 \n" // avoid overflow
+        "min.u32 c1, c1, 0x0fefffff;                 \n" // when RTNE
+        "min.u32 c2, c2, 0x0fefffff;                 \n"
+        "min.u32 c3, c3, 0x0fefffff;                 \n"
 
         ".reg .b32 lsb<4>;                           \n" // RTNE:
         "and.b32 lsb0, c0, 0x00200000;               \n" // if LSB is 1
@@ -256,10 +256,10 @@ static const Fp8ConversionDesc Fp16_to_Fp8E4M3Nv(bool hasNativeFP) {
         "mul.f32 c2, c2, e8;                         \n"
         "mul.f32 c3, c3, e8;                         \n"
 
-        "min.u32 c0, c0, 0x07f70000;                 \n" // avoid overflow
-        "min.u32 c1, c1, 0x07f70000;                 \n" // when RTNE
-        "min.u32 c2, c2, 0x07f70000;                 \n"
-        "min.u32 c3, c3, 0x07f70000;                 \n"
+        "min.u32 c0, c0, 0x07f7ffff;                 \n" // avoid overflow
+        "min.u32 c1, c1, 0x07f7ffff;                 \n" // when RTNE
+        "min.u32 c2, c2, 0x07f7ffff;                 \n"
+        "min.u32 c3, c3, 0x07f7ffff;                 \n"
 
         ".reg .b32 lsb<4>;                           \n" // RTNE:
         "and.b32 lsb0, c0, 0x00100000;               \n" // if LSB is 1
@@ -384,10 +384,10 @@ static const Fp8ConversionDesc Bf16_to_Fp8E4M3Nv(bool hasNativeFP) {
         "mul.f32 c2, c2, e120;                       \n"
         "mul.f32 c3, c3, e120;                       \n"
 
-        "min.u32 c0, c0, 0x07f70000;                 \n" // avoid overflow
-        "min.u32 c1, c1, 0x07f70000;                 \n" // when RTNE
-        "min.u32 c2, c2, 0x07f70000;                 \n"
-        "min.u32 c3, c3, 0x07f70000;                 \n"
+        "min.u32 c0, c0, 0x07f7ffff;                 \n" // avoid overflow
+        "min.u32 c1, c1, 0x07f7ffff;                 \n" // when RTNE
+        "min.u32 c2, c2, 0x07f7ffff;                 \n"
+        "min.u32 c3, c3, 0x07f7ffff;                 \n"
 
         ".reg .b32 lsb<4>;                           \n" // RTNE:
         "and.b32 lsb0, c0, 0x00100000;               \n" // if LSB is 1
@@ -435,9 +435,69 @@ static const Fp8ConversionDesc Bf16_to_Fp8E4M3Nv(bool hasNativeFP) {
   return ret;
 }
 
-// Fp32 (x2) -> Fp8 (x2) (packed)
-static const Fp8ConversionDesc Fp32_to_Fp8E4M3Nv = {
-    "cvt.rn.satfinite.e4m3x2.f32  $0, $2, $1;", 32, 16, 2};
+static const Fp8ConversionDesc Fp32_to_Fp8E4M3Nv(bool hasNativeFP) {
+  Fp8ConversionDesc ret;
+  if (!hasNativeFP) {
+    // Fp32 (x4) -> Fp8E4M3 (x4) (packed)
+    ret = {
+        "{                                           \n"
+        ".reg .b32 c<4>;                             \n"
+        "and.b32 c0, $1, 0x7fffffff;                 \n" // strip sign
+        "and.b32 c1, $2, 0x7fffffff;                 \n"
+        "and.b32 c2, $3, 0x7fffffff;                 \n"
+        "and.b32 c3, $4, 0x7fffffff;                 \n"
+
+        ".reg .b32 e120;                             \n" // move exponent bias
+        "mov.b32 e120, 0x03800000;                   \n" // from 127 to 7
+        "mul.f32 c0, c0, e120;                       \n" // and handle denormal
+        "mul.f32 c1, c1, e120;                       \n"
+        "mul.f32 c2, c2, e120;                       \n"
+        "mul.f32 c3, c3, e120;                       \n"
+
+        "min.u32 c0, c0, 0x07f7ffff;                 \n" // avoid overflow
+        "min.u32 c1, c1, 0x07f7ffff;                 \n" // when RTNE
+        "min.u32 c2, c2, 0x07f7ffff;                 \n"
+        "min.u32 c3, c3, 0x07f7ffff;                 \n"
+
+        ".reg .b32 lsb<4>;                           \n" // RTNE:
+        "and.b32 lsb0, c0, 0x00100000;               \n" // if LSB is 1
+        "and.b32 lsb1, c1, 0x00100000;               \n" // then add 0x00080000
+        "and.b32 lsb2, c2, 0x00100000;               \n" // else add 0x0007ffff
+        "and.b32 lsb3, c3, 0x00100000;               \n"
+        "add.u32 c0, c0, 0x0007ffff;                 \n"
+        "add.u32 c1, c1, 0x0007ffff;                 \n"
+        "add.u32 c2, c2, 0x0007ffff;                 \n"
+        "add.u32 c3, c3, 0x0007ffff;                 \n"
+        "shr.b32 lsb0, lsb0, 20;                     \n"
+        "shr.b32 lsb1, lsb1, 20;                     \n"
+        "shr.b32 lsb2, lsb2, 20;                     \n"
+        "shr.b32 lsb3, lsb3, 20;                     \n"
+        "add.u32 c0, c0, lsb0;                       \n"
+        "add.u32 c1, c1, lsb1;                       \n"
+        "add.u32 c2, c2, lsb1;                       \n"
+        "add.u32 c3, c3, lsb1;                       \n"
+
+        "shl.b32 c0, c0, 4;                          \n" // shift to fp8e4
+        "shl.b32 c1, c1, 4;                          \n"
+        "shl.b32 c2, c2, 4;                          \n"
+        "shl.b32 c3, c3, 4;                          \n"
+        "lop3.b32 c0, c0, 0x80008000, $1, 0xf8;      \n" // c0=c0|(0x80008000&in0)
+        "lop3.b32 c1, c1, 0x80008000, $2, 0xf8;      \n" // (restore sign)
+        "lop3.b32 c2, c2, 0x80008000, $3, 0xf8;      \n"
+        "lop3.b32 c3, c3, 0x80008000, $4, 0xf8;      \n"
+
+        "prmt.b32 c0, c0, c1, 0x7430;                \n" // c0 = 0xf300f400
+        "prmt.b32 c2, c2, c3, 0x7430;                \n" // c2 = 0xf100f200
+        "prmt.b32 $0, c0, c2, 0x7531;                \n" // output = 0xf1f2f3f4
+        "}",
+        32, 32, 4};
+  } else {
+    // Fp32 (x2) -> Fp8E4M3 (x2) (packed)
+    ret = {"cvt.rn.satfinite.e4m3x2.f32 $0, $2, $1;", 32, 16, 2};
+  }
+  return ret;
+}
+
 static const Fp8ConversionDesc Fp32_to_Fp8E5M2 = {
     "cvt.rn.satfinite.e5m2x2.f32 $0, $2, $1;", 32, 16, 2};
 
@@ -642,7 +702,8 @@ struct FpToFpOpConversion
             {{BF16TyID, F8E4M3TyID, RoundingMode::RTNE},
              Bf16_to_Fp8E4M3Nv(computeCapability >= 89)},
             // F32 -> F8
-            {{F32TyID, F8E4M3TyID, RoundingMode::RTNE}, Fp32_to_Fp8E4M3Nv},
+            {{F32TyID, F8E4M3TyID, RoundingMode::RTNE},
+             Fp32_to_Fp8E4M3Nv(computeCapability >= 90)},
             {{F32TyID, F8E5M2TyID, RoundingMode::RTNE}, Fp32_to_Fp8E5M2},
         };
     std::tuple<TypeID, TypeID, RoundingMode> key = {
@@ -710,10 +771,7 @@ struct FpToFpOpConversion
     }
 
     bool useFP16IntermediateSrc =
-        srcElementType.isF32() &&
-        (!(computeCapability >= 90 &&
-           (llvm::isa<Float8E4M3FNType, Float8E5M2Type>(dstElementType))) ||
-         roundingMode.value() == RoundingMode::RTZ);
+        srcElementType.isF32() && roundingMode.value() == RoundingMode::RTZ;
     bool isDstFP32 = dstElementType.isF32();
     Type srcType = useFP16IntermediateSrc ? f16_ty : srcElementType;
     Type dstType = isDstFP32 ? f16_ty : dstElementType;
