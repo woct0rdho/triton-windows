@@ -72,11 +72,11 @@ static const Fp8ConversionDesc Fp8E5M2_to_Bf16(bool hasNativeFP) {
     ret = {
         "{                                        \n"
         ".reg .b32 a<2>, b<2>, c<4>, e112;        \n" // if input = 0xf1f2f3f4
-        "mov.u32 e112, 0x77800000;                \n"
+        "mov.b32 e112, 0x77800000;                \n"
         "prmt.b32 a0, 0, $2, 0x5140;              \n" // a0 = 0xf300f400
         "prmt.b32 a1, 0, $2, 0x7362;              \n" // a1 = 0xf100f200
-        "lop3.b32 b0, a0, 0x7fff7fff, 0, 0xc0;    \n" // b0 = a0 & 0x7fff7fff
-        "lop3.b32 b1, a1, 0x7fff7fff, 0, 0xc0;    \n" // (strip sign)
+        "and.b32 b0, a0, 0x7fff7fff;              \n" // strip sign
+        "and.b32 b1, a1, 0x7fff7fff;              \n"
         "shr.b32 b0, b0, 3;                       \n" // b0 >>= 3
         "shr.b32 b1, b1, 3;                       \n" // shift to bf16 position
         "and.b32 c0, b0, 0xffff0000;              \n" // c0 = f3
@@ -132,7 +132,7 @@ static const Fp8ConversionDesc Bf16_to_Fp8E5M2(bool hasNativeFP) {
         "shl.b32 c3, b1, 16;                         \n" // c3 = 0xf2220000
 
         ".reg .b32 e112;                             \n" // move exponent bias
-        "mov.u32 e112, 0x07800000;                   \n" // from 127 to 15
+        "mov.b32 e112, 0x07800000;                   \n" // from 127 to 15
         "mul.f32 c0, c0, e112;                       \n" // and handle denormal
         "mul.f32 c1, c1, e112;                       \n"
         "mul.f32 c2, c2, e112;                       \n"
@@ -165,8 +165,8 @@ static const Fp8ConversionDesc Bf16_to_Fp8E5M2(bool hasNativeFP) {
         "prmt.b32 b1, c2, c3, 0x3276;                \n" // c1 = 0xf4440000
                                                          // b0 = 0xf333f444
 
-        "shl.b32 b0, b0, 3;                          \n" // b0 <<= 3
-        "shl.b32 b1, b1, 3;                          \n" // (shift to fp8e5)
+        "shl.b32 b0, b0, 3;                          \n" // shift to fp8e5
+        "shl.b32 b1, b1, 3;                          \n"
         "lop3.b32 b0, b0, 0x80008000, $1, 0xf8;      \n" // b0=b0|(0x80008000&in0)
         "lop3.b32 b1, b1, 0x80008000, $2, 0xf8;      \n" // (restore sign)
         "prmt.b32 $0, b0, b1, 0x7531;                \n" // b0 = 0xf300f400
@@ -198,11 +198,11 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16(bool hasNativeFP) {
     ret = {
         "{                                        \n"
         ".reg .b32 a<2>, b<2>, c<4>, e8;          \n" // if input = 0xf1f2f3f4
-        "mov.u32 e8, 0x43800000;                  \n"
+        "mov.b32 e8, 0x43800000;                  \n"
         "prmt.b32 a0, 0, $2, 0x5140;              \n" // a0 = 0xf300f400
         "prmt.b32 a1, 0, $2, 0x7362;              \n" // a1 = 0xf100f200
-        "lop3.b32 b0, a0, 0x7fff7fff, 0, 0xc0;    \n" // b0 = a0 & 0x7fff7fff
-        "lop3.b32 b1, a1, 0x7fff7fff, 0, 0xc0;    \n" // (strip sign)
+        "and.b32 b0, a0, 0x7fff7fff;              \n" // strip sign
+        "and.b32 b1, a1, 0x7fff7fff;              \n"
         "shr.b32 b0, b0, 4;                       \n" // b0 >>= 4
         "shr.b32 b1, b1, 4;                       \n" // shift to bf16 position
         "and.b32 c0, b0, 0xffff0000;              \n" // c0 = f3
@@ -233,16 +233,63 @@ static const Fp8ConversionDesc Fp16_to_Fp8E4M3Nv(bool hasNativeFP) {
   if (!hasNativeFP) {
     // Fp16 (x4) -> Fp8E4M3 (x4) (packed)
     ret = {
-        "{                                      \n"
-        ".reg .b32 a<2>, b<2>;                  \n" // see Fp8E4M3x4ToFp16x4
-        "and.b32 a0, $1, 0x7fff7fff;            \n" // a0 = input0 & 0x7fff7fff
-        "and.b32 a1, $2, 0x7fff7fff;            \n" // (strip sign)
-        "mad.lo.u32 a0, a0, 2, 0x40804080;      \n" // shift exponent (<< 1),
-        "mad.lo.u32 a1, a1, 2, 0x40804080;      \n" // correct bias (0x40004000)
-                                                    // and round to nearest
-        "lop3.b32 b0, $1, 0x80008000, a0, 0xe2; \n" // b0=0x80008000 ? in0 : a0
-        "lop3.b32 b1, $2, 0x80008000, a1, 0xe2; \n" // (restore sign)
-        "prmt.b32 $0, b0, b1, 0x7531;           \n" // output = b1b0
+        "{                                           \n"
+        ".reg .b32 b<2>;                             \n"
+        "and.b32 b0, $1, 0x7fff7fff;                 \n" // strip sign
+        "and.b32 b1, $2, 0x7fff7fff;                 \n"
+
+        ".reg .b32 c<4>;                             \n" // b0 = 0xf333f444
+        "and.b32 c0, b0, 0xffff0000;                 \n" // c0 = 0xf3330000
+        "shl.b32 c1, b0, 16;                         \n" // c1 = 0xf4440000
+        "and.b32 c2, b1, 0xffff0000;                 \n" // c2 = 0xf1110000
+        "shl.b32 c3, b1, 16;                         \n" // c3 = 0xf2220000
+
+        "shr.b32 c0, c0, 3;                          \n" // shift to fp32
+        "shr.b32 c1, c1, 3;                          \n"
+        "shr.b32 c2, c2, 3;                          \n"
+        "shr.b32 c3, c3, 3;                          \n"
+
+        ".reg .b32 e8;                               \n" // move exponent bias
+        "mov.b32 e8, 0x3b800000;                     \n" // from 15 to 7
+        "mul.f32 c0, c0, e8;                         \n" // and handle denormal
+        "mul.f32 c1, c1, e8;                         \n"
+        "mul.f32 c2, c2, e8;                         \n"
+        "mul.f32 c3, c3, e8;                         \n"
+
+        "min.u32 c0, c0, 0x07f70000;                 \n" // avoid overflow
+        "min.u32 c1, c1, 0x07f70000;                 \n" // when RTNE
+        "min.u32 c2, c2, 0x07f70000;                 \n"
+        "min.u32 c3, c3, 0x07f70000;                 \n"
+
+        ".reg .b32 lsb<4>;                           \n" // RTNE:
+        "and.b32 lsb0, c0, 0x00100000;               \n" // if LSB is 1
+        "and.b32 lsb1, c1, 0x00100000;               \n" // then add 0x00080000
+        "and.b32 lsb2, c2, 0x00100000;               \n" // else add 0x0007ffff
+        "and.b32 lsb3, c3, 0x00100000;               \n"
+        "add.u32 c0, c0, 0x0007ffff;                 \n"
+        "add.u32 c1, c1, 0x0007ffff;                 \n"
+        "add.u32 c2, c2, 0x0007ffff;                 \n"
+        "add.u32 c3, c3, 0x0007ffff;                 \n"
+        "shr.b32 lsb0, lsb0, 20;                     \n"
+        "shr.b32 lsb1, lsb1, 20;                     \n"
+        "shr.b32 lsb2, lsb2, 20;                     \n"
+        "shr.b32 lsb3, lsb3, 20;                     \n"
+        "add.u32 c0, c0, lsb0;                       \n"
+        "add.u32 c1, c1, lsb1;                       \n"
+        "add.u32 c2, c2, lsb2;                       \n"
+        "add.u32 c3, c3, lsb3;                       \n"
+
+        "prmt.b32 b0, c0, c1, 0x3276;                \n" // c0 = 0xf3330000
+        "prmt.b32 b1, c2, c3, 0x3276;                \n" // c1 = 0xf4440000
+                                                         // b0 = 0xf333f444
+
+        "shl.b32 b0, b0, 4;                          \n" // shift to fp8e4
+        "shl.b32 b1, b1, 4;                          \n"
+        "lop3.b32 b0, b0, 0x80008000, $1, 0xf8;      \n" // b0=b0|(0x80008000&in0)
+        "lop3.b32 b1, b1, 0x80008000, $2, 0xf8;      \n" // (restore sign)
+        "prmt.b32 $0, b0, b1, 0x7531;                \n" // b0 = 0xf300f400
+                                                         // b1 = 0xf100f200
+                                                         // output = 0xf1f2f3f4
         "}",
         32, 32, 4};
   } else {
@@ -261,11 +308,11 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Bf16(bool hasNativeFP8,
     ret = {
         "{                                        \n"
         ".reg .b32 a<2>, b<2>, c<4>, e120;        \n" // if input = 0xf1f2f3f4
-        "mov.u32 e120, 0x7b800000;                \n"
+        "mov.b32 e120, 0x7b800000;                \n"
         "prmt.b32 a0, 0, $2, 0x5140;              \n" // a0 = 0xf300f400
         "prmt.b32 a1, 0, $2, 0x7362;              \n" // a1 = 0xf100f200
-        "lop3.b32 b0, a0, 0x7fff7fff, 0, 0xc0;    \n" // b0 = a0 & 0x7fff7fff
-        "lop3.b32 b1, a1, 0x7fff7fff, 0, 0xc0;    \n" // (strip sign)
+        "and.b32 b0, a0, 0x7fff7fff;              \n" // strip sign
+        "and.b32 b1, a1, 0x7fff7fff;              \n"
         "shr.b32 b0, b0, 4;                       \n" // b0 >>= 4
         "shr.b32 b1, b1, 4;                       \n" // shift to bf16 position
         "and.b32 c0, b0, 0xffff0000;              \n" // c0 = f3
@@ -331,7 +378,7 @@ static const Fp8ConversionDesc Bf16_to_Fp8E4M3Nv(bool hasNativeFP) {
         "shl.b32 c3, b1, 16;                         \n" // c3 = 0xf2220000
 
         ".reg .b32 e120;                             \n" // move exponent bias
-        "mov.u32 e120, 0x03800000;                   \n" // from 127 to 7
+        "mov.b32 e120, 0x03800000;                   \n" // from 127 to 7
         "mul.f32 c0, c0, e120;                       \n" // and handle denormal
         "mul.f32 c1, c1, e120;                       \n"
         "mul.f32 c2, c2, e120;                       \n"
@@ -364,8 +411,8 @@ static const Fp8ConversionDesc Bf16_to_Fp8E4M3Nv(bool hasNativeFP) {
         "prmt.b32 b1, c2, c3, 0x3276;                \n" // c1 = 0xf4440000
                                                          // b0 = 0xf333f444
 
-        "shl.b32 b0, b0, 4;                          \n" // b0 <<= 4
-        "shl.b32 b1, b1, 4;                          \n" // (shift to fp8e4)
+        "shl.b32 b0, b0, 4;                          \n" // shift to fp8e4
+        "shl.b32 b1, b1, 4;                          \n"
         "lop3.b32 b0, b0, 0x80008000, $1, 0xf8;      \n" // b0=b0|(0x80008000&in0)
         "lop3.b32 b1, b1, 0x80008000, $2, 0xf8;      \n" // (restore sign)
         "prmt.b32 $0, b0, b1, 0x7531;                \n" // b0 = 0xf300f400
