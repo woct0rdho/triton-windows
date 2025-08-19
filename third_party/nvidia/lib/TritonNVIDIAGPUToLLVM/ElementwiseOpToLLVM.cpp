@@ -282,36 +282,34 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Bf16(bool hasNativeFP8,
         "lop3.b32 $1, b1, 0x80008000, a1, 0xf8;   \n" // (restore sign)
         "}",
         32, 32, 4};
-  } else {
+  } else if (!hasNativeBF16F16) {
     // Fp8E4M3 (x2) -> Bf16 (x2) (packed)
-    if (!hasNativeBF16F16) {
-      ret = {"{                                       \n"
-             ".reg .b32 a;                            \n"
-             ".reg .f16 a<2>;                         \n"
-             ".reg .f32 b<2>;                         \n"
-             ".reg .b16 c<2>;                         \n"
-             "cvt.rn.f16x2.e4m3x2 a, $1;              \n"
-             "mov.b32 {a0, a1}, a;                    \n"
-             "cvt.f32.f16 b0, a0;                     \n"
-             "cvt.f32.f16 b1, a1;                     \n"
-             "cvt.rn.bf16.f32 c0, b0;                 \n"
-             "cvt.rn.bf16.f32 c1, b1;                 \n"
-             "mov.b32 $0, {c0, c1};                   \n"
-             "}",
-             16, 32, 2};
-    } else {
-      ret = {"{                                       \n"
-             ".reg .b32 a;                            \n"
-             ".reg .f16 a<2>;                         \n"
-             ".reg .b16 b<2>;                         \n"
-             "cvt.rn.f16x2.e4m3x2 a, $1;              \n"
-             "mov.b32 {a0, a1}, a;                    \n"
-             "cvt.bf16.f16 b0, a0;                    \n"
-             "cvt.bf16.f16 b1, a1;                    \n"
-             "mov.b32 $0, {b0, b1};                   \n"
-             "}",
-             16, 32, 2};
-    }
+    ret = {"{                                       \n"
+           ".reg .b32 a;                            \n"
+           ".reg .f16 a<2>;                         \n"
+           ".reg .f32 b<2>;                         \n"
+           ".reg .b16 c<2>;                         \n"
+           "cvt.rn.f16x2.e4m3x2 a, $1;              \n"
+           "mov.b32 {a0, a1}, a;                    \n"
+           "cvt.f32.f16 b0, a0;                     \n"
+           "cvt.f32.f16 b1, a1;                     \n"
+           "cvt.rn.bf16.f32 c0, b0;                 \n"
+           "cvt.rn.bf16.f32 c1, b1;                 \n"
+           "mov.b32 $0, {c0, c1};                   \n"
+           "}",
+           16, 32, 2};
+  } else {
+    ret = {"{                                       \n"
+           ".reg .b32 a;                            \n"
+           ".reg .f16 a<2>;                         \n"
+           ".reg .b16 b<2>;                         \n"
+           "cvt.rn.f16x2.e4m3x2 a, $1;              \n"
+           "mov.b32 {a0, a1}, a;                    \n"
+           "cvt.bf16.f16 b0, a0;                    \n"
+           "cvt.bf16.f16 b1, a1;                    \n"
+           "mov.b32 $0, {b0, b1};                   \n"
+           "}",
+           16, 32, 2};
   }
   return ret;
 }
@@ -564,6 +562,7 @@ struct FpToFpOpConversion
              Fp8E4M3Nv_to_Fp16(computeCapability >= 89)},
             {{F8E5M2TyID, F16TyID, undefRounding},
              Fp8E5M2_to_Fp16(computeCapability >= 89)},
+            // F16 -> F8
             {{F16TyID, F8E4M3TyID, RoundingMode::RTNE},
              Fp16_to_Fp8E4M3Nv(computeCapability >= 89)},
             {{F16TyID, F8E5M2TyID, RoundingMode::RTNE},
