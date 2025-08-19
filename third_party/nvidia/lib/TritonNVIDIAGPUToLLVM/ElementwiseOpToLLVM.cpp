@@ -148,14 +148,14 @@ static const Fp8ConversionDesc Bf16_to_Fp8E5M2(bool hasNativeFP) {
         "and.b32 lsb1, c1, 0x00200000;               \n" // then add 0x00100000
         "and.b32 lsb2, c2, 0x00200000;               \n" // else add 0x000fffff
         "and.b32 lsb3, c3, 0x00200000;               \n"
-        "add.u32 c0, c0, 0x000fffff;                 \n"
-        "add.u32 c1, c1, 0x000fffff;                 \n"
-        "add.u32 c2, c2, 0x000fffff;                 \n"
-        "add.u32 c3, c3, 0x000fffff;                 \n"
         "shr.b32 lsb0, lsb0, 21;                     \n"
         "shr.b32 lsb1, lsb1, 21;                     \n"
         "shr.b32 lsb2, lsb2, 21;                     \n"
         "shr.b32 lsb3, lsb3, 21;                     \n"
+        "add.u32 c0, c0, 0x000fffff;                 \n"
+        "add.u32 c1, c1, 0x000fffff;                 \n"
+        "add.u32 c2, c2, 0x000fffff;                 \n"
+        "add.u32 c3, c3, 0x000fffff;                 \n"
         "add.u32 c0, c0, lsb0;                       \n"
         "add.u32 c1, c1, lsb1;                       \n"
         "add.u32 c2, c2, lsb2;                       \n"
@@ -266,14 +266,14 @@ static const Fp8ConversionDesc Fp16_to_Fp8E4M3Nv(bool hasNativeFP) {
         "and.b32 lsb1, c1, 0x00100000;               \n" // then add 0x00080000
         "and.b32 lsb2, c2, 0x00100000;               \n" // else add 0x0007ffff
         "and.b32 lsb3, c3, 0x00100000;               \n"
-        "add.u32 c0, c0, 0x0007ffff;                 \n"
-        "add.u32 c1, c1, 0x0007ffff;                 \n"
-        "add.u32 c2, c2, 0x0007ffff;                 \n"
-        "add.u32 c3, c3, 0x0007ffff;                 \n"
         "shr.b32 lsb0, lsb0, 20;                     \n"
         "shr.b32 lsb1, lsb1, 20;                     \n"
         "shr.b32 lsb2, lsb2, 20;                     \n"
         "shr.b32 lsb3, lsb3, 20;                     \n"
+        "add.u32 c0, c0, 0x0007ffff;                 \n"
+        "add.u32 c1, c1, 0x0007ffff;                 \n"
+        "add.u32 c2, c2, 0x0007ffff;                 \n"
+        "add.u32 c3, c3, 0x0007ffff;                 \n"
         "add.u32 c0, c0, lsb0;                       \n"
         "add.u32 c1, c1, lsb1;                       \n"
         "add.u32 c2, c2, lsb2;                       \n"
@@ -394,14 +394,14 @@ static const Fp8ConversionDesc Bf16_to_Fp8E4M3Nv(bool hasNativeFP) {
         "and.b32 lsb1, c1, 0x00100000;               \n" // then add 0x00080000
         "and.b32 lsb2, c2, 0x00100000;               \n" // else add 0x0007ffff
         "and.b32 lsb3, c3, 0x00100000;               \n"
-        "add.u32 c0, c0, 0x0007ffff;                 \n"
-        "add.u32 c1, c1, 0x0007ffff;                 \n"
-        "add.u32 c2, c2, 0x0007ffff;                 \n"
-        "add.u32 c3, c3, 0x0007ffff;                 \n"
         "shr.b32 lsb0, lsb0, 20;                     \n"
         "shr.b32 lsb1, lsb1, 20;                     \n"
         "shr.b32 lsb2, lsb2, 20;                     \n"
         "shr.b32 lsb3, lsb3, 20;                     \n"
+        "add.u32 c0, c0, 0x0007ffff;                 \n"
+        "add.u32 c1, c1, 0x0007ffff;                 \n"
+        "add.u32 c2, c2, 0x0007ffff;                 \n"
+        "add.u32 c3, c3, 0x0007ffff;                 \n"
         "add.u32 c0, c0, lsb0;                       \n"
         "add.u32 c1, c1, lsb1;                       \n"
         "add.u32 c2, c2, lsb2;                       \n"
@@ -462,36 +462,29 @@ static const Fp8ConversionDesc Fp32_to_Fp8E4M3Nv(bool hasNativeFP) {
         "sub.u32 d1, d1, e141;                       \n"
         "sub.u32 d2, d2, e141;                       \n"
         "sub.u32 d3, d3, e141;                       \n"
-        "shl.b32 d0, d0, 24;                         \n"
-        "shl.b32 d1, d1, 24;                         \n"
+        "shl.b32 d0, d0, 24;                         \n" // shift to highest
+        "shl.b32 d1, d1, 24;                         \n" // 8 bits
         "shl.b32 d2, d2, 24;                         \n"
         "shl.b32 d3, d3, 24;                         \n"
 
-        ".reg .b32 e120;                             \n"
-        "mov.b32 e120, 0x03800000;                   \n"
-        "mul.f32 c0, c0, e120;                       \n" // not fp8 denormal
-        "mul.f32 c1, c1, e120;                       \n" // move exponent bias
-        "mul.f32 c2, c2, e120;                       \n" // from 127 to 7
-        "mul.f32 c3, c3, e120;                       \n" // and handle denormal
-
-        "min.u32 c0, c0, 0x07f7ffff;                 \n" // avoid overflow
-        "min.u32 c1, c1, 0x07f7ffff;                 \n" // when RTNE
-        "min.u32 c2, c2, 0x07f7ffff;                 \n"
-        "min.u32 c3, c3, 0x07f7ffff;                 \n"
+        "min.u32 c0, c0, 0x43f7ffff;                 \n" // not fp8 denormal
+        "min.u32 c1, c1, 0x43f7ffff;                 \n" // avoid overflow
+        "min.u32 c2, c2, 0x43f7ffff;                 \n" // when RTNE
+        "min.u32 c3, c3, 0x43f7ffff;                 \n"
 
         ".reg .b32 lsb<4>;                           \n" // RTNE:
         "and.b32 lsb0, c0, 0x00100000;               \n" // if LSB is 1
         "and.b32 lsb1, c1, 0x00100000;               \n" // then add 0x00080000
         "and.b32 lsb2, c2, 0x00100000;               \n" // else add 0x0007ffff
         "and.b32 lsb3, c3, 0x00100000;               \n"
-        "add.u32 c0, c0, 0x0007ffff;                 \n"
-        "add.u32 c1, c1, 0x0007ffff;                 \n"
-        "add.u32 c2, c2, 0x0007ffff;                 \n"
-        "add.u32 c3, c3, 0x0007ffff;                 \n"
         "shr.b32 lsb0, lsb0, 20;                     \n"
         "shr.b32 lsb1, lsb1, 20;                     \n"
         "shr.b32 lsb2, lsb2, 20;                     \n"
         "shr.b32 lsb3, lsb3, 20;                     \n"
+        "add.u32 c0, c0, 0xc407ffff;                 \n" // move exponent bias
+        "add.u32 c1, c1, 0xc407ffff;                 \n" // from 127 to 7
+        "add.u32 c2, c2, 0xc407ffff;                 \n"
+        "add.u32 c3, c3, 0xc407ffff;                 \n"
         "add.u32 c0, c0, lsb0;                       \n"
         "add.u32 c1, c1, lsb1;                       \n"
         "add.u32 c2, c2, lsb1;                       \n"
@@ -511,7 +504,6 @@ static const Fp8ConversionDesc Fp32_to_Fp8E4M3Nv(bool hasNativeFP) {
         "lop3.b32 c1, c1, 0x80008000, $2, 0xf8;      \n" // (restore sign)
         "lop3.b32 c2, c2, 0x80008000, $3, 0xf8;      \n"
         "lop3.b32 c3, c3, 0x80008000, $4, 0xf8;      \n"
-
         "prmt.b32 c0, c0, c1, 0x7430;                \n" // c0 = 0xf300f400
         "prmt.b32 c2, c2, c3, 0x7430;                \n" // c2 = 0xf100f200
         "prmt.b32 $0, c0, c2, 0x7531;                \n" // output = 0xf1f2f3f4
@@ -552,14 +544,14 @@ static const Fp8ConversionDesc Fp32_to_Fp8E5M2(bool hasNativeFP) {
         "sub.u32 d1, d1, e134;                       \n"
         "sub.u32 d2, d2, e134;                       \n"
         "sub.u32 d3, d3, e134;                       \n"
-        "shl.b32 d0, d0, 24;                         \n"
-        "shl.b32 d1, d1, 24;                         \n"
+        "shl.b32 d0, d0, 24;                         \n" // shift to highest
+        "shl.b32 d1, d1, 24;                         \n" // 8 bits
         "shl.b32 d2, d2, 24;                         \n"
         "shl.b32 d3, d3, 24;                         \n"
 
-        "min.u32 c0, c0, 0x47efffff;                 \n" // avoid overflow
-        "min.u32 c1, c1, 0x47efffff;                 \n" // when RTNE
-        "min.u32 c2, c2, 0x47efffff;                 \n"
+        "min.u32 c0, c0, 0x47efffff;                 \n" // not fp8 denormal
+        "min.u32 c1, c1, 0x47efffff;                 \n" // avoid overflow
+        "min.u32 c2, c2, 0x47efffff;                 \n" // when RTNE
         "min.u32 c3, c3, 0x47efffff;                 \n"
 
         ".reg .b32 lsb<4>;                           \n" // RTNE:
@@ -594,7 +586,6 @@ static const Fp8ConversionDesc Fp32_to_Fp8E5M2(bool hasNativeFP) {
         "lop3.b32 c1, c1, 0x80008000, $2, 0xf8;      \n" // (restore sign)
         "lop3.b32 c2, c2, 0x80008000, $3, 0xf8;      \n"
         "lop3.b32 c3, c3, 0x80008000, $4, 0xf8;      \n"
-
         "prmt.b32 c0, c0, c1, 0x7430;                \n" // c0 = 0xf300f400
         "prmt.b32 c2, c2, c3, 0x7430;                \n" // c2 = 0xf100f200
         "prmt.b32 $0, c0, c2, 0x7531;                \n" // output = 0xf1f2f3f4
