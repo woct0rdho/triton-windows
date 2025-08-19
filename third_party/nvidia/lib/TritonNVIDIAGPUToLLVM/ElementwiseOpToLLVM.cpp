@@ -28,40 +28,39 @@ struct Fp8ConversionDesc {
 static const Fp8ConversionDesc Fp16_to_Fp8E5M2_RTNE(bool hasNativeFP) {
   Fp8ConversionDesc ret;
   if (!hasNativeFP) {
+    // TODO: Handle NaN
     ret = {"{                            \n"
-           ".reg .b32 a<2>;              \n"
-           "and.b32 a0, $1, 0xfffefffe;  \n"   // a0 &= 0xfffefffe
-           "and.b32 a1, $2, 0xfffefffe;  \n"   // (strip lowest bit)
-           "add.u32 a0, a0, 0x00800080;  \n"   // a0 += 0x00800080
-           "add.u32 a1, a1, 0x00800080;  \n"   // (round to nearest)
-           "prmt.b32 $0, a0, a1, 0x7531; \n\t" // output = a1a0
+           ".reg .b32 a<2>, b<2>;        \n"
+           "add.u32 a0, $1, 0x007f007f;  \n" // Round to nearest even:
+           "add.u32 a1, $2, 0x007f007f;  \n" // If LSB of kept mantissa is 1
+           "and.b32 b0, $1, 0x01000100;  \n" // then add 0x80 to mantissa
+           "and.b32 b1, $2, 0x01000100;  \n" // else add 0x7f to mantissa
+           "shr.b32 b0, b0, 8;           \n"
+           "shr.b32 b1, b1, 8;           \n"
+           "add.u32 a0, a0, b0;          \n"
+           "add.u32 a1, a1, b1;          \n"
+           "prmt.b32 $0, a0, a1, 0x7531; \n" // output = a1a0
            "}",
            32, 32, 4};
   } else {
-    ret = {"cvt.rn.satfinite.e5m2x2.f16x2 $0, $1; \n\t", 32, 16, 2};
+    ret = {"cvt.rn.satfinite.e5m2x2.f16x2 $0, $1;", 32, 16, 2};
   }
   return ret;
 }
 
-const Fp8ConversionDesc Fp16_to_Fp8E5M2_RTZ = {
-    "{                            \n"
-    ".reg .b32 a<2>;              \n"
-    "and.b32 a0, $1, 0xfffefffe;  \n"   // a0 &= 0xfffefffe
-    "and.b32 a1, $2, 0xfffefffe;  \n"   // (strip lowest bit)
-    "prmt.b32 $0, a0, a1, 0x7531; \n\t" // output = a1a0
-    "}",
-    32, 32, 4};
+const Fp8ConversionDesc Fp16_to_Fp8E5M2_RTZ = {"prmt.b32 $0, $1, $2, 0x7531;",
+                                               32, 32, 4};
 
 static const Fp8ConversionDesc Fp8E5M2_to_Fp16(bool hasNativeFP) {
   Fp8ConversionDesc ret;
   if (!hasNativeFP) {
     ret = {"{                           \n"
-           "prmt.b32 $0, 0, $2, 0x5140; \n\t"
-           "prmt.b32 $1, 0, $2, 0x7362; \n\t"
+           "prmt.b32 $0, 0, $2, 0x5140; \n"
+           "prmt.b32 $1, 0, $2, 0x7362; \n"
            "}",
            32, 32, 4};
   } else {
-    ret = {"cvt.rn.f16x2.e5m2x2 $0, $1; \n\t", 16, 32, 2};
+    ret = {"cvt.rn.f16x2.e5m2x2 $0, $1;", 16, 32, 2};
   }
   return ret;
 }
@@ -80,9 +79,9 @@ static const Fp8ConversionDesc Fp8E5M2_to_Bf16(bool hasNativeFP) {
         "shr.b32  b0, b0, 3;                      \n" // b0 >>= 3
         "shr.b32  b1, b1, 3;                      \n" // shift into bf16
                                                       // position
-        "and.b32 c0, b0, 0xFFFF0000;              \n" // c0 = f3
+        "and.b32 c0, b0, 0xffff0000;              \n" // c0 = f3
         "shl.b32 c1, b0, 16;                      \n" // c1 = f4
-        "and.b32 c2, b1, 0xFFFF0000;              \n" // c2 = f1
+        "and.b32 c2, b1, 0xffff0000;              \n" // c2 = f1
         "shl.b32 c3, b1, 16;                      \n" // c3 = f2
         "mul.f32 d0, c0, e112;                    \n" // d0 = c0 * 0x77800000
         "mul.f32 d1, c1, e112;                    \n" // d1 = c1 * 0x77800000
@@ -97,7 +96,7 @@ static const Fp8ConversionDesc Fp8E5M2_to_Bf16(bool hasNativeFP) {
         32, 32, 4};
   } else {
     ret = {
-        "{                                       \n"
+        "{                                      \n"
         ".reg .b32 a<2>, b<2>;                  \n" // if input = 0xf1f2f3f4
         ".reg .b32 e112;                        \n"
         "mov.u32 e112, 0x77807780;              \n" // 2**112 represented as
@@ -196,9 +195,9 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16(bool hasNativeFP) {
         "shr.b32 b0, b0, 4;                       \n" // b0 >>= 4
         "shr.b32 b1, b1, 4;                       \n" // shift into bf16
                                                       // position
-        "and.b32 c0, b0, 0xFFFF0000;              \n" // c0 = f3
+        "and.b32 c0, b0, 0xffff0000;              \n" // c0 = f3
         "shl.b32 c1, b0, 16;                      \n" // c1 = f4
-        "and.b32 c2, b1, 0xFFFF0000;              \n" // c2 = f1
+        "and.b32 c2, b1, 0xffff0000;              \n" // c2 = f1
         "shl.b32 c3, b1, 16;                      \n" // c3 = f2
         // move exponent bias from 7 to 15
         "mul.f32 d0, c0, e8;                      \n" // d0 = c0 * 0x43800000
@@ -216,10 +215,7 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Fp16(bool hasNativeFP) {
         32, 32, 4};
   } else {
     // Fp8E4M3 (x2) -> Fp16 (x2) (packed)
-    ret = {"{ \n"
-           "cvt.rn.f16x2.e4m3x2 $0, $1; \n"
-           "}",
-           16, 32, 2};
+    ret = {"cvt.rn.f16x2.e4m3x2 $0, $1;", 16, 32, 2};
   }
   return ret;
 }
@@ -243,10 +239,7 @@ static const Fp8ConversionDesc Fp16_to_Fp8E4M3Nv(bool hasNativeFP) {
         32, 32, 4};
   } else {
     // Fp16 (x2) -> Fp8E4M3 (x2) (packed)
-    ret = {"{ \n"
-           "cvt.rn.satfinite.e4m3x2.f16x2 $0, $1; \n"
-           "}",
-           32, 16, 2};
+    ret = {"cvt.rn.satfinite.e4m3x2.f16x2 $0, $1;", 32, 16, 2};
   }
   return ret;
 }
@@ -267,9 +260,9 @@ static const Fp8ConversionDesc Fp8E4M3Nv_to_Bf16(bool hasNativeFP8,
         "shr.b32 b0, b0, 4;                       \n" // b0 >>= 4
         "shr.b32 b1, b1, 4;                       \n" // shift into bf16
                                                       // position
-        "and.b32 c0, b0, 0xFFFF0000;              \n" // c0 = f3
+        "and.b32 c0, b0, 0xffff0000;              \n" // c0 = f3
         "shl.b32 c1, b0, 16;                      \n" // c1 = f4
-        "and.b32 c2, b1, 0xFFFF0000;              \n" // c2 = f1
+        "and.b32 c2, b1, 0xffff0000;              \n" // c2 = f1
         "shl.b32 c3, b1, 16;                      \n" // c3 = f2
         // move exponent bias from 7 to 127
         "mul.f32 d0, c0, e120;                    \n" // d0 = c0 * 0x7b800000
@@ -377,9 +370,9 @@ static const Fp8ConversionDesc Bf16_to_Fp8E4M3Nv(bool hasNativeFP) {
 
 // Fp32 (x2) -> Fp8 (x2) (packed)
 static const Fp8ConversionDesc Fp32_to_Fp8E4M3Nv = {
-    "cvt.rn.satfinite.e4m3x2.f32  $0, $2, $1; \n", 32, 16, 2};
+    "cvt.rn.satfinite.e4m3x2.f32  $0, $2, $1;", 32, 16, 2};
 static const Fp8ConversionDesc Fp32_to_Fp8E5M2 = {
-    "cvt.rn.satfinite.e5m2x2.f32 $0, $2, $1; \n", 32, 16, 2};
+    "cvt.rn.satfinite.e5m2x2.f32 $0, $2, $1;", 32, 16, 2};
 
 /* ----- Packed integer to BF16 ------ */
 static const std::string S8_to_Bf16 =
