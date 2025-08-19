@@ -321,44 +321,59 @@ static const Fp8ConversionDesc Bf16_to_Fp8E4M3Nv(bool hasNativeFP) {
   if (!hasNativeFP) {
     // Bf16 (x4) -> Fp8E4M3 (x4) (packed)
     ret = {
-        "{                                           \n" // bf16=fp8>>4 + 120<<7
-        ".reg .u32 sign, sign<2>, nosign, nosign<2>; \n" // fp8_min = 0b00000000
-        ".reg .u32 fp8_min, fp8_max, rn_;            \n" // fp8_max = 0b11111111
-        "mov.u32 fp8_min, 0x3c003c00;                \n" // so bf16_min = 0x3c00
-        "mov.u32 fp8_max, 0x43f043f0;                \n" // so bf16_max = 0x43f0
-        "mov.u32 rn_, 0x80008;                       \n" // round to nearest
+        "{                                           \n"
+        ".reg .b32 sign, sign<2>, nosign, nosign<2>; \n"
         "and.b32 sign0, $1, 0x80008000;              \n" // sign0=in0&0x80008000
         "and.b32 sign1, $2, 0x80008000;              \n" // (store sign)
         "prmt.b32 sign, sign0, sign1, 0x7531;        \n"
         "and.b32 nosign0, $1, 0x7fff7fff;            \n" // nosign0=in0&0x7fff7fff
         "and.b32 nosign1, $2, 0x7fff7fff;            \n" // (strip sign)
 
-        // nosign = clamp(nosign, min, max)
-        ".reg .u32 nosign_0_<2>, nosign_1_<2>;       \n"
-        "and.b32 nosign_0_0, nosign0, 0xffff0000;    \n"
-        "max.u32 nosign_0_0, nosign_0_0, 0x3c000000; \n"
-        "min.u32 nosign_0_0, nosign_0_0, 0x43f00000; \n"
-        "and.b32 nosign_0_1, nosign0, 0x0000ffff;    \n"
-        "max.u32 nosign_0_1, nosign_0_1, 0x3c00;     \n"
-        "min.u32 nosign_0_1, nosign_0_1, 0x43f0;     \n"
-        "or.b32 nosign0, nosign_0_0, nosign_0_1;     \n"
-        "and.b32 nosign_1_0, nosign1, 0xffff0000;    \n"
-        "max.u32 nosign_1_0, nosign_1_0, 0x3c000000; \n"
-        "min.u32 nosign_1_0, nosign_1_0, 0x43f00000; \n"
-        "and.b32 nosign_1_1, nosign1, 0x0000ffff;    \n"
-        "max.u32 nosign_1_1, nosign_1_1, 0x3c00;     \n"
-        "min.u32 nosign_1_1, nosign_1_1, 0x43f0;     \n"
-        "or.b32 nosign1, nosign_1_0, nosign_1_1;     \n"
+        ".reg .b32 c<4>;                             \n" // nosign0 = 0xf333f444
+        "and.b32 c0, nosign0, 0xffff0000;            \n" // c0 = 0xf3330000
+        "shl.b32 c1, nosign0, 16;                    \n" // c1 = 0xf4440000
+        "and.b32 c2, nosign1, 0xffff0000;            \n" // c2 = 0xf1110000
+        "shl.b32 c3, nosign1, 16;                    \n" // c3 = 0xf2220000
 
-        "add.u32 nosign0, nosign0, rn_;              \n" // nosign0 += rn_
-        "add.u32 nosign1, nosign1, rn_;              \n" // (round to nearest)
-        "sub.u32 nosign0, nosign0, 0x3c003c00;       \n" // nosign0-=0x3c003c00
-        "sub.u32 nosign1, nosign1, 0x3c003c00;       \n" // (compensate offset)
-        "shr.u32 nosign0, nosign0, 4;                \n" // nosign0 >>= 4
-        "shr.u32 nosign1, nosign1, 4;                \n" // shift into to fp8e4
-        "prmt.b32 nosign, nosign0, nosign1, 0x6420;  \n" // nosign0 = 0x00f100f2
-                                                         // nosign1 = 0x00f300f4
-                                                         // nosign = 0xf3f4f1f2
+        ".reg .b32 e120;                             \n" // move exponent bias
+        "mov.u32 e120, 0x03800000;                   \n" // from 127 to 7
+        "mul.f32 c0, c0, e120;                       \n" // and handle denormal
+        "mul.f32 c1, c1, e120;                       \n"
+        "mul.f32 c2, c2, e120;                       \n"
+        "mul.f32 c3, c3, e120;                       \n"
+
+        "min.u32 c0, c0, 0x07f70000;                 \n" // avoid overflow
+        "min.u32 c1, c1, 0x07f70000;                 \n" // when RTNE
+        "min.u32 c2, c2, 0x07f70000;                 \n"
+        "min.u32 c3, c3, 0x07f70000;                 \n"
+
+        ".reg .b32 lsb<4>;                           \n" // RTNE:
+        "and.b32 lsb0, c0, 0x00100000;               \n" // if LSB is 1
+        "and.b32 lsb1, c1, 0x00100000;               \n" // then add 0x00080000
+        "and.b32 lsb2, c2, 0x00100000;               \n" // else add 0x0007ffff
+        "and.b32 lsb3, c3, 0x00100000;               \n"
+        "add.u32 c0, c0, 0x0007ffff;                 \n"
+        "add.u32 c1, c1, 0x0007ffff;                 \n"
+        "add.u32 c2, c2, 0x0007ffff;                 \n"
+        "add.u32 c3, c3, 0x0007ffff;                 \n"
+        "shr.b32 lsb0, lsb0, 20;                     \n"
+        "shr.b32 lsb1, lsb1, 20;                     \n"
+        "shr.b32 lsb2, lsb2, 20;                     \n"
+        "shr.b32 lsb3, lsb3, 20;                     \n"
+        "add.u32 c0, c0, lsb0;                       \n"
+        "add.u32 c1, c1, lsb1;                       \n"
+        "add.u32 c2, c2, lsb2;                       \n"
+        "add.u32 c3, c3, lsb3;                       \n"
+
+        "prmt.b32 nosign0, c0, c1, 0x3276;           \n" // c0 = 0xf3330000
+        "prmt.b32 nosign1, c2, c3, 0x3276;           \n" // c1 = 0xf4440000
+                                                         // nosign0 = 0xf333f444
+
+        "shl.b32 nosign0, nosign0, 4;                \n" // nosign0 <<= 4
+        "shl.b32 nosign1, nosign1, 4;                \n" // shift to fp8e4
+        "prmt.b32 nosign, nosign0, nosign1, 0x7531;  \n" // nosign0 = 0xf300f400
+                                                         // nosign1 = 0xf100f200
+                                                         // nosign = 0xf1f2f3f4
         "or.b32 $0, nosign, sign;                    \n" // restore sign
         "}",
         32, 32, 4};
