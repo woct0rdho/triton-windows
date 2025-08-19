@@ -31,10 +31,10 @@ static const Fp8ConversionDesc Fp16_to_Fp8E5M2_RTNE(bool hasNativeFP) {
     // TODO: Handle NaN
     ret = {"{                            \n"
            ".reg .b32 a<2>, b<2>;        \n"
-           "add.u32 a0, $1, 0x007f007f;  \n" // round to nearest even:
-           "add.u32 a1, $2, 0x007f007f;  \n" // if LSB of fp8 mantissa is 1
-           "and.b32 b0, $1, 0x01000100;  \n" // then add 0x80 to fp16 mantissa
-           "and.b32 b1, $2, 0x01000100;  \n" // else add 0x7f to fp16 mantissa
+           "and.b32 b0, $1, 0x01000100;  \n" // round to nearest even:
+           "and.b32 b1, $2, 0x01000100;  \n" // if LSB of fp8 mantissa is 1
+           "add.u32 a0, $1, 0x007f007f;  \n" // then add 0x80 to fp16 mantissa
+           "add.u32 a1, $2, 0x007f007f;  \n" // else add 0x7f to fp16 mantissa
            "shr.b32 b0, b0, 8;           \n"
            "shr.b32 b1, b1, 8;           \n"
            "add.u32 a0, a0, b0;          \n"
@@ -118,7 +118,7 @@ static const Fp8ConversionDesc Fp8E5M2_to_Bf16(bool hasNativeFP) {
 static const Fp8ConversionDesc Bf16_to_Fp8E5M2(bool hasNativeFP) {
   Fp8ConversionDesc ret;
   if (!hasNativeFP) {
-    // TODO: Handle inf and NaN
+    // TODO: Large number may become nan when it should become +-inf
     ret = {
         "{                                           \n"
         ".reg .b32 sign, sign<2>, nosign, nosign<2>; \n"
@@ -141,15 +141,20 @@ static const Fp8ConversionDesc Bf16_to_Fp8E5M2(bool hasNativeFP) {
         "mul.f32 c2, c2, e112;                       \n"
         "mul.f32 c3, c3, e112;                       \n"
 
+        "min.u32 c0, c0, 0x0fef0000;                 \n" // avoid overflow
+        "min.u32 c1, c1, 0x0fef0000;                 \n" // when RTNE
+        "min.u32 c2, c2, 0x0fef0000;                 \n"
+        "min.u32 c3, c3, 0x0fef0000;                 \n"
+
         ".reg .b32 lsb<4>;                           \n" // RTNE:
-        "add.u32 c0, c0, 0x000fffff;                 \n" // if LSB is 1
-        "add.u32 c1, c1, 0x000fffff;                 \n" // then add 0x00100000
-        "add.u32 c2, c2, 0x000fffff;                 \n" // else add 0x000fffff
-        "add.u32 c3, c3, 0x000fffff;                 \n"
-        "and.b32 lsb0, c0, 0x00200000;               \n"
-        "and.b32 lsb1, c1, 0x00200000;               \n"
-        "and.b32 lsb2, c2, 0x00200000;               \n"
+        "and.b32 lsb0, c0, 0x00200000;               \n" // if LSB is 1
+        "and.b32 lsb1, c1, 0x00200000;               \n" // then add 0x00100000
+        "and.b32 lsb2, c2, 0x00200000;               \n" // else add 0x000fffff
         "and.b32 lsb3, c3, 0x00200000;               \n"
+        "add.u32 c0, c0, 0x000fffff;                 \n"
+        "add.u32 c1, c1, 0x000fffff;                 \n"
+        "add.u32 c2, c2, 0x000fffff;                 \n"
+        "add.u32 c3, c3, 0x000fffff;                 \n"
         "shr.b32 lsb0, lsb0, 21;                     \n"
         "shr.b32 lsb1, lsb1, 21;                     \n"
         "shr.b32 lsb2, lsb2, 21;                     \n"
