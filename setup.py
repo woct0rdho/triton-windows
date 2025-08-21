@@ -447,10 +447,6 @@ class CMakeBuild(build_ext):
         if cupti_include_dir == "":
             cupti_include_dir = os.path.join(get_base_dir(), "third_party", "nvidia", "backend", "include")
         cmake_args += ["-DCUPTI_INCLUDE_DIR=" + cupti_include_dir]
-        roctracer_include_dir = get_env_with_keys(["TRITON_ROCTRACER_INCLUDE_PATH"])
-        if roctracer_include_dir == "":
-            roctracer_include_dir = os.path.join(get_base_dir(), "third_party", "amd", "backend", "include")
-        cmake_args += ["-DROCTRACER_INCLUDE_DIR=" + roctracer_include_dir]
         return cmake_args
 
     def build_extension(self, ext):
@@ -526,7 +522,7 @@ class CMakeBuild(build_ext):
         ]
         cmake_args += [f"-D{option}={os.getenv(option)}" for option in passthrough_args if option in os.environ]
 
-        if check_env_flag("TRITON_BUILD_PROTON", "ON"):  # Default ON
+        if check_env_flag("TRITON_BUILD_PROTON", "0"):  # Default OFF
             cmake_args += self.get_proton_cmake_args()
 
         if is_offline_build():
@@ -563,7 +559,7 @@ def download_and_copy_dependencies():
         url_func=lambda system, arch, version:
         f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/{system}-{arch}/cuda_nvcc-{system}-{arch}-{version}-archive{archive_extension}",
     )
-    if check_env_flag("TRITON_BUILD_PROTON", "ON"):  # Default ON
+    if check_env_flag("TRITON_BUILD_PROTON", "0"):  # Default OFF
         download_and_copy(
             name="nvidia/nvcc-" + NVIDIA_TOOLCHAIN_VERSION["cudacrt"],
             src_func=lambda system, arch, version: f"cuda_nvcc-{system}-{arch}-{version}-archive/include",
@@ -582,15 +578,16 @@ def download_and_copy_dependencies():
             url_func=lambda system, arch, version:
             f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
         )
-        download_and_copy(
-            name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
-            src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/lib/x64/cuda.lib",
-            dst_path="third_party/nvidia/backend/lib/x64/cuda.lib",
-            variable="TRITON_CUDART_PATH",
-            version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
-            url_func=lambda system, arch, version:
-            f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
-        )
+        if platform.system() == "Windows":
+            download_and_copy(
+                name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
+                src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/lib/x64/cuda.lib",
+                dst_path="third_party/nvidia/backend/lib/x64/cuda.lib",
+                variable="TRITON_CUDART_PATH",
+                version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
+                url_func=lambda system, arch, version:
+                f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
+            )
         download_and_copy(
             name="nvidia/cupti-" + NVIDIA_TOOLCHAIN_VERSION["cupti"],
             src_func=lambda system, arch, version: f"cuda_cupti-{system}-{arch}-{version}-archive/include",
@@ -600,17 +597,18 @@ def download_and_copy_dependencies():
             url_func=lambda system, arch, version:
             f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cupti/{system}-{arch}/cuda_cupti-{system}-{arch}-{version}-archive{archive_extension}",
         )
-        download_and_copy(
-            name="nvidia/cupti-" + NVIDIA_TOOLCHAIN_VERSION["cupti"],
-            # On Windows, each version of CUPTI has a specific DLL name. Remember to update this with `nvidia-toolchain-version.json`.
-            src_func=lambda system, arch, version:
-            f"cuda_cupti-{system}-{arch}-{version}-archive/lib/cupti64_2025.1.1.dll",
-            dst_path="third_party/nvidia/backend/lib/cupti/cupti64_2025.1.1.dll",
-            variable="TRITON_CUPTI_LIB_PATH",
-            version=NVIDIA_TOOLCHAIN_VERSION["cupti"],
-            url_func=lambda system, arch, version:
-            f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cupti/{system}-{arch}/cuda_cupti-{system}-{arch}-{version}-archive{archive_extension}",
-        )
+        if platform.system() == "Windows":
+            download_and_copy(
+                name="nvidia/cupti-" + NVIDIA_TOOLCHAIN_VERSION["cupti"],
+                # On Windows, each version of CUPTI has a specific DLL name. Remember to update this with `nvidia-toolchain-version.json`.
+                src_func=lambda system, arch, version:
+                f"cuda_cupti-{system}-{arch}-{version}-archive/lib/cupti64_2025.1.1.dll",
+                dst_path="third_party/nvidia/backend/lib/cupti/cupti64_2025.1.1.dll",
+                variable="TRITON_CUPTI_LIB_PATH",
+                version=NVIDIA_TOOLCHAIN_VERSION["cupti"],
+                url_func=lambda system, arch, version:
+                f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cupti/{system}-{arch}/cuda_cupti-{system}-{arch}-{version}-archive{archive_extension}",
+            )
     else:
         download_and_copy(
             name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
@@ -621,15 +619,16 @@ def download_and_copy_dependencies():
             url_func=lambda system, arch, version:
             f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
         )
-        download_and_copy(
-            name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
-            src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/lib/x64/cuda.lib",
-            dst_path="third_party/nvidia/backend/lib/x64/cuda.lib",
-            variable="TRITON_CUDART_PATH",
-            version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
-            url_func=lambda system, arch, version:
-            f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
-        )
+        if platform.system() == "Windows":
+            download_and_copy(
+                name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
+                src_func=lambda system, arch, version: f"cuda_cudart-{system}-{arch}-{version}-archive/lib/x64/cuda.lib",
+                dst_path="third_party/nvidia/backend/lib/x64/cuda.lib",
+                variable="TRITON_CUDART_PATH",
+                version=NVIDIA_TOOLCHAIN_VERSION["cudart"],
+                url_func=lambda system, arch, version:
+                f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/{system}-{arch}/cuda_cudart-{system}-{arch}-{version}-archive{archive_extension}",
+            )
 
     download_and_copy(
         name="tcc",
@@ -642,7 +641,7 @@ def download_and_copy_dependencies():
     )
 
 
-backends = [*BackendInstaller.copy(["nvidia", "amd"]), *BackendInstaller.copy_externals()]
+backends = [*BackendInstaller.copy(["nvidia"]), *BackendInstaller.copy_externals()]
 
 
 def get_package_dirs():
@@ -667,7 +666,7 @@ def get_package_dirs():
             for x in os.listdir(backend.tools_dir):
                 yield (f"triton.tools.extra.{x}", os.path.join(backend.tools_dir, x))
 
-    if check_env_flag("TRITON_BUILD_PROTON", "ON"):  # Default ON
+    if check_env_flag("TRITON_BUILD_PROTON", "0"):  # Default OFF
         yield ("triton.profiler", "third_party/proton/proton")
 
 
@@ -689,7 +688,7 @@ def get_packages():
             for x in os.listdir(backend.tools_dir):
                 yield f"triton.tools.extra.{x}"
 
-    if check_env_flag("TRITON_BUILD_PROTON", "ON"):  # Default ON
+    if check_env_flag("TRITON_BUILD_PROTON", "0"):  # Default OFF
         yield "triton.profiler"
 
 
@@ -728,7 +727,7 @@ def add_link_to_proton():
 
 def add_links(external_only):
     add_link_to_backends(external_only=external_only)
-    if not external_only and check_env_flag("TRITON_BUILD_PROTON", "ON"):  # Default ON
+    if not external_only and check_env_flag("TRITON_BUILD_PROTON", "0"):  # Default OFF
         add_link_to_proton()
 
 
@@ -778,7 +777,7 @@ class plugin_sdist(sdist):
 
 def get_entry_points():
     entry_points = {}
-    if check_env_flag("TRITON_BUILD_PROTON", "ON"):  # Default ON
+    if check_env_flag("TRITON_BUILD_PROTON", "0"):  # Default OFF
         entry_points["console_scripts"] = [
             "proton-viewer = triton.profiler.viewer:main",
             "proton = triton.profiler.proton:main",

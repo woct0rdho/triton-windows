@@ -20,7 +20,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # Options
 option(TRITON_BUILD_BINARY "Build C++ Triton binaries" ON)
 option(TRITON_BUILD_PYTHON_MODULE "Build Python Triton bindings" OFF)
-option(TRITON_BUILD_PROTON "Build the Triton Proton profiler" ON)
+option(TRITON_BUILD_PROTON "Build the Triton Proton profiler" OFF)
 option(TRITON_BUILD_UT "Build C++ Triton Unit Tests" ON)
 option(TRITON_BUILD_WITH_CCACHE "Build with ccache (if available)" ON)
 set(TRITON_CODEGEN_BACKENDS "" CACHE STRING "Enable different codegen backends")
@@ -52,15 +52,8 @@ endif()
 # used conditionally in this file and by lit tests
 
 # Customized release build type with assertions: TritonRelBuildWithAsserts
-if(NOT MSVC)
-  set(CMAKE_C_FLAGS_TRITONRELBUILDWITHASSERTS "-O2 -g")
-  set(CMAKE_CXX_FLAGS_TRITONRELBUILDWITHASSERTS "-O2 -g")
-  set(CMAKE_C_FLAGS_TRITONBUILDWITHO1 "-O1")
-  set(CMAKE_CXX_FLAGS_TRITONBUILDWITHO1 "-O1")
-else()
-  set(CMAKE_C_FLAGS_TRITONRELBUILDWITHASSERTS "/O2")
-  set(CMAKE_CXX_FLAGS_TRITONRELBUILDWITHASSERTS "/O2")
-endif()
+set(CMAKE_C_FLAGS_TRITONRELBUILDWITHASSERTS "/O2")
+set(CMAKE_CXX_FLAGS_TRITONRELBUILDWITHASSERTS "/O2")
 
 # Default build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -68,9 +61,6 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-if(NOT WIN32)
-  find_library(TERMINFO_LIBRARY tinfo)
-endif()
 
 if(TRITON_BUILD_UT)
   # This is an aggregate target for all unit tests.
@@ -81,11 +71,7 @@ endif()
 
 # Compiler flags
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-if(NOT MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__STDC_FORMAT_MACROS  -fPIC -std=gnu++17")
-else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /nologo /bigobj /Zc:__STDC__ /Zc:preprocessor /permissive- /utf-8")
-endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /nologo /bigobj /Zc:__STDC__ /Zc:preprocessor /permissive- /utf-8")
 
 
 # #########
@@ -139,11 +125,7 @@ endfunction()
 
 
 # Disable warnings that show up in external code (gtest;pybind11)
-if(NOT MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wno-covered-switch-default -fvisibility=hidden")
-else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /wd4244 /wd4624")
-endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /wd4244 /wd4624")
 
 include_directories(".")
 include_directories(${MLIR_INCLUDE_DIRS})
@@ -161,9 +143,6 @@ add_subdirectory(lib)
 # TODO: Figure out which target is sufficient to fix errors; triton is
 # apparently not enough. Currently set linking libstdc++fs for all targets
 # to support some old version GCC compilers like 8.3.0.
-if (NOT WIN32 AND NOT APPLE AND NOT BSD)
-  link_libraries(stdc++fs)
-endif()
 
 if(WIN32)
   add_subdirectory(third_party/dlfcn-win32)
@@ -205,10 +184,10 @@ if(TRITON_BUILD_PYTHON_MODULE)
 
   if (TRITON_BUILD_PROTON)
     add_subdirectory(third_party/proton)
+    # We always build proton dialect
+    list(APPEND TRITON_PLUGIN_NAMES "proton")
+    add_subdirectory(third_party/proton/dialect)
   endif()
-  # We always build proton dialect
-  list(APPEND TRITON_PLUGIN_NAMES "proton")
-  add_subdirectory(third_party/proton/dialect)
 
   get_property(triton_libs GLOBAL PROPERTY TRITON_LIBS)
   get_property(triton_plugins GLOBAL PROPERTY TRITON_PLUGINS)
@@ -217,7 +196,6 @@ if(TRITON_BUILD_PYTHON_MODULE)
     ${triton_plugins}
 
     # mlir
-    MLIRAMDGPUDialect
     MLIRNVVMDialect
     MLIRNVVMToLLVMIRTranslation
     MLIRGPUToNVVMTransforms
@@ -232,44 +210,24 @@ if(TRITON_BUILD_PYTHON_MODULE)
     MLIRSupport
     MLIRTargetLLVMIRExport
     MLIRMathToLLVM
-    MLIRROCDLToLLVMIRTranslation
     MLIRGPUDialect
     MLIRSCFToControlFlow
     MLIRIndexToLLVM
-    MLIRGPUToROCDLTransforms
     MLIRUBToLLVM
 
     # LLVM
     LLVMPasses
     LLVMNVPTXCodeGen
     # LLVMNVPTXAsmPrinter
-    LLVMAMDGPUCodeGen
-    LLVMAMDGPUAsmParser
 
     Python3::Module
     pybind11::headers
 
   )
-  if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64" OR # Linux arm64
-     CMAKE_SYSTEM_PROCESSOR MATCHES "arm64" OR # macOS arm64
-     CMAKE_OSX_ARCHITECTURES MATCHES "arm64")  # also macOS arm64
-      list(APPEND TRITON_LIBRARIES
-          LLVMAArch64CodeGen
-          LLVMAArch64AsmParser
-      )
-  elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64" OR CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64")
-      list(APPEND TRITON_LIBRARIES
-          LLVMX86CodeGen
-          LLVMX86AsmParser
-      )
-  elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "ppc64le")
-      list(APPEND TRITON_LIBRARIES
-        LLVMPowerPCAsmParser
-        LLVMPowerPCCodeGen
-      )
-  else()
-    message(FATAL_ERROR "LLVM codegen/ASM parser libs: This HW architecture (${CMAKE_SYSTEM_PROCESSOR}) is not configured in cmake lib dependencies.")
-  endif()
+  list(APPEND TRITON_LIBRARIES
+      LLVMX86CodeGen
+      LLVMX86AsmParser
+  )
 
   # Define triton library
   string(JOIN "," TRITON_BACKENDS_TUPLE ${TRITON_CODEGEN_BACKENDS})
@@ -291,13 +249,9 @@ if(TRITON_BUILD_PYTHON_MODULE)
 
   # Link triton with its dependencies
   target_link_libraries(triton PRIVATE ${TRITON_LIBRARIES})
-  if(WIN32)
-    target_link_libraries(triton PRIVATE ${CMAKE_DL_LIBS} dlfcn)
-    set_target_properties(triton PROPERTIES SUFFIX ".pyd")
-    set_target_properties(triton PROPERTIES PREFIX "lib")
-  else()
-    target_link_libraries(triton PRIVATE z)
-  endif()
+  target_link_libraries(triton PRIVATE ${CMAKE_DL_LIBS} dlfcn)
+  set_target_properties(triton PROPERTIES SUFFIX ".pyd")
+  set_target_properties(triton PROPERTIES PREFIX "lib")
   target_link_options(triton PRIVATE ${LLVM_LDFLAGS})
 
   if (NOT DEFINED LLVM_SYSPATH)
@@ -309,41 +263,22 @@ if(TRITON_BUILD_PYTHON_MODULE)
   endif()
 
   if(TRITON_BUILD_UT)
-    if(WIN32)
-      configure_file(
-        "${LLVM_SYSPATH}/bin/FileCheck.exe"
-        "${TRITON_WHEEL_DIR}/FileCheck.exe"
-        COPYONLY)
-    else()
-      configure_file(
-        "${LLVM_SYSPATH}/bin/FileCheck"
-        "${TRITON_WHEEL_DIR}/FileCheck"
-        COPYONLY)
-    endif()
+    configure_file(
+      "${LLVM_SYSPATH}/bin/FileCheck.exe"
+      "${TRITON_WHEEL_DIR}/FileCheck.exe"
+      COPYONLY)
   endif()
 
 endif()
 
-if (UNIX AND NOT APPLE)
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--exclude-libs,ALL")
-endif()
-
-if(TRITON_BUILD_PYTHON_MODULE AND NOT WIN32)
-  set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
-
-  # Check if the platform is MacOS
-  if(APPLE)
-    set(PYTHON_LDFLAGS "-undefined dynamic_lookup")
-  endif()
-
-  target_link_options(triton PRIVATE ${PYTHON_LDFLAGS})
-endif()
 
 if(NOT TRITON_BUILD_PYTHON_MODULE)
   foreach(CODEGEN_BACKEND ${TRITON_CODEGEN_BACKENDS})
     add_subdirectory(third_party/${CODEGEN_BACKEND})
   endforeach()
-  add_subdirectory(third_party/proton/dialect)
+  if(TRITON_BUILD_PROTON)
+    add_subdirectory(third_party/proton/dialect)
+  endif()
 endif()
 
 find_package(Threads REQUIRED)
