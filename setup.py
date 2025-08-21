@@ -447,10 +447,6 @@ class CMakeBuild(build_ext):
         if cupti_include_dir == "":
             cupti_include_dir = os.path.join(get_base_dir(), "third_party", "nvidia", "backend", "include")
         cmake_args += ["-DCUPTI_INCLUDE_DIR=" + cupti_include_dir]
-        roctracer_include_dir = get_env_with_keys(["TRITON_ROCTRACER_INCLUDE_PATH"])
-        if roctracer_include_dir == "":
-            roctracer_include_dir = os.path.join(get_base_dir(), "third_party", "amd", "backend", "include")
-        cmake_args += ["-DROCTRACER_INCLUDE_DIR=" + roctracer_include_dir]
         return cmake_args
 
     def build_extension(self, ext):
@@ -601,17 +597,18 @@ def download_and_copy_dependencies():
             url_func=lambda system, arch, version:
             f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cupti/{system}-{arch}/cuda_cupti-{system}-{arch}-{version}-archive{archive_extension}",
         )
-        download_and_copy(
-            name="nvidia/cupti-" + NVIDIA_TOOLCHAIN_VERSION["cupti"],
-            # On Windows, each version of CUPTI has a specific DLL name. Remember to update this with `nvidia-toolchain-version.json`.
-            src_func=lambda system, arch, version:
-            f"cuda_cupti-{system}-{arch}-{version}-archive/lib/cupti64_2025.1.1.dll",
-            dst_path="third_party/nvidia/backend/lib/cupti/cupti64_2025.1.1.dll",
-            variable="TRITON_CUPTI_LIB_PATH",
-            version=NVIDIA_TOOLCHAIN_VERSION["cupti"],
-            url_func=lambda system, arch, version:
-            f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cupti/{system}-{arch}/cuda_cupti-{system}-{arch}-{version}-archive{archive_extension}",
-        )
+        if platform.system() == "Windows":
+            download_and_copy(
+                name="nvidia/cupti-" + NVIDIA_TOOLCHAIN_VERSION["cupti"],
+                # On Windows, each version of CUPTI has a specific DLL name. Remember to update this with `nvidia-toolchain-version.json`.
+                src_func=lambda system, arch, version:
+                f"cuda_cupti-{system}-{arch}-{version}-archive/lib/cupti64_2025.1.1.dll",
+                dst_path="third_party/nvidia/backend/lib/cupti/cupti64_2025.1.1.dll",
+                variable="TRITON_CUPTI_LIB_PATH",
+                version=NVIDIA_TOOLCHAIN_VERSION["cupti"],
+                url_func=lambda system, arch, version:
+                f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cupti/{system}-{arch}/cuda_cupti-{system}-{arch}-{version}-archive{archive_extension}",
+            )
     else:
         download_and_copy(
             name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
