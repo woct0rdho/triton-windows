@@ -13,7 +13,6 @@ target_link_libraries(triton-opt PRIVATE
   # tests
   TritonTestAnalysis
   TritonTestDialect
-  TritonAMDGPUTestAnalysis
   # MLIR core
   MLIROptLib
   MLIRPass
@@ -33,7 +32,6 @@ target_link_libraries(triton-reduce PRIVATE
   # tests
   TritonTestAnalysis
   TritonTestDialect
-  TritonAMDGPUTestAnalysis
   # MLIR core
   MLIRReduceLib
   MLIRPass
@@ -52,7 +50,6 @@ target_link_libraries(triton-lsp PRIVATE
   # tests
   TritonTestAnalysis
   TritonTestDialect
-  TritonAMDGPUTestAnalysis
   # MLIR core
   MLIRLspServerLib
   MLIRPass

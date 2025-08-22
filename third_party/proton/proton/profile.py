@@ -16,8 +16,6 @@ def _select_backend() -> str:
     backend = triton.runtime.driver.active.get_current_target().backend
     if backend == "cuda":
         return "cupti"
-    elif backend == "hip":
-        return "roctracer"
     else:
         raise ValueError("No backend is available for the current target.")
 
@@ -35,13 +33,7 @@ def _get_backend_default_path(backend: str) -> str:
 
 
 def _check_env(backend: str) -> None:
-    if backend == "roctracer":
-        hip_device_envs = ["HIP_VISIBLE_DEVICES", "CUDA_VISIBLE_DEVICES"]
-        for env in hip_device_envs:
-            if os.getenv(env, None) is not None:
-                raise ValueError(
-                    f"Proton does not work when the environment variable {env} is set on AMD GPUs. Please unset it and use `ROCR_VISIBLE_DEVICES` instead"
-                )
+    pass
 
 
 def start(
@@ -67,7 +59,7 @@ def start(
         name (str, optional): The name (with path) of the profiling session.
                               If not provided, the default name is "~/proton.hatchet".
         backend (str, optional): The backend to use for profiling.
-                                 Available options are [None, "cupti", "cupti_pcsampling", "roctracer"].
+                                 Available options are [None, "cupti", "cupti_pcsampling"].
                                  Defaults to None, which automatically selects the backend matching the current active runtime.
         context (str, optional): The context to use for profiling.
                                  Available options are ["shadow", "python"].

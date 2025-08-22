@@ -6,9 +6,6 @@ set(PROTON_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/csrc")
 if(NOT CUPTI_INCLUDE_DIR)
   message(FATAL_ERROR "CUPTI include directory not defined")
 endif()
-if(NOT ROCTRACER_INCLUDE_DIR)
-  message(FATAL_ERROR "ROCTRACER include directory not defined")
-endif()
 if(NOT JSON_INCLUDE_DIR)
   message(FATAL_ERROR "JSON include directory not defined")
 endif()
@@ -26,12 +23,6 @@ function(add_proton_library name)
 
   target_link_libraries(${name} PRIVATE Python3::Module pybind11::headers)
 
-  # Use system to skip warnings caused by legacy clang compilers
-  target_include_directories(${name}
-    SYSTEM PRIVATE
-      "${ROCTRACER_INCLUDE_DIR}"
-  )
-
   target_include_directories(${name}
     PRIVATE
       "${CUPTI_INCLUDE_DIR}"
@@ -39,8 +30,7 @@ function(add_proton_library name)
       "${PROTON_SRC_DIR}/include"
   )
 
-  # If HIP is AMD-based
-  target_compile_definitions(${name} PRIVATE __HIP_PLATFORM_AMD__)
+
 
   # Append this library name to the GLOBAL property "PROTON_LIBS"
   set_property(GLOBAL APPEND PROPERTY PROTON_LIBS ${name})

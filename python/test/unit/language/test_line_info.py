@@ -85,14 +85,6 @@ def get_disassembler_command_and_debug_line_format():
         nvdisasm = triton.knobs.nvidia.nvdisasm.path
         return ("cubin", [nvdisasm, "-g"], "## File", ",")
 
-    if backend == "hip":
-        import shutil
-        # Try to find llvm-objdump from the current PATH to disassmble hsaco.
-        tool = shutil.which("llvm-objdump")
-        if tool is not None:
-            return ("hsaco", [tool, "-D", "-l", "--arch=amdgcn"], ";", ":")
-        raise RuntimeError("llvm-objdump not found in PATH")
-
     raise RuntimeError(f"unknown backend {backend}")
 
 

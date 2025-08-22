@@ -26,6 +26,12 @@ from . import language
 from . import testing
 from . import tools
 
+# Conditionally import profiler (stub or real implementation)
+try:
+    from . import profiler
+except ImportError:
+    profiler = None
+
 must_use_result = language.core.must_use_result
 
 __all__ = [
@@ -51,6 +57,7 @@ __all__ = [
     "TritonError",
     "testing",
     "tools",
+    "profiler",
 ]
 
 # -------------------------------------

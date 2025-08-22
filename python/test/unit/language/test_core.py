@@ -30,12 +30,6 @@ from triton._internal_testing import (
     is_cuda,
     is_interpreter,
     is_hopper,
-    is_hip,
-    is_hip_cdna,
-    is_hip_cdna2,
-    is_hip_cdna3,
-    is_hip_cdna4,
-    is_hip_gfx12,
     is_xpu,
     get_arch,
     torch_float8_dtypes,
@@ -71,13 +65,6 @@ mma_nonk_sizes = []
 GPU_DIALECT = "ttg"
 if is_interpreter():
     THREADS_PER_WARP = 1
-elif is_hip():
-    THREADS_PER_WARP = triton.runtime.driver.active.get_current_target().warp_size
-    # for CDNA multiple variants of mma instructions are supported:
-    # mfma 16x16/mfma 32x32
-    # 0 is a special value for automatic heuristic
-    if is_hip_cdna():
-        mma_nonk_sizes = [0, 16, 32]
 else:
     THREADS_PER_WARP = 32
 
@@ -107,11 +94,11 @@ def patch_kernel(template, to_replace):
         return kernel
 
 
-def check_cuda_or_hip(device):
-    # CUDA and HIP both use pytorch device 'cuda'.  Other backends like Intel
+def check_cuda(device):
+    # CUDA uses pytorch device 'cuda'. Other backends like Intel
     # GPU do not.
     if device not in ['cuda']:
-        pytest.skip("Only for cuda or HIP")
+        pytest.skip("Only for cuda")
 
 
 def check_type_supported(dtype, device):
@@ -127,28 +114,6 @@ def check_type_supported(dtype, device):
     if is_interpreter():
         if dtype in [tl.bfloat16, "bfloat16", torch.bfloat16]:
             pytest.skip("bfloat16 is not supported in the interpreter")
-
-
-class MfmaLayout:
-
-    def __init__(self, version, warps_per_cta, instr_shape, is_transposed):
-        self.version = version
-        self.warps_per_cta = warps_per_cta
-        self.instr_shape = instr_shape
-        self.is_transposed = is_transposed
-
-    def __str__(self):
-        return f"#{GPU_DIALECT}.amd_mfma<{{versionMajor={self.version[0]}, versionMinor={self.version[1]}, warpsPerCTA = {self.warps_per_cta}, instrShape={self.instr_shape}, isTransposed = {str(self.is_transposed).lower()}}}>"
-
-
-class WmmaLayout:
-
-    def __init__(self, version, warps_per_cta):
-        self.version = version
-        self.warps_per_cta = warps_per_cta
-
-    def __str__(self):
-        return f"#{GPU_DIALECT}.amd_wmma<{{version = {self.version}, warpsPerCTA = {self.warps_per_cta}}}>"
 
 
 class MmaLayout:
@@ -290,16 +255,6 @@ def is_layout_applicable(layout) -> bool:
         if mma_layout.version[0] >= 3 and not is_hopper():
             return False
         return True
-    elif is_hip():
-        target_arch = triton.runtime.driver.active.get_current_target().arch
-        if "gfx11" in target_arch:
-            # RDNA 3
-            return isinstance(layout, WmmaLayout)
-        elif any(arch for arch in ["gfx8", "gfx9"] if arch in target_arch):
-            # CDNA 1, 2, 3
-            return isinstance(layout, MfmaLayout)
-        else:
-            return False
     else:
         return True
 
@@ -1212,8 +1167,7 @@ def test_abs(dtype_x, device):
 @pytest.mark.interpreter
 @pytest.mark.parametrize("in_dtype", [tl.float8e4b15, tl.float8e4nv, tl.float8e5])
 def test_abs_fp8(in_dtype, device):
-    if is_hip():
-        pytest.skip('test_abs_fp8 not supported on HIP.')
+
     elif is_cuda():
         cc = torch.cuda.get_device_capability()
         if in_dtype == tl.float8e4b15 and cc >= (9, 0):

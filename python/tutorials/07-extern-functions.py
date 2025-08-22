@@ -4,7 +4,7 @@ Libdevice (`tl.extra.libdevice`) function
 Triton can invoke a custom function from an external library.
 In this example, we will use the `libdevice` library to apply `asin` on a tensor.
 
-Please refer to `CUDA libdevice-users-guide <https://docs.nvidia.com/cuda/libdevice-users-guide/index.html>`_ and/or `HIP device-lib source code <https://github.com/ROCm/llvm-project/tree/amd-staging/amd/device-libs/ocml/src>`_ regarding the semantics of all available libdevice functions.
+Please refer to `CUDA libdevice-users-guide <https://docs.nvidia.com/cuda/libdevice-users-guide/index.html>`_ regarding the semantics of all available libdevice functions.
 
 In `libdevice.py`, we try to aggregate functions with the same computation but different data types together.
 For example, both `__nv_asin` and `__nv_asinf` calculate the principal value of the arc sine of the input, but `__nv_asin` operates on `double` and `__nv_asinf` operates on `float`.
@@ -72,22 +72,12 @@ def is_cuda():
     return triton.runtime.driver.active.get_current_target().backend == "cuda"
 
 
-def is_hip():
-    return triton.runtime.driver.active.get_current_target().backend == "hip"
-
-
 current_file = inspect.getfile(inspect.currentframe())
 current_dir = Path(os.path.dirname(os.path.abspath(current_file)))
 
 if is_cuda():
     libdir = current_dir.parent.parent / 'third_party/nvidia/backend/lib'
     extern_libs = {'libdevice': str(libdir / 'libdevice.10.bc')}
-elif is_hip():
-    libdir = current_dir.parent.parent / 'third_party/amd/backend/lib'
-    extern_libs = {}
-    libs = ["ocml", "ockl"]
-    for lib in libs:
-        extern_libs[lib] = str(libdir / f'{lib}.bc')
 else:
     raise RuntimeError('unknown backend')
 

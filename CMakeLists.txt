@@ -18,11 +18,11 @@ include(CTest)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Options
-option(TRITON_BUILD_BINARY "Build C++ Triton binaries" ON)
+option(TRITON_BUILD_BINARY "Build C++ Triton binaries" OFF)
 option(TRITON_BUILD_PYTHON_MODULE "Build Python Triton bindings" OFF)
 option(TRITON_BUILD_PROTON "Build the Triton Proton profiler" OFF)
-option(TRITON_BUILD_UT "Build C++ Triton Unit Tests" ON)
-option(TRITON_BUILD_WITH_CCACHE "Build with ccache (if available)" ON)
+option(TRITON_BUILD_UT "Build C++ Triton Unit Tests" OFF)
+option(TRITON_BUILD_WITH_CCACHE "Build with ccache (if available)" OFF)
 set(TRITON_CODEGEN_BACKENDS "" CACHE STRING "Enable different codegen backends")
 
 if(TRITON_BUILD_WITH_CCACHE)
@@ -187,6 +187,8 @@ if(TRITON_BUILD_PYTHON_MODULE)
     # We always build proton dialect
     list(APPEND TRITON_PLUGIN_NAMES "proton")
     add_subdirectory(third_party/proton/dialect)
+    # Add preprocessor definition when Proton is enabled
+    add_compile_definitions(TRITON_BUILD_PROTON)
   endif()
 
   get_property(triton_libs GLOBAL PROPERTY TRITON_LIBS)
@@ -278,6 +280,8 @@ if(NOT TRITON_BUILD_PYTHON_MODULE)
   endforeach()
   if(TRITON_BUILD_PROTON)
     add_subdirectory(third_party/proton/dialect)
+    # Add preprocessor definition when Proton is enabled
+    add_compile_definitions(TRITON_BUILD_PROTON)
   endif()
 endif()
 

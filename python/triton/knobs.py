@@ -449,24 +449,16 @@ class nvidia_knobs(base_knobs):
     libcuda_path: env_opt_str = env_opt_str("TRITON_LIBCUDA_PATH")
 
 
-class amd_knobs(base_knobs):
-    use_buffer_ops: env_bool = env_bool("AMDGCN_USE_BUFFER_OPS")
-    dump_amdgcn: env_bool = env_bool("AMDGCN_ENABLE_DUMP")
-    libhip_path: env_opt_str = env_opt_str("TRITON_LIBHIP_PATH")
-    lld_path: env_opt_str = env_opt_str("TRITON_HIP_LLD_PATH")
-
-    # We use strs so that we can have a default value based on other runtime info
-    use_block_pingpong: env_opt_bool = env_opt_bool("TRITON_HIP_USE_BLOCK_PINGPONG")
-    use_in_thread_transpose: env_opt_bool = env_opt_bool("TRITON_HIP_USE_IN_THREAD_TRANSPOSE")
-
-    global_prefetch: env_int = env_int("TRITON_HIP_GLOBAL_PREFETCH")
-    local_prefetch: env_int = env_int("TRITON_HIP_LOCAL_PREFETCH")
-    use_async_copy: env_bool = env_bool("TRITON_HIP_USE_ASYNC_COPY")
-    scalarize_packed_fops: env_bool = env_bool("AMDGCN_SCALARIZE_PACKED_FOPS")
-
-
 class proton_knobs(base_knobs):
     cupti_dir: env_opt_str = env_opt_str("TRITON_CUPTI_LIB_PATH")
+
+
+class amd_knobs(base_knobs):
+    """AMD/ROCm specific knobs - placeholder for Windows build"""
+    use_block_pingpong: env_opt_bool = env_opt_bool("TRITON_HIP_USE_BLOCK_PINGPONG")
+    global_prefetch: env_int = env_int("TRITON_HIP_GLOBAL_PREFETCH", 4)
+    local_prefetch: env_int = env_int("TRITON_HIP_LOCAL_PREFETCH", 3)
+    use_buffer_ops: env_bool = env_bool("AMDGCN_USE_BUFFER_OPS", True)
 
 
 build = build_knobs()

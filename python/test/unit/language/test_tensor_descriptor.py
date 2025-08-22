@@ -1477,13 +1477,6 @@ REDUCE_OP = {
     "xor": lambda a, b: torch.bitwise_xor(unwrap_tensor(a), unwrap_tensor(b)),
 }
 
-REDUCE_SKIP_HIP_CDNA3 = [
-    ("min", "int32", 1, 1024),
-    ("max", "int32", 1, 1024),
-    ("add", "bfloat16", 1, 1024),
-]
-
-
 # TODO: interpreter support
 # @pytest.mark.interpreter
 @pytest.mark.parametrize("kind", ["add", "min", "max", "and", "or", "xor"])
@@ -1496,8 +1489,6 @@ def test_tensor_descriptor_reduce(kind, descriptor, dtype_str, num_ctas, M_BLOCK
     if not is_native:
         if num_ctas != 1:
             pytest.skip("Multi-CTA not supported")
-        if is_hip_cdna3() and (kind, dtype_str, M_BLOCK, N_BLOCK) in REDUCE_SKIP_HIP_CDNA3:
-            pytest.skip("Broken on rocm")
 
     @triton.jit(debug=True)
     def kernel(out_desc, out_ptr, a_ptr, M, N, M_BLOCK: tl.constexpr, N_BLOCK: tl.constexpr, kind: tl.constexpr):
@@ -1641,9 +1632,6 @@ def matmul_kernel_host_tensor_descriptor(a_desc, b_desc, c_desc):
 def test_host_tensor_descriptor_matmul(num_stages, num_ctas, BLOCK_M, BLOCK_N, BLOCK_K, device):
     if num_ctas == 2 and (not is_cuda() or torch.cuda.get_device_capability(0)[0] not in (9, 10)):
         pytest.skip("CTAs is unsupported for these cards")
-
-    if is_hip() and (BLOCK_M, BLOCK_N, BLOCK_K, num_stages) == (256, 128, 32, 4):
-        pytest.skip("Insufficient shared memory on HIP devices")
 
     if is_interpreter():
         M, N, K = BLOCK_M, BLOCK_N, BLOCK_K

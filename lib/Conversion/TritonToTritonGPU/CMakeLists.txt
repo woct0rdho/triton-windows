@@ -11,6 +11,9 @@ add_triton_library(TritonToTritonGPU
     MLIRPass
     MLIRTransforms
     TritonIR
-    ProtonIR
     TritonGPUIR
 )
+
+if (TRITON_BUILD_PROTON)
+    target_link_libraries(TritonToTritonGPU PUBLIC ProtonIR)
+endif()

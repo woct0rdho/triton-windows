@@ -22,7 +22,9 @@
 #include "triton/Conversion/TritonGPUToLLVM/PatternTritonGPUOpToLLVM.h"
 #include "triton/Conversion/TritonGPUToLLVM/TypeConverter.h"
 
+#ifdef TRITON_BUILD_PROTON
 #include "third_party/proton/dialect/include/TritonProtonToLLVM/PatternTritonProtonOpToLLVM.h"
+#endif
 
 namespace mlir {
 namespace triton {
@@ -138,8 +140,10 @@ struct ConvertTritonGPUToLLVM
                                                     targetInfo, benefit);
     mlir::triton::populatePrintOpToLLVMPattern(typeConverter, patterns,
                                                targetInfo, benefit);
+#ifdef TRITON_BUILD_PROTON
     mlir::triton::proton::populateRecordOpToLLVMPattern(typeConverter, patterns,
                                                         targetInfo, benefit);
+#endif
     mlir::triton::populateControlFlowOpToLLVMPattern(typeConverter, patterns,
                                                      targetInfo, benefit);
     mlir::triton::NVIDIA::populateSPMDOpToLLVMPattern(typeConverter, patterns,

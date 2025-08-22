@@ -36,7 +36,9 @@
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/SourceMgr.h"
 
+#ifdef TRITON_BUILD_PROTON
 #include "third_party/proton/dialect/include/Dialect/Proton/IR/Dialect.h"
+#endif
 
 #include "llvm/ADT/SmallVector.h"
 
@@ -315,8 +317,11 @@ void init_triton_ir(py::module &&m) {
     registry.insert<TritonDialect, ::mlir::triton::gpu::TritonGPUDialect,
                     math::MathDialect, arith::ArithDialect, scf::SCFDialect,
                     ::mlir::gpu::GPUDialect, cf::ControlFlowDialect,
-                    ::mlir::triton::proton::ProtonDialect, LLVM::LLVMDialect,
+                    LLVM::LLVMDialect,
                     mlir::ub::UBDialect>();
+#ifdef TRITON_BUILD_PROTON
+    registry.insert<::mlir::triton::proton::ProtonDialect>();
+#endif
     mlir::LLVM::registerInlinerInterface(registry);
     registerBuiltinDialectTranslation(registry);
     registerLLVMDialectTranslation(registry);
@@ -1730,13 +1735,14 @@ void init_triton_ir(py::module &&m) {
               bool isSignedInteger) -> Value {
              return self.create<MakeTensorDescOp>(base, shape, strides,
                                                   tensorShape, isSignedInteger);
-           })
-      // Proton Ops
-      .def("create_proton_record",
-           [](TritonOpBuilder &self, bool isStart, int32_t regionId) -> void {
-             self.create<mlir::triton::proton::RecordOp>(isStart, regionId);
            });
-
+#ifdef TRITON_BUILD_PROTON
+  // Proton Ops
+  builder.def("create_proton_record",
+       [](TritonOpBuilder &self, bool isStart, int32_t regionId) -> void {
+         self.create<mlir::triton::proton::RecordOp>(isStart, regionId);
+       });
+#endif
   py::class_<PassManager>(m, "pass_manager", py::module_local())
       .def(py::init<MLIRContext *>())
       .def("enable_debug",

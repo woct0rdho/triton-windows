@@ -1053,18 +1053,6 @@ int getNVIDIAComputeCapability(Operation *module) {
   return computeCapability;
 }
 
-StringRef getAMDArch(Operation *module) {
-  StringAttr targetAttr =
-      module->getAttrOfType<StringAttr>(triton::gpu::AttrTargetName);
-  assert(targetAttr && "Expected a target attribute on the module operation");
-
-  StringRef ref = targetAttr.strref();
-  assert(ref.starts_with("hip:") &&
-         "expected target attribute to be prefixed with \"hip:\"");
-
-  return ref.drop_front(4); // drop the "hip:"
-}
-
 inline ttg::SwizzledSharedEncodingAttr
 swizzleDotOperandLike(RankedTensorType type, ttg::CTALayoutAttr ctaLayout) {
   // We want to see if the linear layout has the same order as an mma microtile

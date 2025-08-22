@@ -8,6 +8,11 @@ The kernels support both FP16 and FP8 data types but the FP8 implementation is o
 Triton and cuBLAS implementations are benchmarked under different configurations and evaluated using the proton profiler.
 Users can pass command-line arguments to specify matrix dimensions and iteration steps flexibly.
 
+.. note::
+   This tutorial uses the Triton profiler for performance analysis. When the profiler is not available
+   (i.e., when Triton is built without -DTRITON_BUILD_PROTON=ON), profiling calls will be ignored
+   with a warning, but the tutorial will still run successfully.
+
 .. code-block:: bash
 
     # FP8

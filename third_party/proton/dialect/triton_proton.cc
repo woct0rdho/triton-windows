@@ -13,7 +13,9 @@ void init_triton_proton(py::module &&m) {
   // load dialects
   m.def("load_dialects", [](mlir::MLIRContext &context) {
     mlir::DialectRegistry registry;
+#ifdef TRITON_BUILD_PROTON
     registry.insert<mlir::triton::proton::ProtonDialect>();
+#endif
     context.appendDialectRegistry(registry);
     context.loadAllAvailableDialects();
   });

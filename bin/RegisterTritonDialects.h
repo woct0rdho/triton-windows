@@ -1,17 +1,14 @@
 #pragma once
-#include "amd/include/Dialect/TritonAMDGPU/IR/Dialect.h"
-#include "amd/include/TritonAMDGPUTransforms/Passes.h"
 #include "third_party/nvidia/include/Dialect/NVGPU/IR/Dialect.h"
 #include "third_party/nvidia/include/Dialect/NVWS/IR/Dialect.h"
-#include "third_party/proton/dialect/include/Dialect/Proton/IR/Dialect.h"
 #include "triton/Dialect/Triton/IR/Dialect.h"
 #include "triton/Dialect/TritonGPU/IR/Dialect.h"
 #include "triton/Dialect/TritonNvidiaGPU/IR/Dialect.h"
 
-// Below headers will allow registration to ROCm passes
-#include "TritonAMDGPUToLLVM/Passes.h"
-#include "TritonAMDGPUTransforms/Passes.h"
-#include "TritonAMDGPUTransforms/TritonGPUConversion.h"
+#ifdef TRITON_BUILD_PROTON
+#include "third_party/proton/dialect/include/Dialect/Proton/IR/Dialect.h"
+#endif
+
 
 #include "triton/Dialect/Triton/Transforms/Passes.h"
 #include "triton/Dialect/TritonGPU/Transforms/Passes.h"
@@ -26,18 +23,14 @@
 #include "triton/Target/LLVMIR/Passes.h"
 
 #include "mlir/Dialect/LLVMIR/NVVMDialect.h"
-#include "mlir/Dialect/LLVMIR/ROCDLDialect.h"
 #include "mlir/InitAllPasses.h"
 
 namespace mlir {
 namespace test {
 void registerTestAliasPass();
 void registerTestAlignmentPass();
-void registerAMDTestAlignmentPass();
 void registerTestAllocationPass();
 void registerTestMembarPass();
-void registerTestAMDGPUMembarPass();
-void registerTestTritonAMDGPURangeAnalysis();
 void registerTestLoopPeelingPass();
 } // namespace test
 } // namespace mlir
@@ -49,12 +42,9 @@ inline void registerTritonDialects(mlir::DialectRegistry &registry) {
   mlir::triton::nvidia_gpu::registerTritonNvidiaGPUPasses();
   mlir::test::registerTestAliasPass();
   mlir::test::registerTestAlignmentPass();
-  mlir::test::registerAMDTestAlignmentPass();
   mlir::test::registerTestAllocationPass();
   mlir::test::registerTestMembarPass();
   mlir::test::registerTestLoopPeelingPass();
-  mlir::test::registerTestAMDGPUMembarPass();
-  mlir::test::registerTestTritonAMDGPURangeAnalysis();
   mlir::triton::registerConvertTritonToTritonGPUPass();
   mlir::triton::registerRelayoutTritonGPUPass();
   mlir::triton::gpu::registerAllocateSharedMemoryPass();
@@ -64,27 +54,6 @@ inline void registerTritonDialects(mlir::DialectRegistry &registry) {
   mlir::triton::registerConvertTritonGPUToLLVMPass();
   mlir::triton::registerConvertNVGPUToLLVMPass();
   mlir::registerLLVMDIScope();
-
-  // TritonAMDGPUToLLVM passes
-  mlir::triton::registerConvertTritonAMDGPUToLLVM();
-  mlir::triton::registerConvertBuiltinFuncToLLVM();
-  mlir::triton::registerOptimizeAMDLDSUsage();
-
-  // TritonAMDGPUTransforms passes
-  mlir::registerTritonAMDGPUAccelerateMatmul();
-  mlir::registerTritonAMDGPUOptimizeEpilogue();
-  mlir::registerTritonAMDGPUHoistLayoutConversions();
-  mlir::registerTritonAMDGPUReorderInstructions();
-  mlir::registerTritonAMDGPUBlockPingpong();
-  mlir::registerTritonAMDGPUStreamPipeline();
-  mlir::registerTritonAMDGPUCanonicalizePointers();
-  mlir::registerTritonAMDGPUConvertToBufferOps();
-  mlir::registerTritonAMDGPUInThreadTranspose();
-  mlir::registerTritonAMDGPUCoalesceAsyncCopy();
-  mlir::registerTritonAMDGPUUpdateAsyncWaitCount();
-  mlir::triton::registerTritonAMDGPUInsertInstructionSchedHints();
-  mlir::triton::registerTritonAMDGPULowerInstructionSchedHints();
-  mlir::registerTritonAMDFoldTrueCmpI();
 
   // NVWS passes
   mlir::triton::registerNVWSTransformsPasses();
@@ -98,7 +67,9 @@ inline void registerTritonDialects(mlir::DialectRegistry &registry) {
       mlir::triton::gpu::TritonGPUDialect, mlir::math::MathDialect,
       mlir::arith::ArithDialect, mlir::scf::SCFDialect, mlir::gpu::GPUDialect,
       mlir::LLVM::LLVMDialect, mlir::NVVM::NVVMDialect,
-      mlir::triton::nvgpu::NVGPUDialect, mlir::triton::nvws::NVWSDialect,
-      mlir::triton::amdgpu::TritonAMDGPUDialect,
-      mlir::triton::proton::ProtonDialect, mlir::ROCDL::ROCDLDialect>();
+      mlir::triton::nvgpu::NVGPUDialect, mlir::triton::nvws::NVWSDialect
+#ifdef TRITON_BUILD_PROTON
+      , mlir::triton::proton::ProtonDialect
+#endif
+      >();
 }
