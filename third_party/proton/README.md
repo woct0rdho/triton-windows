@@ -4,6 +4,51 @@
 
 Proton is a lightweight profiler for Triton, designed to be used for code written in Python and to invoke underlying GPU kernels. Proton provides insightful information about the program context, metadata, and hardware performance metrics of the GPU kernels invoked.
 
+## Windows Conditional Compilation
+
+**Important**: In this Windows build, Proton is conditionally compiled and **disabled by default** to streamline the build process and reduce dependencies.
+
+### Default Behavior (Proton Disabled)
+
+When Proton is disabled (default state), the profiler provides stub implementations that show warnings but allow code to continue:
+
+```python
+import triton.profiler as proton
+
+# All profiler calls work but show warnings and use no-op implementations
+proton.start("my_profile")  # Warning: Proton not available
+with proton.scope("kernel_execution"):
+    # Your GPU kernel code here - works normally
+    pass
+proton.finalize()  # No-op when disabled
+```
+
+### Enabling Proton Profiling
+
+To enable full Proton profiling capabilities:
+
+```bash
+# Method 1: Environment variable and rebuild
+set TRITON_BUILD_PROTON=ON
+pip install -e . --no-cache-dir
+
+# Method 2: CMake flag
+cmake -DTRITON_BUILD_PROTON=ON [other options]
+```
+
+### Checking Proton Availability
+
+```python
+import triton.profiler as proton
+
+if proton.is_available():
+    print("Proton profiling is available")
+    # Use full profiler features
+else:
+    print("Proton profiling is disabled (using stubs)")
+    # Profiler calls will show warnings but continue gracefully
+```
+
 ## Installation
 
 The following command installs the latest version of Proton.
