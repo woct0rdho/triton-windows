@@ -52,7 +52,7 @@ If you want to run `torch.compile` with fp8, you can try https://github.com/woct
 <details>
 <summary>GTX 16xx/RTX 20xx (Turing architecture, sm75)</summary>
 
-This is not officially supported. It can run some simple AI models, but not always. Things started to break on Turing since Triton 3.3, see https://github.com/triton-lang/triton/pull/5066 , so I recommend to use Triton 3.2 .
+This is officially supported by Triton 3.2 . Things started to break on Turing since Triton 3.3, see https://github.com/triton-lang/triton/pull/5066
 
 fp8 (also known as float8) and bf16 (also known as bfloat16) will not work. I recommend to use GGUF instead of fp8 or bf16 models in this case.
 </details>
