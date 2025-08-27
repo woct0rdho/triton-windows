@@ -101,7 +101,9 @@ Although technically Triton can be used alone, in the following let's assume you
 | 2.7 | 3.3 |
 | 2.8 | 3.4 |
 
-PyTorch 2.3 and older are not supported.
+PyTorch 2.3 and older are not supported in this repo.
+
+If you have to use Triton 3.2 because you're using an old GPU, then you can try to use Triton 3.2 with PyTorch >= 2.7, but it's not guaranteed to always work.
 
 ### 4. CUDA
 
