@@ -188,6 +188,8 @@ Since the release `triton-windows==3.2.0.post13`, TinyCC is bundled in the Trito
 You still need to install a C++ compiler if you use `torch.compile` targeting CPU. This may happen when you use nodes like 'CompileModel' in ComfyUI. Triton does not affect how PyTorch configures the C++ compiler in this case.
 
 If you need to override the C compiler, you can set the environment variable `CC`. MSVC, GCC, and Clang are supported for the JIT compilation in Triton.
+
+If you set `CC` in the 'Environment Variables' window, then it should be a string, not a list. A list will implicitly add a semicolon `;` at its end and cause problems.
 </details>
 
 <details>
