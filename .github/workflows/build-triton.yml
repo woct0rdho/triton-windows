@@ -29,7 +29,7 @@ on:
         default: '0'
       cibw_build_override:
         description: CIBW_BUILD override
-        required: true
+        required: false
         type: string
         default: ''
 
