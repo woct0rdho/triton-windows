@@ -19,6 +19,7 @@ Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](h
 * Windows 10 and 11 are supported
 * Only Nvidia GPU is supported
     * For AMD GPU, [ComfyUI-Zluda](https://github.com/patientx/ComfyUI-Zluda) has a lot of information. Despite the name, they have information for both ZLUDA and ROCm. They use https://github.com/lshqqytiger/triton , which is based on https://github.com/Repeerc/triton-amdgpu-windows
+* On free-threaded Python (Python 3.13t/3.14t), it seems to work with MSVC/GCC/Clang, but not with the bundled TinyCC
 * Proton profiler does not fully work yet. If you want to try it, you can build from source
 
 ## Installation
