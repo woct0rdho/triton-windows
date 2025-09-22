@@ -11,6 +11,8 @@ def get_base_dir():
 def _get_cmake_dir():
     plat_name = sysconfig.get_platform()
     python_version = sysconfig.get_python_version()
+    if sysconfig.get_config_var("Py_GIL_DISABLED"):
+        python_version += "t"
     dir_name = f"cmake.{plat_name}-{sys.implementation.name}-{python_version}"
     return Path(get_base_dir()) / "build" / dir_name
 
