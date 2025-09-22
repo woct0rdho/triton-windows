@@ -286,7 +286,7 @@ def make_launcher(constants, signature, tensordesc_meta):
 #include <Python.h>
 
 typedef struct {{
-  PyObject_HEAD;
+  PyObject_HEAD
   _Alignas(128) CUtensorMap tensorMap;
 }} PyCUtensorMapObject;
 
