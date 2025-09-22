@@ -58,20 +58,20 @@ struct TMemCopyAtom {
 // .shape     = { .128x256b, .128x128b, .64x128b, .32x128b }
 // .multicast = { .warpx2::02_13 , .warpx2::01_23, .warpx4}
 // .shape = .4x256b NYI
-constexpr TMemCopyAtom TMemCopyAtomNone128{
-    .nRow = 128, .bCol = 128, .multicast = 0};
+constexpr TMemCopyAtom TMemCopyAtomNone128{/* .nRow = */ 128, /* .bCol = */ 128,
+                                           /* .multicast = */ 0};
 
-constexpr TMemCopyAtom TMemCopyAtomNone256{
-    .nRow = 128, .bCol = 256, .multicast = 0};
+constexpr TMemCopyAtom TMemCopyAtomNone256{/* .nRow = */ 128, /* .bCol = */ 256,
+                                           /* .multicast = */ 0};
 
 constexpr TMemCopyAtom TMemCopyAtomWarp02_13{
-    .nRow = 64, .bCol = 128, .multicast = 1};
+    /* .nRow = */ 64, /* .bCol = */ 128, /* .multicast = */ 1};
 
 constexpr TMemCopyAtom TMemCopyAtomWarp01_23{
-    .nRow = 64, .bCol = 128, .multicast = 2};
+    /* .nRow = */ 64, /* .bCol = */ 128, /* .multicast = */ 2};
 
-constexpr TMemCopyAtom TMemCopyAtomWarp4{
-    .nRow = 32, .bCol = 128, .multicast = 3};
+constexpr TMemCopyAtom TMemCopyAtomWarp4{/* .nRow = */ 32, /* .bCol = */ 128,
+                                         /* .multicast = */ 3};
 
 TMemCopyAtom getTMemCopyAtom(const LinearLayout &cvt, int bitwidth) {
   auto *ctx = cvt.getInDimNames().begin()->getContext();
@@ -83,7 +83,7 @@ TMemCopyAtom getTMemCopyAtom(const LinearLayout &cvt, int bitwidth) {
     assert(i == 0 || i == 1);
     return cvt.getBasis(kRow, llvm::Log2_32(32) + i) == ArrayRef{0};
   };
-  auto multicast = multicastBit(0) | multicastBit(1) << 1;
+  auto multicast = static_cast<int>(multicastBit(0)) | (multicastBit(1) << 1);
   if (multicast == 0) {
     // TODO we will assert this in the verifier
     if (cvt.getInDimSize(kCol) * bitwidth == 128) {
