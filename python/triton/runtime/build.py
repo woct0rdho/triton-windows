@@ -60,7 +60,7 @@ def _cc_cmd(cc: str, src: str, out: str, include_dirs: list[str], library_dirs: 
             ccflags: list[str]) -> list[str]:
     if is_msvc(cc):
         out_base = os.path.splitext(out)[0]
-        cc_cmd = [cc, src, "/nologo", "/O2", "/LD", "/wd4819"]
+        cc_cmd = [cc, src, "/nologo", "/O2", "/LD", "/std:c11", "/wd4819"]
         cc_cmd += [f"/I{dir}" for dir in include_dirs if dir is not None]
         cc_cmd += [f"/Fo{out_base + '.obj'}"]
         cc_cmd += ["/link"]
