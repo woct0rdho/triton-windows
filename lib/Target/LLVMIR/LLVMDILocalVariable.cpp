@@ -244,10 +244,11 @@ struct LLVMDILocalVariablePass
 
   // construct a subprogram of an operation by using its parent function's
   // DISubprogramAttr construction
-  LLVM::DISubprogramAttr getDISubprogramAttr(Operation op) {
-    auto funcOp = op.getParentOfType<LLVM::LLVMFuncOp>();
-    return getDISubprogramAttr(funcOp);
-  }
+  // This is not used and causes an error on MSVC
+  // LLVM::DISubprogramAttr getDISubprogramAttr(Operation op) {
+  //   auto funcOp = op.getParentOfType<LLVM::LLVMFuncOp>();
+  //   return getDISubprogramAttr(funcOp);
+  // }
 
   // set it while traversing into a function
   LLVM::DISubprogramAttr diSubprogramAttr;
