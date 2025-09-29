@@ -534,10 +534,12 @@ struct CopyWriteVisibilityOpConversion
                                      writeVisibilityType)
             ->getResult(0);
 
-    constexpr uint64_t fullMask =
-        tti::THREADS_BITMASK_SIZE >= 64
-            ? std::numeric_limits<uint64_t>::max()
-            : ((1ull << tti::THREADS_BITMASK_SIZE) - 1);
+    // THREADS_BITMASK_SIZE is 64. It seems << causes a warning on MSVC
+    // constexpr uint64_t fullMask =
+    //     tti::THREADS_BITMASK_SIZE >= 64
+    //         ? std::numeric_limits<uint64_t>::max()
+    //         : ((1ull << tti::THREADS_BITMASK_SIZE) - 1);
+    constexpr uint64_t fullMask = std::numeric_limits<uint64_t>::max();
     uint64_t destMaskVal = static_cast<uint64_t>(op.getDestMask());
     uint64_t clearMaskVal = fullMask & ~destMaskVal;
 
