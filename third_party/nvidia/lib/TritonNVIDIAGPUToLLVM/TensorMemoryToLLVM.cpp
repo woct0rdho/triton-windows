@@ -81,7 +81,7 @@ TMemCopyAtom getTMemCopyAtom(const LinearLayout &cvt, int bitwidth) {
     assert(i == 0 || i == 1);
     return cvt.getBasis(kRow, llvm::Log2_32(32) + i, kOffset) == 0;
   };
-  auto multicast = multicastBit(0) | multicastBit(1) << 1;
+  auto multicast = static_cast<int>(multicastBit(0)) | multicastBit(1) << 1;
   if (multicast == 0) {
     // TODO we will assert this in the verifier
     if (cvt.getInDimSize(kCol) * bitwidth == 128) {
