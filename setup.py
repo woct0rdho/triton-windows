@@ -564,14 +564,15 @@ def download_and_copy_dependencies():
         f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/{system}-{arch}/cuda_nvcc-{system}-{arch}-{version}-archive{archive_extension}",
     )
     if check_env_flag("TRITON_BUILD_PROTON", "ON"):  # Default ON
+        crt = "crt" if int(NVIDIA_TOOLCHAIN_VERSION["cudacrt"].split(".")[0]) >= 13 else "nvcc"
         download_and_copy(
-            name="nvidia/nvcc-" + NVIDIA_TOOLCHAIN_VERSION["cudacrt"],
-            src_func=lambda system, arch, version: f"cuda_nvcc-{system}-{arch}-{version}-archive/include",
+            name=f"nvidia/{crt}-" + NVIDIA_TOOLCHAIN_VERSION["cudacrt"],
+            src_func=lambda system, arch, version: f"cuda_{crt}-{system}-{arch}-{version}-archive/include",
             dst_path="third_party/nvidia/backend/include",
             variable="TRITON_CUDACRT_PATH",
             version=NVIDIA_TOOLCHAIN_VERSION["cudacrt"],
             url_func=lambda system, arch, version:
-            f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/{system}-{arch}/cuda_nvcc-{system}-{arch}-{version}-archive{archive_extension}",
+            f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_{crt}/{system}-{arch}/cuda_{crt}-{system}-{arch}-{version}-archive{archive_extension}",
         )
         download_and_copy(
             name="nvidia/cudart-" + NVIDIA_TOOLCHAIN_VERSION["cudart"],
