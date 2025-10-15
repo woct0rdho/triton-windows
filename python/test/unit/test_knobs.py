@@ -7,6 +7,10 @@ from triton._internal_testing import is_hip
 from pathlib import Path
 
 
+def normalize(s: str) -> str:
+    return s.replace("\\", "/")
+
+
 def test_knobs_utils(fresh_knobs) -> None:
     triton.knobs.propagate_env = False
 
@@ -121,7 +125,7 @@ def test_read_env(truthy, falsey, fresh_knobs, monkeypatch):
     # str defaulting to None
     assert fresh_knobs.compilation.use_ir_loc is None
     # str defaulting to not None
-    assert fresh_knobs.cache.dir.endswith(".triton/cache")
+    assert normalize(fresh_knobs.cache.dir).endswith(".triton/cache")
     # class defaulting to None
     assert fresh_knobs.cache.manager_class is None
     # set[str] defaulting to empty
@@ -140,10 +144,10 @@ def test_read_env(truthy, falsey, fresh_knobs, monkeypatch):
     assert fresh_knobs.runtime.debug
     assert not fresh_knobs.language.default_fp_fusion
     assert fresh_knobs.compilation.use_ir_loc == "ttir"
-    assert fresh_knobs.cache.home_dir == "/tmp/triton_home"
-    assert fresh_knobs.cache.dir == "/tmp/triton_cache"
-    assert fresh_knobs.cache.dump_dir == "/tmp/triton_home/.triton/dump"
-    assert fresh_knobs.cache.override_dir == "/tmp/triton_home/.triton/override"
+    assert normalize(fresh_knobs.cache.home_dir) == "/tmp/triton_home"
+    assert normalize(fresh_knobs.cache.dir) == "/tmp/triton_cache"
+    assert normalize(fresh_knobs.cache.dump_dir) == "/tmp/triton_home/.triton/dump"
+    assert normalize(fresh_knobs.cache.override_dir) == "/tmp/triton_home/.triton/override"
 
     from triton.runtime.cache import FileCacheManager
 
@@ -155,39 +159,39 @@ def test_read_env(truthy, falsey, fresh_knobs, monkeypatch):
 def test_triton_home(fresh_knobs, monkeypatch):
     initial_home = fresh_knobs.cache.home_dir
     assert initial_home == os.path.expanduser("~/")
-    assert fresh_knobs.cache.dir == os.path.join(initial_home, ".triton/cache")
-    assert fresh_knobs.cache.dump_dir == os.path.join(initial_home, ".triton/dump")
-    assert fresh_knobs.cache.override_dir == os.path.join(initial_home, ".triton/override")
+    assert normalize(fresh_knobs.cache.dir) == normalize(os.path.join(initial_home, ".triton/cache"))
+    assert normalize(fresh_knobs.cache.dump_dir) == normalize(os.path.join(initial_home, ".triton/dump"))
+    assert normalize(fresh_knobs.cache.override_dir) == normalize(os.path.join(initial_home, ".triton/override"))
 
     monkeypatch.setenv("TRITON_HOME", "/tmp/triton_home")
-    assert fresh_knobs.cache.dir == "/tmp/triton_home/.triton/cache"
-    assert fresh_knobs.cache.dump_dir == "/tmp/triton_home/.triton/dump"
-    assert fresh_knobs.cache.override_dir == "/tmp/triton_home/.triton/override"
+    assert normalize(fresh_knobs.cache.dir) == normalize("/tmp/triton_home/.triton/cache")
+    assert normalize(fresh_knobs.cache.dump_dir) == normalize("/tmp/triton_home/.triton/dump")
+    assert normalize(fresh_knobs.cache.override_dir) == normalize("/tmp/triton_home/.triton/override")
 
     fresh_knobs.cache.home_dir = "/tmp/user/triton_home"
-    assert fresh_knobs.cache.dir == "/tmp/user/triton_home/.triton/cache"
-    assert fresh_knobs.cache.dump_dir == "/tmp/user/triton_home/.triton/dump"
-    assert fresh_knobs.cache.override_dir == "/tmp/user/triton_home/.triton/override"
+    assert normalize(fresh_knobs.cache.dir) == normalize("/tmp/user/triton_home/.triton/cache")
+    assert normalize(fresh_knobs.cache.dump_dir) == normalize("/tmp/user/triton_home/.triton/dump")
+    assert normalize(fresh_knobs.cache.override_dir) == normalize("/tmp/user/triton_home/.triton/override")
 
 
 def test_set_knob_directly(fresh_knobs, monkeypatch):
-    assert fresh_knobs.cache.dir.endswith(".triton/cache")
+    assert normalize(fresh_knobs.cache.dir).endswith(".triton/cache")
 
     fresh_knobs.cache.dir = "/tmp/triton_cache"
-    assert fresh_knobs.cache.dir == "/tmp/triton_cache"
+    assert normalize(fresh_knobs.cache.dir) == "/tmp/triton_cache"
 
     monkeypatch.setenv("TRITON_CACHE_DIR", "/tmp/other_triton_cache")
-    assert fresh_knobs.cache.dir == "/tmp/triton_cache"
+    assert normalize(fresh_knobs.cache.dir) == "/tmp/triton_cache"
 
     # Disable propagation to verify resetting/del behavior
     triton.knobs.propagate_env = False
 
     fresh_knobs.cache.dir = fresh_knobs.env
-    assert fresh_knobs.cache.dir == "/tmp/other_triton_cache"
+    assert normalize(fresh_knobs.cache.dir) == "/tmp/other_triton_cache"
 
     fresh_knobs.cache.dir = "/tmp/triton_cache"
     fresh_knobs.cache.reset()
-    assert fresh_knobs.cache.dir == "/tmp/other_triton_cache"
+    assert normalize(fresh_knobs.cache.dir) == "/tmp/other_triton_cache"
 
     triton.knobs.propagate_env = True
 
@@ -237,6 +241,9 @@ def test_set_knob_directly(fresh_knobs, monkeypatch):
     reason="PTXAS is not installed on AMD",
 )
 def test_nvidia_tool(fresh_knobs, tmp_path, monkeypatch):
+    if os.name == "nt":
+        pytest.skip("Nvidia paths work differently on Windows")
+
     triton_root = Path(fresh_knobs.__file__).parent
     default_ptxas = triton_root / "backends/nvidia/bin/ptxas"
 
