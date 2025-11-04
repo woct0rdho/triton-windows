@@ -144,7 +144,7 @@ if(NOT MSVC)
   set(TRITON_DISABLE_EH_RTTI_FLAGS "$<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions;-fno-rtti>")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wno-covered-switch-default -fvisibility=hidden")
 else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /wd4244 /wd4624")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /wd4244 /wd4293 /wd4624")
 endif()
 
 include_directories(".")
