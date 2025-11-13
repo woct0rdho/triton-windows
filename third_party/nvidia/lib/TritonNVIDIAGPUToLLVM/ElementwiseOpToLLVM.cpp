@@ -487,8 +487,8 @@ static const Fp8ConversionDesc Fp32_to_Fp8E4M3Nv(bool hasNativeFP) {
         "add.u32 c3, c3, 0xc407ffff;                 \n"
         "add.u32 c0, c0, lsb0;                       \n"
         "add.u32 c1, c1, lsb1;                       \n"
-        "add.u32 c2, c2, lsb1;                       \n"
-        "add.u32 c3, c3, lsb1;                       \n"
+        "add.u32 c2, c2, lsb2;                       \n"
+        "add.u32 c3, c3, lsb3;                       \n"
 
         "shl.b32 c0, c0, 4;                          \n" // shift to fp8e4
         "shl.b32 c1, c1, 4;                          \n"
@@ -569,8 +569,8 @@ static const Fp8ConversionDesc Fp32_to_Fp8E5M2(bool hasNativeFP) {
         "add.u32 c3, c3, 0xc80fffff;                 \n"
         "add.u32 c0, c0, lsb0;                       \n"
         "add.u32 c1, c1, lsb1;                       \n"
-        "add.u32 c2, c2, lsb1;                       \n"
-        "add.u32 c3, c3, lsb1;                       \n"
+        "add.u32 c2, c2, lsb2;                       \n"
+        "add.u32 c3, c3, lsb3;                       \n"
 
         "shl.b32 c0, c0, 3;                          \n" // shift to fp8e5
         "shl.b32 c1, c1, 3;                          \n"
