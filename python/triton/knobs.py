@@ -191,6 +191,7 @@ class NvidiaTool:
             return None
 
 
+@functools.lru_cache
 def find_nvidia_tool(binary: str) -> str:
     path = os.path.join(os.path.dirname(__file__), "backends", "nvidia", "bin", binary)
     if os.access(path, os.X_OK):
@@ -213,7 +214,6 @@ class env_nvidia_tool(env_base[str, NvidiaTool]):
     def __init__(self, binary: str) -> None:
         binary += sysconfig.get_config_var("EXE")
         self.binary = binary
-        self.default_path = find_nvidia_tool(binary)
         # Convert ptxas-blackwell to PTXAS_BLACKWELL, not PTXAS-BLACKWELL
         super().__init__(f"TRITON_{binary.upper().replace('-', '_')}_PATH")
 
@@ -221,12 +221,14 @@ class env_nvidia_tool(env_base[str, NvidiaTool]):
         return self.transform(getenv(self.key))
 
     def transform(self, path: str) -> NvidiaTool:
+        default_path = find_nvidia_tool(self.binary)
+
         # We still add default as fallback in case the pointed binary isn't
         # accessible.
         if path is not None:
-            paths = [path, self.default_path]
+            paths = [path, default_path]
         else:
-            paths = [self.default_path]
+            paths = [default_path]
 
         for path in paths:
             if tool := NvidiaTool.from_path(path):
