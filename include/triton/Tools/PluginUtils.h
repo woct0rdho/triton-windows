@@ -13,10 +13,17 @@ enum TritonPluginResult {
   TP_GENERIC_FAILURE = 1,
 };
 };
+#ifdef _WIN32
+#define TRITON_PLUGIN_API                                                      \
+  extern "C" __declspec(dllexport) TritonPluginResult
+#define TRITON_PLUGIN_API_TYPE(_TYPE)                                          \
+  extern "C" __declspec(dllexport) _TYPE
+#else
 #define TRITON_PLUGIN_API                                                      \
   extern "C" __attribute__((visibility("default"))) TritonPluginResult
 #define TRITON_PLUGIN_API_TYPE(_TYPE)                                          \
   extern "C" __attribute__((visibility("default"))) _TYPE
+#endif
 
 struct TritonPlugin {
   TritonPlugin() = delete;
