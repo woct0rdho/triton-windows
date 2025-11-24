@@ -46,5 +46,7 @@ foreach( plugin ${TRITON_PLUGIN_PASSES} )
       "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../plugins")
     endif(DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 
-    target_compile_options(${plugin} PRIVATE -fvisibility=hidden)
+    if(NOT MSVC)
+        target_compile_options(${plugin} PRIVATE -fvisibility=hidden)
+    endif()
 endforeach()
