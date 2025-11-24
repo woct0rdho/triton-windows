@@ -12,8 +12,6 @@ enum TritonPluginResult {
   TP_GENERIC_FAILURE = 1,
 };
 };
-#define TRITON_PLUGIN_API                                                      \
-  extern "C" __attribute__((visibility("default"))) TritonPluginResult
 
 struct TritonPlugin {
   TritonPlugin() = delete;
