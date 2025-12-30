@@ -3,10 +3,44 @@
 #include <hip/hip_runtime_api.h>
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include <dlfcn.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef _WIN32
+#include <windows.h>
+// Windows compatibility layer for dlopen/dlsym/dlclose/dlerror
+#define RTLD_NOW 0
+#define RTLD_LAZY 0
+#define RTLD_LOCAL 0
+static char dlerror_buf[512];
+static inline void *dlopen(const char *filename, int flags) {
+  (void)flags;
+  HMODULE h = LoadLibraryA(filename);
+  if (!h) {
+    snprintf(dlerror_buf, sizeof(dlerror_buf),
+             "LoadLibrary failed with error %lu", GetLastError());
+  }
+  return (void *)h;
+}
+static inline void *dlsym(void *handle, const char *symbol) {
+  void *p = (void *)GetProcAddress((HMODULE)handle, symbol);
+  if (!p) {
+    snprintf(dlerror_buf, sizeof(dlerror_buf),
+             "GetProcAddress failed for %s with error %lu", symbol,
+             GetLastError());
+  }
+  return p;
+}
+static inline int dlclose(void *handle) {
+  return FreeLibrary((HMODULE)handle) ? 0 : -1;
+}
+static inline const char *dlerror(void) {
+  return dlerror_buf[0] ? dlerror_buf : NULL;
+}
+#else
+#include <dlfcn.h>
+#endif
 
 typedef struct {
   uint32_t group0_0;

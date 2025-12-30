@@ -1,5 +1,6 @@
 import functools
 import os
+import platform
 import subprocess
 import re
 import triton
@@ -15,8 +16,48 @@ include_dirs = [os.path.join(dirname, "include")]
 PyTDMDescriptor = None
 
 
+def _is_windows():
+    return platform.system() == 'Windows'
+
+
+def _get_rocm_sdk_root():
+    """Get ROCm SDK root path using rocm-sdk command or environment variables."""
+    # Try rocm-sdk path --root first (for Windows ROCm SDK)
+    try:
+        result = subprocess.check_output(["rocm-sdk", "path", "--root"], stderr=subprocess.DEVNULL)
+        root = result.decode().strip()
+        if root and os.path.isdir(root):
+            return root
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    # Fall back to environment variables
+    for env_var in ["ROCM_HOME", "HIP_PATH", "ROCM_PATH"]:
+        path = os.environ.get(env_var, "")
+        if path and os.path.isdir(path):
+            return path
+    return None
+
+
+def _get_hip_library_from_rocm_sdk():
+    """Get the amdhip64 library path using rocm_sdk.find_libraries."""
+    try:
+        import rocm_sdk
+        paths = rocm_sdk.find_libraries("amdhip64")
+        if paths:
+            return str(paths[0])
+    except (ImportError, ModuleNotFoundError, FileNotFoundError):
+        pass
+    return None
+
+
+# Add HIP runtime headers from ROCm SDK if available
+_rocm_root = _get_rocm_sdk_root()
+if _rocm_root and os.path.isdir(os.path.join(_rocm_root, "include")):
+    include_dirs.append(os.path.join(_rocm_root, "include"))
+
+
 def _find_already_mmapped_dylib_on_linux(lib_name):
-    import platform
     if platform.system() != 'Linux':
         return None
 
@@ -65,7 +106,7 @@ def _find_already_mmapped_dylib_on_linux(lib_name):
 
 @functools.lru_cache()
 def _get_path_to_hip_runtime_dylib():
-    lib_name = "libamdhip64.so"
+    lib_name = "amdhip64.dll" if _is_windows() else "libamdhip64.so"
 
     # If we are told explicitly what HIP runtime dynamic library to use, obey that.
     if env_libhip_path := knobs.amd.libhip_path:
@@ -73,12 +114,18 @@ def _get_path_to_hip_runtime_dylib():
             return env_libhip_path
         raise RuntimeError(f"TRITON_LIBHIP_PATH '{env_libhip_path}' does not point to a valid {lib_name}")
 
-    # If the shared object is already mmapped to address space, use it.
-    mmapped_path = _find_already_mmapped_dylib_on_linux(lib_name)
-    if mmapped_path:
-        if os.path.exists(mmapped_path):
-            return mmapped_path
-        raise RuntimeError(f"memory mapped '{mmapped_path}' in process does not point to a valid {lib_name}")
+    # Try rocm_sdk.find_libraries first - this is the preferred method
+    rocm_sdk_path = _get_hip_library_from_rocm_sdk()
+    if rocm_sdk_path:
+        return rocm_sdk_path
+
+    # If the shared object is already mmapped to address space, use it (Linux only).
+    if not _is_windows():
+        mmapped_path = _find_already_mmapped_dylib_on_linux(lib_name)
+        if mmapped_path:
+            if os.path.exists(mmapped_path):
+                return mmapped_path
+            raise RuntimeError(f"memory mapped '{mmapped_path}' in process does not point to a valid {lib_name}")
 
     paths = []
 
@@ -102,10 +149,15 @@ def _get_path_to_hip_runtime_dylib():
             return path
         paths.append(path)
 
-    # Then try to see if developer provides a HIP runtime dynamic library using LD_LIBARAY_PATH.
-    env_ld_library_path = os.getenv("LD_LIBRARY_PATH")
-    if env_ld_library_path:
-        for d in env_ld_library_path.split(":"):
+    # Then try to see if developer provides a HIP runtime dynamic library using LD_LIBRARY_PATH (Linux) or PATH (Windows).
+    if _is_windows():
+        env_path = os.getenv("PATH", "")
+        path_sep = ";"
+    else:
+        env_path = os.getenv("LD_LIBRARY_PATH", "")
+        path_sep = ":"
+    if env_path:
+        for d in env_path.split(path_sep):
             f = os.path.join(d, lib_name)
             if os.path.exists(f):
                 return f
@@ -114,47 +166,58 @@ def _get_path_to_hip_runtime_dylib():
     # HIP_PATH should point to HIP SDK root if set
     env_hip_path = os.getenv("HIP_PATH")
     if env_hip_path:
-        hip_lib_path = os.path.join(env_hip_path, "lib", lib_name)
+        # On Windows, DLLs are in bin; on Linux, .so files are in lib
+        lib_subdir = "bin" if _is_windows() else "lib"
+        hip_lib_path = os.path.join(env_hip_path, lib_subdir, lib_name)
         if os.path.exists(hip_lib_path):
             return hip_lib_path
         paths.append(hip_lib_path)
 
-    # if available, `hipconfig --path` prints the HIP SDK root
+    # Try rocm-sdk path --root (Windows ROCm SDK) or hipconfig --path (Linux)
+    lib_subdir = "bin" if _is_windows() else "lib"
     try:
-        hip_root = subprocess.check_output(["hipconfig", "--path"]).decode().strip()
-        if hip_root:
-            hip_lib_path = os.path.join(hip_root, "lib", lib_name)
-            if os.path.exists(hip_lib_path):
-                return hip_lib_path
-            paths.append(hip_lib_path)
+        if _is_windows():
+            rocm_root = subprocess.check_output(["rocm-sdk", "path", "--root"],
+                                                stderr=subprocess.DEVNULL).decode().strip()
+        else:
+            rocm_root = subprocess.check_output(["hipconfig", "--path"]).decode().strip()
+        if rocm_root:
+            rocm_lib_path = os.path.join(rocm_root, lib_subdir, lib_name)
+            if os.path.exists(rocm_lib_path):
+                return rocm_lib_path
+            paths.append(rocm_lib_path)
     except (subprocess.CalledProcessError, FileNotFoundError):
-        # hipconfig may not be available
+        # rocm-sdk or hipconfig may not be available
         pass
 
     # ROCm lib dir based on env var
-    env_rocm_path = os.getenv("ROCM_PATH")
+    env_rocm_path = os.getenv("ROCM_PATH") or os.getenv("ROCM_HOME")
     if env_rocm_path:
-        rocm_lib_path = os.path.join(env_rocm_path, "lib", lib_name)
+        rocm_lib_path = os.path.join(env_rocm_path, lib_subdir, lib_name)
         if os.path.exists(rocm_lib_path):
             return rocm_lib_path
         paths.append(rocm_lib_path)
 
-    # Afterwards try to search the loader dynamic library resolution paths.
-    libs = subprocess.check_output(["/sbin/ldconfig", "-p"]).decode(errors="ignore")
-    # each line looks like the following:
-    # libamdhip64.so.6 (libc6,x86-64) => /opt/rocm-6.0.2/lib/libamdhip64.so.6
-    # libamdhip64.so (libc6,x86-64) => /opt/rocm-6.0.2/lib/libamdhip64.so
-    locs = [line.split()[-1] for line in libs.splitlines() if line.strip().endswith(lib_name)]
-    for loc in locs:
-        if os.path.exists(loc):
-            return loc
-        paths.append(loc)
+    # Afterwards try to search the loader dynamic library resolution paths (Linux only).
+    if not _is_windows():
+        try:
+            libs = subprocess.check_output(["/sbin/ldconfig", "-p"]).decode(errors="ignore")
+            # each line looks like the following:
+            # libamdhip64.so.6 (libc6,x86-64) => /opt/rocm-6.0.2/lib/libamdhip64.so.6
+            # libamdhip64.so (libc6,x86-64) => /opt/rocm-6.0.2/lib/libamdhip64.so
+            locs = [line.split()[-1] for line in libs.splitlines() if line.strip().endswith(lib_name)]
+            for loc in locs:
+                if os.path.exists(loc):
+                    return loc
+                paths.append(loc)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
 
-    # As a last resort, guess if we have it in some common installation path.
-    common_install_path = os.path.join('/opt/rocm/lib/', lib_name)
-    if os.path.exists(common_install_path):
-        return common_install_path
-    paths.append(common_install_path)
+        # As a last resort on Linux, guess if we have it in some common installation path.
+        common_install_path = os.path.join('/opt/rocm/lib/', lib_name)
+        if os.path.exists(common_install_path):
+            return common_install_path
+        paths.append(common_install_path)
 
     raise RuntimeError(f"cannot locate {lib_name} after attempted paths {paths}")
 
@@ -168,11 +231,13 @@ class HIPUtils(object):
 
     def __init__(self):
         libhip_path = _get_path_to_hip_runtime_dylib()
+        # Escape backslashes for C string embedding
+        libhip_path_escaped = libhip_path.replace("\\", "\\\\")
         src = Path(os.path.join(dirname, "driver.c")).read_text()
         # Just do a simple search and replace here instead of templates or format strings.
         # This way we don't need to escape-quote C code curly brackets and we can replace
         # exactly once.
-        src = src.replace('/*py_libhip_search_path*/', libhip_path, 1)
+        src = src.replace('/*py_libhip_search_path*/', libhip_path_escaped, 1)
         mod = compile_module_from_src(src=src, name="hip_utils", include_dirs=include_dirs)
         self.load_binary = mod.load_binary
         self.get_device_properties = mod.get_device_properties
@@ -340,20 +405,56 @@ def make_launcher(constants, signature, warp_size, tensordesc_meta):
     ]
 
     libhip_path = _get_path_to_hip_runtime_dylib()
+    # Escape backslashes for C string embedding
+    libhip_path = libhip_path.replace("\\", "\\\\")
 
     # generate glue code
     params = list(range(len(signature)))
     params = [f"&arg{i}" for i, ty in signature.items() if ty != "constexpr"]
     params.append("&global_scratch")
     params.append("&profile_scratch")
-    src = f"""
+
+    # Platform-specific includes and dlopen/dlsym macros
+    if _is_windows():
+        platform_includes = """
+#define __HIP_PLATFORM_AMD__
+#include <hip/hip_runtime.h>
+#include <hip/hip_runtime_api.h>
+#include <Python.h>
+#include <windows.h>
+#include <stdbool.h>
+
+// Windows compatibility layer for dlopen/dlsym/dlclose
+static char _dlerror_buf[512];
+static inline void *dlopen(const char *filename, int flags) {
+    (void)flags;
+    HMODULE h = LoadLibraryA(filename);
+    if (!h) {
+        snprintf(_dlerror_buf, sizeof(_dlerror_buf), "LoadLibrary failed with error %lu", GetLastError());
+    }
+    return (void *)h;
+}
+static inline void *dlsym(void *handle, const char *symbol) {
+    void *p = (void *)GetProcAddress((HMODULE)handle, symbol);
+    if (!p) {
+        snprintf(_dlerror_buf, sizeof(_dlerror_buf), "GetProcAddress failed for %s with error %lu", symbol, GetLastError());
+    }
+    return p;
+}
+static inline int dlclose(void *handle) { return FreeLibrary((HMODULE)handle) ? 0 : -1; }
+static inline const char *dlerror(void) { return _dlerror_buf[0] ? _dlerror_buf : NULL; }
+#define RTLD_LAZY 0
+#define RTLD_LOCAL 0
+#define RTLD_NOLOAD 0
+"""
+    else:
+        platform_includes = """
 #define __HIP_PLATFORM_AMD__
 #include <hip/hip_runtime.h>
 #include <hip/hip_runtime_api.h>
 #include <Python.h>
 #include <dlfcn.h>
 #include <stdbool.h>
-#include <dlfcn.h>
 
 typedef struct {{
   uint32_t group0_0;
@@ -375,6 +476,9 @@ typedef struct {{
   TDMDescriptor desc;
 }} PyTDMDescriptorObject;
 
+"""
+
+    src = f"""{platform_includes}
 // The list of paths to search for the HIP runtime library. The caller Python
 // code should substitute the search path placeholder.
 static const char *hipLibSearchPaths[] = {{"{libhip_path}"}};
@@ -417,22 +521,19 @@ struct HIPSymbolTable {{
 static struct HIPSymbolTable hipSymbolTable;
 
 bool initSymbolTable() {{
-  // Use the HIP runtime library loaded into the existing process if it exits.
-  void *lib = dlopen("libamdhip64.so", RTLD_NOLOAD);
+  void *lib = NULL;
 
-  // Otherwise, go through the list of search paths to dlopen the first HIP
-  // driver library.
-  if (!lib) {{
-    int n = sizeof(hipLibSearchPaths) / sizeof(hipLibSearchPaths[0]);
-    for (int i = 0; i < n; ++i) {{
-      void *handle = dlopen(hipLibSearchPaths[i], RTLD_LAZY | RTLD_LOCAL);
-      if (handle) {{
-        lib = handle;
-      }}
+  // Go through the list of search paths to open the first HIP driver library.
+  int n = sizeof(hipLibSearchPaths) / sizeof(hipLibSearchPaths[0]);
+  for (int i = 0; i < n; ++i) {{
+    void *handle = dlopen(hipLibSearchPaths[i], RTLD_LAZY | RTLD_LOCAL);
+    if (handle) {{
+      lib = handle;
+      break;
     }}
   }}
   if (!lib) {{
-    PyErr_SetString(PyExc_RuntimeError, "cannot open libamdhip64.so");
+    PyErr_SetString(PyExc_RuntimeError, "cannot open HIP runtime library");
     return false;
   }}
 
@@ -446,7 +547,7 @@ bool initSymbolTable() {{
   error = dlerror();
   if (error) {{
     PyErr_SetString(PyExc_RuntimeError,
-                    "cannot query 'hipGetProcAddress' from libamdhip64.so");
+                    "cannot query 'hipGetProcAddress' from HIP runtime library");
     dlclose(lib);
     return false;
   }}
