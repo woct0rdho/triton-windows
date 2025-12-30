@@ -13,6 +13,7 @@ import functools
 import warnings
 from pathlib import Path
 
+
 def _is_windows():
     return platform.system() == 'Windows'
 

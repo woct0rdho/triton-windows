@@ -15,25 +15,28 @@
 #define RTLD_LOCAL 0
 static char dlerror_buf[512];
 static inline void *dlopen(const char *filename, int flags) {
-    (void)flags;
-    HMODULE h = LoadLibraryA(filename);
-    if (!h) {
-        snprintf(dlerror_buf, sizeof(dlerror_buf), "LoadLibrary failed with error %lu", GetLastError());
-    }
-    return (void *)h;
+  (void)flags;
+  HMODULE h = LoadLibraryA(filename);
+  if (!h) {
+    snprintf(dlerror_buf, sizeof(dlerror_buf),
+             "LoadLibrary failed with error %lu", GetLastError());
+  }
+  return (void *)h;
 }
 static inline void *dlsym(void *handle, const char *symbol) {
-    void *p = (void *)GetProcAddress((HMODULE)handle, symbol);
-    if (!p) {
-        snprintf(dlerror_buf, sizeof(dlerror_buf), "GetProcAddress failed for %s with error %lu", symbol, GetLastError());
-    }
-    return p;
+  void *p = (void *)GetProcAddress((HMODULE)handle, symbol);
+  if (!p) {
+    snprintf(dlerror_buf, sizeof(dlerror_buf),
+             "GetProcAddress failed for %s with error %lu", symbol,
+             GetLastError());
+  }
+  return p;
 }
 static inline int dlclose(void *handle) {
-    return FreeLibrary((HMODULE)handle) ? 0 : -1;
+  return FreeLibrary((HMODULE)handle) ? 0 : -1;
 }
 static inline const char *dlerror(void) {
-    return dlerror_buf[0] ? dlerror_buf : NULL;
+  return dlerror_buf[0] ? dlerror_buf : NULL;
 }
 #else
 #include <dlfcn.h>

@@ -1,5 +1,6 @@
 import functools
 import os
+import platform
 import subprocess
 import re
 from pathlib import Path
@@ -13,10 +14,10 @@ from triton.tools.tensor_descriptor import TensorDescriptor
 dirname = os.path.dirname(os.path.realpath(__file__))
 include_dirs = [os.path.join(dirname, "include")]
 
-import platform
 
 def _is_windows():
     return platform.system() == 'Windows'
+
 
 def _get_rocm_sdk_root():
     """Get ROCm SDK root path using rocm-sdk command or environment variables."""
@@ -28,7 +29,7 @@ def _get_rocm_sdk_root():
             return root
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
-    
+
     # Fall back to environment variables
     for env_var in ["ROCM_HOME", "HIP_PATH", "ROCM_PATH"]:
         path = os.environ.get(env_var, "")
@@ -47,6 +48,7 @@ def _get_hip_library_from_rocm_sdk():
     except (ImportError, ModuleNotFoundError, FileNotFoundError):
         pass
     return None
+
 
 # Add HIP runtime headers from ROCm SDK if available
 _rocm_root = _get_rocm_sdk_root()
@@ -174,7 +176,8 @@ def _get_path_to_hip_runtime_dylib():
     lib_subdir = "bin" if _is_windows() else "lib"
     try:
         if _is_windows():
-            rocm_root = subprocess.check_output(["rocm-sdk", "path", "--root"], stderr=subprocess.DEVNULL).decode().strip()
+            rocm_root = subprocess.check_output(["rocm-sdk", "path", "--root"],
+                                                stderr=subprocess.DEVNULL).decode().strip()
         else:
             rocm_root = subprocess.check_output(["hipconfig", "--path"]).decode().strip()
         if rocm_root:
@@ -388,7 +391,7 @@ def make_launcher(constants, signature, warp_size):
     params = [f"&arg{i}" for i, ty in signature.items() if ty != "constexpr"]
     params.append("&global_scratch")
     params.append("&profile_scratch")
-    
+
     # Platform-specific includes and dlopen/dlsym macros
     if _is_windows():
         platform_includes = """
@@ -431,7 +434,7 @@ static inline const char *dlerror(void) { return _dlerror_buf[0] ? _dlerror_buf 
 #include <dlfcn.h>
 #include <stdbool.h>
 """
-    
+
     src = f"""{platform_includes}
 // The list of paths to search for the HIP runtime library. The caller Python
 // code should substitute the search path placeholder.
@@ -471,7 +474,7 @@ static struct HIPSymbolTable hipSymbolTable;
 
 bool initSymbolTable() {{
   void *lib = NULL;
-  
+
   // Go through the list of search paths to open the first HIP driver library.
   int n = sizeof(hipLibSearchPaths) / sizeof(hipLibSearchPaths[0]);
   for (int i = 0; i < n; ++i) {{
