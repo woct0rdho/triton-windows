@@ -65,12 +65,7 @@ def _cc_cmd(cc: str, src: str, out: str, include_dirs: list[str], library_dirs: 
             ccflags: list[str]) -> list[str]:
     if is_msvc(cc) or is_clang_cl(cc):
         out_base = os.path.splitext(out)[0]
-        cc_cmd = [cc, src, "/nologo", "/O2", "/LD", "/wd4819"]
-        # clang-cl doesn't support /std:c11, use -std=c11 instead
-        if is_clang_cl(cc):
-            cc_cmd += ["-std=c11"]
-        else:
-            cc_cmd += ["/std:c11"]
+        cc_cmd = [cc, src, "/nologo", "/O2", "/LD", "/wd4819", "/std:c11"]
         cc_cmd += [f"/I{dir}" for dir in include_dirs if dir is not None]
         cc_cmd += [f"/Fo{out_base + '.obj'}"]
         cc_cmd += ["/link"]
