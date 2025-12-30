@@ -6,7 +6,6 @@ from typing import Any, Dict, Tuple
 from types import ModuleType
 import hashlib
 import os
-import platform
 import tempfile
 import re
 import functools
@@ -14,8 +13,14 @@ import warnings
 from pathlib import Path
 
 
-def _is_windows():
-    return platform.system() == 'Windows'
+# The file may be accessed in parallel
+def try_remove(path):
+    if os.path.exists(path):
+        try:
+            os.remove(path)
+        except OSError:
+            import traceback
+            traceback.print_exc()
 
 
 def get_min_dot_size(target: GPUTarget):
@@ -475,35 +480,21 @@ class HIPBackend(BaseBackend):
         if knobs.compilation.enable_asan:
             target_features = '+xnack'
         hsaco = amd.assemble_amdgcn(src, options.arch, target_features)
-        # On Windows, NamedTemporaryFile cannot be reopened while open, so we
-        # use delete=False and manually clean up.
-        if _is_windows():
-            tmp_in = tempfile.NamedTemporaryFile(delete=False, suffix='.o')
-            tmp_out = tempfile.NamedTemporaryFile(delete=False, suffix='.hsaco')
-            try:
-                tmp_in.write(hsaco)
-                tmp_in.close()
-                tmp_out.close()
-                amd.link_hsaco(tmp_in.name, tmp_out.name)
-                with open(tmp_out.name, "rb") as fd_out:
-                    ret = fd_out.read()
-            finally:
-                try:
-                    os.unlink(tmp_in.name)
-                except OSError:
-                    pass
-                try:
-                    os.unlink(tmp_out.name)
-                except OSError:
-                    pass
-        else:
-            with tempfile.NamedTemporaryFile() as tmp_out:
-                with tempfile.NamedTemporaryFile() as tmp_in:
-                    with open(tmp_in.name, "wb") as fd_in:
-                        fd_in.write(hsaco)
-                    amd.link_hsaco(tmp_in.name, tmp_out.name)
-                with open(tmp_out.name, "rb") as fd_out:
-                    ret = fd_out.read()
+        # Use delete=False so the file can be reopened on Windows after closing.
+        # Clean up with try_remove outside the context managers.
+        with tempfile.NamedTemporaryFile(delete=False, mode='wb', suffix='.o') as tmp_in, \
+             tempfile.NamedTemporaryFile(delete=False, mode='rb', suffix='.hsaco') as tmp_out:
+            tmp_in.write(hsaco)
+            tmp_in.flush()
+            tmp_out_name = tmp_out.name
+            tmp_in_name = tmp_in.name
+
+        amd.link_hsaco(tmp_in_name, tmp_out_name)
+        with open(tmp_out_name, 'rb') as f:
+            ret = f.read()
+
+        try_remove(tmp_in_name)
+        try_remove(tmp_out_name)
         return ret
 
     def add_stages(self, stages, options, language):
