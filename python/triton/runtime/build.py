@@ -51,6 +51,11 @@ def is_msvc(cc):
     return cc == "cl" or cc == "cl.exe"
 
 
+def is_clang_cl(cc):
+    cc = os.path.basename(cc).lower()
+    return cc == "clang-cl" or cc == "clang-cl.exe"
+
+
 def is_clang(cc):
     cc = os.path.basename(cc).lower()
     return cc == "clang" or cc == "clang.exe"
@@ -58,9 +63,14 @@ def is_clang(cc):
 
 def _cc_cmd(cc: str, src: str, out: str, include_dirs: list[str], library_dirs: list[str], libraries: list[str],
             ccflags: list[str]) -> list[str]:
-    if is_msvc(cc):
+    if is_msvc(cc) or is_clang_cl(cc):
         out_base = os.path.splitext(out)[0]
-        cc_cmd = [cc, src, "/nologo", "/O2", "/LD", "/std:c11", "/wd4819"]
+        cc_cmd = [cc, src, "/nologo", "/O2", "/LD", "/wd4819"]
+        # clang-cl doesn't support /std:c11, use -std=c11 instead
+        if is_clang_cl(cc):
+            cc_cmd += ["-std=c11"]
+        else:
+            cc_cmd += ["/std:c11"]
         cc_cmd += [f"/I{dir}" for dir in include_dirs if dir is not None]
         cc_cmd += [f"/Fo{out_base + '.obj'}"]
         cc_cmd += ["/link"]
@@ -110,7 +120,7 @@ def _build(name: str, src: str, srcdir: str, library_dirs: list[str], include_di
         if sysconfig.get_config_var("Py_GIL_DISABLED"):
             version += "t"
         libraries = libraries + [f"python{version}"]
-    if is_msvc(cc):
+    if is_msvc(cc) or is_clang_cl(cc):
         _, msvc_winsdk_inc_dirs, msvc_winsdk_lib_dirs = find_msvc_winsdk()
         include_dirs = include_dirs + msvc_winsdk_inc_dirs
         library_dirs = library_dirs + msvc_winsdk_lib_dirs
