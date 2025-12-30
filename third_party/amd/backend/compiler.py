@@ -6,11 +6,17 @@ from typing import Any, Dict, Tuple
 from types import ModuleType
 import os
 import hashlib
+import os
+import platform
 import tempfile
 import re
 import functools
 import warnings
 from pathlib import Path
+
+
+def _is_windows():
+    return platform.system() == 'Windows'
 
 
 def get_min_dot_size(target: GPUTarget):
@@ -500,13 +506,35 @@ class HIPBackend(BaseBackend):
         if 'gfx11' in options.arch:
             target_features += ',-real-true16'
         hsaco = amd.assemble_amdgcn(src, options.arch, target_features)
-        with tempfile.NamedTemporaryFile() as tmp_out:
-            with tempfile.NamedTemporaryFile() as tmp_in:
-                with open(tmp_in.name, "wb") as fd_in:
-                    fd_in.write(hsaco)
+        # On Windows, NamedTemporaryFile cannot be reopened while open, so we
+        # use delete=False and manually clean up.
+        if _is_windows():
+            tmp_in = tempfile.NamedTemporaryFile(delete=False, suffix='.o')
+            tmp_out = tempfile.NamedTemporaryFile(delete=False, suffix='.hsaco')
+            try:
+                tmp_in.write(hsaco)
+                tmp_in.close()
+                tmp_out.close()
                 amd.link_hsaco(tmp_in.name, tmp_out.name)
-            with open(tmp_out.name, "rb") as fd_out:
-                ret = fd_out.read()
+                with open(tmp_out.name, "rb") as fd_out:
+                    ret = fd_out.read()
+            finally:
+                try:
+                    os.unlink(tmp_in.name)
+                except OSError:
+                    pass
+                try:
+                    os.unlink(tmp_out.name)
+                except OSError:
+                    pass
+        else:
+            with tempfile.NamedTemporaryFile() as tmp_out:
+                with tempfile.NamedTemporaryFile() as tmp_in:
+                    with open(tmp_in.name, "wb") as fd_in:
+                        fd_in.write(hsaco)
+                    amd.link_hsaco(tmp_in.name, tmp_out.name)
+                with open(tmp_out.name, "rb") as fd_out:
+                    ret = fd_out.read()
         return ret
 
     def add_stages(self, stages, options, language):
