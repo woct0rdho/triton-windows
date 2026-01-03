@@ -104,11 +104,12 @@ class FileCacheManager(CacheManager):
         assert self.lock_path is not None
         filepath = self._make_path(filename)
         # Random ID to avoid any collisions
-        rnd_id = str(uuid.uuid4())
+        # Shortened to avoid exceeding Windows' path length limit of 260 chars
+        rnd_id = str(uuid.uuid4())[:8]
         # we use the PID in case a bunch of these around so we can see what PID made it
-        pid = os.getpid()
+        # pid = os.getpid()
         # use temp dir to be robust against program interruptions
-        temp_dir = os.path.join(self.cache_dir, f"tmp.pid_{pid}_{rnd_id}")
+        temp_dir = os.path.join(self.cache_dir, f"tmp.{rnd_id}")
         os.makedirs(temp_dir, exist_ok=True)
         temp_path = os.path.join(temp_dir, filename)
 
