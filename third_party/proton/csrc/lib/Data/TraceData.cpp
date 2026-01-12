@@ -492,7 +492,8 @@ void TraceData::dumpChromeTrace(std::ostream &os) const {
       std::shared_ptr<CycleMetric> cycleMetric =
           std::dynamic_pointer_cast<CycleMetric>(
               event.metrics.at(MetricKind::Cycle));
-      cycleEvents.emplace_back(cycleMetric, event.contextId);
+      cycleEvents.emplace_back(cycleMetric,
+                               static_cast<uint32_t>(event.contextId));
       hasCycleMetrics = true;
     }
 
@@ -514,7 +515,7 @@ void TraceData::doDump(std::ostream &os, OutputFormat outputFormat) const {
   if (outputFormat == OutputFormat::ChromeTrace) {
     dumpChromeTrace(os);
   } else {
-    std::logic_error("Output format not supported");
+    throw std::logic_error("Output format not supported");
   }
 }
 
