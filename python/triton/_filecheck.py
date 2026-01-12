@@ -47,7 +47,8 @@ def run_filecheck(name, module_str, check_template):
                 [filecheck_path, temp_expected, "--input-file", temp_module, "--dump-input-context=50"],
                 stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
-            decoded = error.output.decode('unicode_escape')
+            # Decode using OS native encoding
+            decoded = error.output.decode().replace("\r\n", "\n")
             raise ValueError(decoded)
 
 
