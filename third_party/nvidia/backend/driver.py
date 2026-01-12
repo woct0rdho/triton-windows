@@ -16,8 +16,11 @@ if os.name == "nt":
     from triton.windows_utils import find_cuda
     _, cuda_inc_dirs, _ = find_cuda()
     include_dirs += cuda_inc_dirs
+
+    libraries = ['cuda']
+else:
+    libraries = ['libcuda.so.1']
 libdevice_dir = os.path.join(dirname, "lib")
-libraries = ['libcuda.so.1']
 PyCUtensorMap = None
 PyKernelArg = None
 ARG_CONSTEXPR = None
