@@ -1,5 +1,4 @@
 import inspect
-import re
 import subprocess
 import tempfile
 
@@ -117,13 +116,9 @@ def extract_file_lines(command, anchor, separator, asm):
 def check_file_lines(file_lines, file_name, lineno, should_contain=True):
     """
     Check if the file name and line number is in the file_lines
-
-    Args:
-        file_lines: list of (file_name, line_number)
-        file_name: file name
-        lineno: line number, -1 means do not check line number
-        should_contain: whether the file name and line number should be in the file_lines
+    The tests in this file have hard-coded line numbers so we cannot change line numbers when editing this file
     """
+    import re
     file_name = file_name.replace("\\", "/")
     file_name = re.compile(r"/pytest-\d+/").sub("/pytest-0/", file_name)
     for file, line in file_lines:
