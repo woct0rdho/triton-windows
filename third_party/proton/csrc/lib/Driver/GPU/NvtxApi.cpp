@@ -22,11 +22,21 @@ void enable() {
   const std::string cuptiLibPath =
       Dispatch<cupti::ExternLibCupti>::getLibPath();
   if (!cuptiLibPath.empty()) {
+#ifdef _WIN32
+    _putenv_s("NVTX_INJECTION64_PATH", cuptiLibPath.c_str());
+#else
     setenv("NVTX_INJECTION64_PATH", cuptiLibPath.c_str(), 1);
+#endif
   }
 }
 
-void disable() { unsetenv("NVTX_INJECTION64_PATH"); }
+void disable() {
+#ifdef _WIN32
+  _putenv_s("NVTX_INJECTION64_PATH", "");
+#else
+  unsetenv("NVTX_INJECTION64_PATH");
+#endif
+}
 
 std::string getMessageFromRangePushA(const void *params) {
   if (const auto *p = static_cast<const RangePushAParams *>(params))
