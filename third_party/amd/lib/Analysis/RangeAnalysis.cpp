@@ -87,7 +87,7 @@ triton::AMD::TritonIntegerRangeAnalysis::maybeGetTripCount(
 namespace {
 
 constexpr int64_t kDefaultMaxTripCount = 1024;
-constexpr uint64_t kDefaultMaxPrograms = 1L << 31; // 2147483648
+constexpr uint64_t kDefaultMaxPrograms = 1ULL << 31; // 2147483648
 
 void getEnclosingLoops(Operation &op, SmallVector<LoopLikeOpInterface> &ops) {
   Operation *currOp = op.getParentOp();
@@ -189,7 +189,10 @@ std::optional<ConstantIntRanges> maybeGetAssumedRange(Operation *assumption,
   if (auto constValue = maybeConstantIntValue) {
     unsigned bitWidth = ConstantIntRanges::getStorageBitwidth(anchor.getType());
     assert(bitWidth > 0 && "expected non-zero bitwdith");
-    APInt apVal = {bitWidth, static_cast<uint64_t>(*constValue), isSigned};
+    uint64_t val = static_cast<uint64_t>(*constValue);
+    if (!isSigned && bitWidth < 64)
+      val &= (1ULL << bitWidth) - 1;
+    APInt apVal = {bitWidth, val, isSigned};
     APInt min, max;
     if (isSigned) {
       min = APInt::getSignedMinValue(bitWidth);
