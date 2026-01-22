@@ -455,6 +455,9 @@ static inline const char *dlerror(void) { return _dlerror_buf[0] ? _dlerror_buf 
 #include <Python.h>
 #include <dlfcn.h>
 #include <stdbool.h>
+"""
+
+    src = f"""{platform_includes}
 
 typedef struct {{
   uint32_t group0_0;
@@ -476,9 +479,6 @@ typedef struct {{
   TDMDescriptor desc;
 }} PyTDMDescriptorObject;
 
-"""
-
-    src = f"""{platform_includes}
 // The list of paths to search for the HIP runtime library. The caller Python
 // code should substitute the search path placeholder.
 static const char *hipLibSearchPaths[] = {{"{libhip_path}"}};
