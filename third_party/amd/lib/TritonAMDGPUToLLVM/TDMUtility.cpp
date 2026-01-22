@@ -243,7 +243,7 @@ TDMDescriptor createTDMDescriptor(RewriterBase &rewriter, Location loc,
   Value globalAddr = b.ptrtoint(i64_ty, srcPtr);
   group0[2] = b.trunc(i32_ty, globalAddr);
   group0[3] = b.trunc(i32_ty, b.lshr(globalAddr, v32));
-  group0[3] = b.or_(group0[3], b.i32_val(1 << 31));
+  group0[3] = b.or_(group0[3], b.i32_val(1U << 31));
 
   // group1 (256 bits / 8 dwords) effective bit encoding:
   // [15:0]:    multicast mask
@@ -449,7 +449,7 @@ void fillTDMDescriptor(
   group0[0] = b.zext(i32_ty, pred);
   group0[1] = ldsAddr;
   group0[2] = b.trunc(i32_ty, globalAddr);
-  group0[3] = b.and_(group0[3], b.i32_val(1 << 31));
+  group0[3] = b.and_(group0[3], b.i32_val(1U << 31));
   group0[3] =
       b.or_(group0[3], b.trunc(i32_ty, b.lshr(globalAddr, b.i64_val(32))));
 

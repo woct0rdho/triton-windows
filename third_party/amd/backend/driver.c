@@ -115,7 +115,7 @@ static bool encodeTDMDescriptor(TDMDescriptor *desc, int elementBitWidth,
   // [127:126]: type - currently always set to 0x2
   desc->group0_2 = (uint32_t)(globalAddress & 0xFFFFFFFF);
   desc->group0_3 = (uint32_t)((globalAddress >> 32) & 0x01FFFFFF);
-  desc->group0_3 |= (0x1 << 31);
+  desc->group0_3 |= (1U << 31);
 
   // group1 (256 bits / 8 dwords) effective bit encoding:
   // [17:16]:   data size - log2(element size in bytes)
