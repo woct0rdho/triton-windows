@@ -117,7 +117,7 @@ lowerCircularStoreOpHelper(CircularStoreOp op, Value segmentStruct,
   auto clkTy = mlir::cast<IntegerType>(clock.getType());
   uint32_t maskedScopeId = op.getScopeId() & 0xff;
   Value tag = op.getIsStart() ? b.i32_val(maskedScopeId << 23)
-                              : b.i32_val(1 << 31 | maskedScopeId << 23);
+                              : b.i32_val(1U << 31 | maskedScopeId << 23);
   Value valsVec;
   if (clkTy.getWidth() == 64) {
     auto clkVecTy = vec_ty(i32_ty, 2);
