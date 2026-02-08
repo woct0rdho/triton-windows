@@ -323,6 +323,7 @@ bool hoistTmemAlloc(ttng::TMEMAllocOp allocToHoist) {
 class NVWSHoistTmemStore
     : public impl::NVWSHoistTmemStoreBase<NVWSHoistTmemStore> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(NVWSHoistTmemStore)
   void runOnOperation() override {
     MLIRContext *context = &getContext();
     mlir::ModuleOp m = getOperation();

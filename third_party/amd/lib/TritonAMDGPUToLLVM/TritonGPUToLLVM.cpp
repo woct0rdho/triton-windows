@@ -76,6 +76,7 @@ public:
 struct ConvertTritonAMDGPUToLLVM
     : public triton::impl::ConvertTritonAMDGPUToLLVMBase<
           ConvertTritonAMDGPUToLLVM> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ConvertTritonAMDGPUToLLVM)
   explicit ConvertTritonAMDGPUToLLVM(StringRef targetArch, bool ftz) {
     this->arch = targetArch.str();
     this->ftz = ftz;

@@ -17,6 +17,7 @@ namespace {
 struct AllocateSharedMemory
     : public mlir::triton::gpu::impl::AllocateSharedMemoryBase<
           AllocateSharedMemory> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(AllocateSharedMemory)
   void runOnOperation() override {
     ModuleOp mod = getOperation();
     ModuleAllocation allocation(mod);

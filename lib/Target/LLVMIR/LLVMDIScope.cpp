@@ -24,6 +24,7 @@ using namespace LLVMDIUtils;
 
 /// Add a debug info scope to LLVMFuncOp that are missing it.
 struct LLVMDIScopePass : public impl::LLVMDIScopeBase<LLVMDIScopePass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(LLVMDIScopePass)
   void setSubprogramAttr(LLVM::LLVMFuncOp funcOp) {
     Location loc = funcOp.getLoc();
     if (loc->findInstanceOf<mlir::FusedLocWith<LLVM::DISubprogramAttr>>())

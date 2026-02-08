@@ -644,6 +644,7 @@ static void lowerTensorMemoryAlloc(ModuleOp mod) {
 class ConvertNVGPUToLLVM
     : public impl::ConvertNVGPUToLLVMBase<ConvertNVGPUToLLVM> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ConvertNVGPUToLLVM)
   using impl::ConvertNVGPUToLLVMBase<
       ConvertNVGPUToLLVM>::ConvertNVGPUToLLVMBase;
 

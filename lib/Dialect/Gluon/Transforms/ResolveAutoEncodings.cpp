@@ -45,6 +45,7 @@ class GluonResolveAutoEncodingsPass
     : public impl::GluonResolveAutoEncodingsPassBase<
           GluonResolveAutoEncodingsPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(GluonResolveAutoEncodingsPass)
   using BaseT =
       impl::GluonResolveAutoEncodingsPassBase<GluonResolveAutoEncodingsPass>;
   using BaseT::BaseT;

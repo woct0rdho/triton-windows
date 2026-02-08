@@ -349,6 +349,7 @@ public:
 
 struct ConvertWarpPipeline
     : public mlir::triton::impl::ConvertWarpPipelineBase<ConvertWarpPipeline> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ConvertWarpPipeline)
 
 public:
   ConvertWarpPipeline(StringRef arch)

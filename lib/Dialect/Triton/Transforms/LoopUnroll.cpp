@@ -34,6 +34,7 @@ class LoopUnrollPass : public impl::TritonLoopUnrollBase<LoopUnrollPass> {
   const char *pipelineStagesAttrName = "tt.num_stages";
 
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(LoopUnrollPass)
   void runOnOperation() override {
     LDBG("Loop unroll pass");
     SmallVector<scf::ForOp, 4> loops;

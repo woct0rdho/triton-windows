@@ -204,6 +204,7 @@ private:
   DenseMap<Value, RewritedInfo> rewritedInfo;
 
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(RewriteTensorPointerPass)
   static bool needRewrite(Operation *op) {
     return std::any_of(op->getOperands().begin(), op->getOperands().end(),
                        [](Value operand) {

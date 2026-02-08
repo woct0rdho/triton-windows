@@ -31,6 +31,7 @@ namespace {
 struct CanonicalizeLLVMIR
     : public mlir::triton::gpu::impl::CanonicalizeLLVMIRBase<
           CanonicalizeLLVMIR> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(CanonicalizeLLVMIR)
   void runOnOperation() override {
     LLVM::LLVMFuncOp func = getOperation();
     RewritePatternSet patterns(&getContext());

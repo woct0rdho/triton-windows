@@ -1846,6 +1846,8 @@ class TritonAMDGPUCanonicalizePointersPass
   using Base::Base;
 
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonAMDGPUCanonicalizePointersPass)
   void runOnOperation() override;
 };
 

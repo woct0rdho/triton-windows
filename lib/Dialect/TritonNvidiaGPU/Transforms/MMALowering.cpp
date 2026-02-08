@@ -204,6 +204,7 @@ class TritonNvidiaGPUMMALoweringPass
     : public impl::TritonNvidiaGPUMMALoweringPassBase<
           TritonNvidiaGPUMMALoweringPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(TritonNvidiaGPUMMALoweringPass)
   void runOnOperation() override {
     MLIRContext *context = &getContext();
     ModuleOp m = getOperation();

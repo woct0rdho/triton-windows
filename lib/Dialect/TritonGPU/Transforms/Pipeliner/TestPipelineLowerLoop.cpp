@@ -17,6 +17,7 @@ namespace gpu {
 
 struct TestPipelineLowerLoop
     : public impl::TritonGPUTestPipelineLowerLoopBase<TestPipelineLowerLoop> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(TestPipelineLowerLoop)
   using impl::TritonGPUTestPipelineLowerLoopBase<
       TestPipelineLowerLoop>::TritonGPUTestPipelineLowerLoopBase;
 

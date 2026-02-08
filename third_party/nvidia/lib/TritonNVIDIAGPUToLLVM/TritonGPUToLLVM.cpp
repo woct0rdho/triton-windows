@@ -81,6 +81,7 @@ public:
 
 struct ConvertTritonGPUToLLVM
     : public triton::impl::ConvertTritonGPUToLLVMBase<ConvertTritonGPUToLLVM> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ConvertTritonGPUToLLVM)
   using ConvertTritonGPUToLLVMBase::ConvertTritonGPUToLLVMBase;
 
   ConvertTritonGPUToLLVM(int32_t computeCapability)

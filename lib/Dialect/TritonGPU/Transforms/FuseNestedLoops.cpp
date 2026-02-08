@@ -34,6 +34,7 @@ static constexpr llvm::StringLiteral kAlwaysFuseAttrName = "ttg.always-fuse";
 namespace {
 struct FuseNestedLoopsPass
     : public impl::TritonGPUFuseNestedLoopsBase<FuseNestedLoopsPass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(FuseNestedLoopsPass)
   using TritonGPUFuseNestedLoopsBase::TritonGPUFuseNestedLoopsBase;
 
   void runOnOperation() override;

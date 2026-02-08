@@ -913,6 +913,7 @@ class NVWSLowerAref : public impl::NVWSLowerArefBase<NVWSLowerAref> {
   using impl::NVWSLowerArefBase<NVWSLowerAref>::NVWSLowerArefBase;
 
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(NVWSLowerAref)
   void runOnOperation() override {
     MLIRContext *context = &getContext();
     mlir::ModuleOp m = getOperation();

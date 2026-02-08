@@ -171,6 +171,7 @@ int getAllocSharedMemSize(int maxSharedMemSize, int sharedMemUsed,
 class ConvertProtonToProtonGPUPass
     : public impl::ConvertProtonToProtonGPUBase<ConvertProtonToProtonGPUPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ConvertProtonToProtonGPUPass)
   ConvertProtonToProtonGPUPass(
       MetricType metricType, SamplingStrategy samplingStrategy,
       llvm::StringRef samplingOptions, gpu::Granularity granularity,

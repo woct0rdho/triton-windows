@@ -24,6 +24,7 @@ namespace {
 struct AllocateSharedMemoryNv
     : public mlir::triton::impl::AllocateSharedMemoryNvBase<
           AllocateSharedMemoryNv> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(AllocateSharedMemoryNv)
   using AllocateSharedMemoryNvBase::AllocateSharedMemoryNvBase;
 
   AllocateSharedMemoryNv(int32_t computeCapability, int32_t ptxVersion)

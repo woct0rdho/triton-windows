@@ -1387,6 +1387,7 @@ bool doDataPartition(triton::FuncOp &funcOp, unsigned numConsumerGroups) {
 class NVGPUTestWSDataPartitionPass
     : public impl::NVGPUTestWSDataPartitionBase<NVGPUTestWSDataPartitionPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(NVGPUTestWSDataPartitionPass)
   using impl::NVGPUTestWSDataPartitionBase<
       NVGPUTestWSDataPartitionPass>::NVGPUTestWSDataPartitionBase;
 

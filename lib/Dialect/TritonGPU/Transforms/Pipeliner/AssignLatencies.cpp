@@ -372,6 +372,7 @@ loadOpsToIndirectionLevel(scf::ForOp forOp, bool pipelineWithoutDot,
 
 struct AssignLatencies
     : public impl::TritonGPUAssignLatenciesBase<AssignLatencies> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(AssignLatencies)
   using TritonGPUAssignLatenciesBase::TritonGPUAssignLatenciesBase;
 
   void runOnOperation() override { assignLatencies(getOperation(), numStages); }

@@ -989,6 +989,7 @@ class TritonGPUAccelerateMatmulPass
     : public impl::TritonGPUAccelerateMatmulBase<
           TritonGPUAccelerateMatmulPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(TritonGPUAccelerateMatmulPass)
   using impl::TritonGPUAccelerateMatmulBase<
       TritonGPUAccelerateMatmulPass>::TritonGPUAccelerateMatmulBase;
 

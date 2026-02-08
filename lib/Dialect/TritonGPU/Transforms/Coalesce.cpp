@@ -69,6 +69,7 @@ static void pickDescriptorLoadStoreLayout(
 }
 
 struct CoalescePass : public impl::TritonGPUCoalesceBase<CoalescePass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(CoalescePass)
   static Type getNewType(Type type, Attribute encoding) {
     RankedTensorType tensorType = cast<RankedTensorType>(type);
     return tensorType.cloneWithEncoding(encoding);

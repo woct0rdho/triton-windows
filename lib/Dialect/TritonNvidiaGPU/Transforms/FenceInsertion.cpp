@@ -24,6 +24,7 @@ namespace nvidia_gpu {
 
 struct FenceInsertionPass
     : public impl::TritonGPUFenceInsertionBase<FenceInsertionPass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(FenceInsertionPass)
 
 public:
   using impl::TritonGPUFenceInsertionBase<

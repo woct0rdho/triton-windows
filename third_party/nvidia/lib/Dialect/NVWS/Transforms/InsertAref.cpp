@@ -570,6 +570,7 @@ bool insertArefs(OpBuilder &builder, scf::ForOp loop, Block *block,
 class NVWSArefInsertion
     : public triton::impl::NVWSInsertArefBase<NVWSArefInsertion> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(NVWSArefInsertion)
   void runOnFunction(triton::FuncOp func) {
     SmallVector<scf::ForOp> loops;
     func.walk([&](scf::ForOp loop) {

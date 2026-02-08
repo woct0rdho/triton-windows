@@ -66,6 +66,8 @@ static void handleIfPair(scf::IfOp currentIf, scf::IfOp nextIf,
 struct TritonAMDGPUPrepareIfCombiningPass
     : public impl::TritonAMDGPUPrepareIfCombiningBase<
           TritonAMDGPUPrepareIfCombiningPass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonAMDGPUPrepareIfCombiningPass)
 
   void runOnOperation() override {
     triton::FuncOp funcOp = getOperation();

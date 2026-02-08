@@ -1321,6 +1321,7 @@ void doCodePartition(triton::FuncOp &funcOp, unsigned numBuffers) {
 class NVGPUTestWSCodePartitionPass
     : public impl::NVGPUTestWSCodePartitionBase<NVGPUTestWSCodePartitionPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(NVGPUTestWSCodePartitionPass)
   using impl::NVGPUTestWSCodePartitionBase<
       NVGPUTestWSCodePartitionPass>::NVGPUTestWSCodePartitionBase;
 

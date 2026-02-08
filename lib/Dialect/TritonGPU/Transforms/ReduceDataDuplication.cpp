@@ -29,6 +29,8 @@ class TritonGPUReduceDataDuplicationPass
     : public impl::TritonGPUReduceDataDuplicationBase<
           TritonGPUReduceDataDuplicationPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonGPUReduceDataDuplicationPass)
   void runOnOperation() override {
     ModuleOp mod = getOperation();
     mod.walk([&](triton::gpu::ConvertLayoutOp cvtOp) -> void {

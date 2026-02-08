@@ -91,6 +91,8 @@ static void moveUpLoad(tt::LoadOp load) {
 struct TritonAMDGPUMoveUpPrologueLoadsPass
     : public impl::TritonAMDGPUMoveUpPrologueLoadsBase<
           TritonAMDGPUMoveUpPrologueLoadsPass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonAMDGPUMoveUpPrologueLoadsPass)
   void runOnOperation() override {
     // Collect load ops with "amd.pipeliner_part" attribute.
     SmallVector<tt::LoadOp> prologueLoads;

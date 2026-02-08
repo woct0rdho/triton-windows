@@ -182,6 +182,8 @@ namespace {
 struct TritonAMDGPUConvertWarpSpecializeToLLVM
     : public mlir::triton::impl::TritonAMDGPUConvertWarpSpecializeToLLVMBase<
           TritonAMDGPUConvertWarpSpecializeToLLVM> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonAMDGPUConvertWarpSpecializeToLLVM)
 
   TritonAMDGPUConvertWarpSpecializeToLLVM(StringRef arch)
       : TritonAMDGPUConvertWarpSpecializeToLLVMBase<

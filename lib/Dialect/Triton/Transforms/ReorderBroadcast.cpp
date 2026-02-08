@@ -210,6 +210,7 @@ struct MoveBroadcastAfterElementwisePattern
 class ReorderBroadcastPass
     : public impl::TritonReorderBroadcastBase<ReorderBroadcastPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ReorderBroadcastPass)
   void runOnOperation() override {
     MLIRContext *context = &getContext();
     RewritePatternSet patterns(context);
