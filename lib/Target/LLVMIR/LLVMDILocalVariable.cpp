@@ -26,6 +26,7 @@ namespace mlir {
 
 struct LLVMDILocalVariablePass
     : public impl::LLVMDILocalVariableBase<LLVMDILocalVariablePass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(LLVMDILocalVariablePass)
 
   void fuseDILocalVariable(Operation *op) {
     if (op->getNumResults() == 0) {

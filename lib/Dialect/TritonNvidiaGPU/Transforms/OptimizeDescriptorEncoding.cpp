@@ -361,6 +361,8 @@ class TritonNvidiaGPUOptimizeDescriptorEncodingPass
     : public impl::TritonNvidiaGPUOptimizeDescriptorEncodingPassBase<
           TritonNvidiaGPUOptimizeDescriptorEncodingPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonNvidiaGPUOptimizeDescriptorEncodingPass)
   using BaseT = TritonNvidiaGPUOptimizeDescriptorEncodingPassBase<
       TritonNvidiaGPUOptimizeDescriptorEncodingPass>;
   using BaseT::BaseT;

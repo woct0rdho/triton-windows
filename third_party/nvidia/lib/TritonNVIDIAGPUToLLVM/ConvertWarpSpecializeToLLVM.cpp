@@ -541,6 +541,7 @@ namespace {
 struct ConvertWarpSpecializeToLLVM
     : public mlir::triton::impl::ConvertWarpSpecializeToLLVMBase<
           ConvertWarpSpecializeToLLVM> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ConvertWarpSpecializeToLLVM)
   void runOnOperation() override {
     ModuleOp mod = getOperation();
     // FIXME: Assume warp specialization only happens on Blackwell.

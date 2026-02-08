@@ -175,6 +175,7 @@ void ProxyFenceAnalysis::update(Operation *op, BlockInfo *blockInfo,
 
 struct ProxyFenceInsertionPass
     : public impl::TritonGPUProxyFenceInsertionBase<ProxyFenceInsertionPass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ProxyFenceInsertionPass)
 
 public:
   using impl::TritonGPUProxyFenceInsertionBase<

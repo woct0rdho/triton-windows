@@ -169,6 +169,7 @@ static void expandLoops(ModuleOp moduleOp) {
 }
 
 struct PipelinePass : public impl::TritonGPUPipelineBase<PipelinePass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(PipelinePass)
 
   using impl::TritonGPUPipelineBase<PipelinePass>::TritonGPUPipelineBase;
 

@@ -995,6 +995,7 @@ bool CTAPlanner::processMultiUsersForward(Value castResult, CastOp cast) {
 } // anonymous namespace
 
 struct PlanCTAPass : public impl::TritonGPUPlanCTAPassBase<PlanCTAPass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(PlanCTAPass)
   void runOnOperation() override {
     ModuleOp mod = getOperation();
 

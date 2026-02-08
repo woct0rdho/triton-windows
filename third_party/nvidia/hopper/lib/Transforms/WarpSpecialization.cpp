@@ -23,6 +23,7 @@ void doTokenLowering(triton::FuncOp &funcOp, unsigned numConsumerGroups);
 class NVGPUWarpSpecializationPass
     : public impl::NVGPUWarpSpecializationBase<NVGPUWarpSpecializationPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(NVGPUWarpSpecializationPass)
   using impl::NVGPUWarpSpecializationBase<
       NVGPUWarpSpecializationPass>::NVGPUWarpSpecializationBase;
 

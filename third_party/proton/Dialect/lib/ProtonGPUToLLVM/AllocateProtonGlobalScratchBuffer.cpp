@@ -13,6 +13,8 @@ namespace mlir::triton::proton::gpu {
 struct AllocateProtonGlobalScratchBufferPass
     : public impl::AllocateProtonGlobalScratchBufferPassBase<
           AllocateProtonGlobalScratchBufferPass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      AllocateProtonGlobalScratchBufferPass)
   void runOnOperation() override {
     ModuleOp mod = getOperation();
     MLIRContext *ctx = &getContext();

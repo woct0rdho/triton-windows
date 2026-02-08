@@ -102,6 +102,8 @@ private:
 struct TritonAMDGPULowerInstructionSchedHints
     : public triton::impl::TritonAMDGPULowerInstructionSchedHintsBase<
           TritonAMDGPULowerInstructionSchedHints> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonAMDGPULowerInstructionSchedHints)
 
   explicit TritonAMDGPULowerInstructionSchedHints(StringRef arch,
                                                   int32_t numStages) {
@@ -136,6 +138,8 @@ struct TritonAMDGPULowerInstructionSchedHints
 struct TritonAMDGPUInsertInstructionSchedHints
     : public triton::impl::TritonAMDGPUInsertInstructionSchedHintsBase<
           TritonAMDGPUInsertInstructionSchedHints> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonAMDGPUInsertInstructionSchedHints)
 
   explicit TritonAMDGPUInsertInstructionSchedHints(StringRef variant) {
     this->variant = std::move(variant.str());

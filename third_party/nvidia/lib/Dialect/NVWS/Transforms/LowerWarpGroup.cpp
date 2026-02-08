@@ -238,6 +238,7 @@ public:
 class NVWSLowerWarpGroup
     : public impl::NVWSLowerWarpGroupBase<NVWSLowerWarpGroup> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(NVWSLowerWarpGroup)
   void runOnOperation() override {
     MLIRContext *context = &getContext();
     mlir::ModuleOp m = getOperation();

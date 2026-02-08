@@ -232,6 +232,8 @@ class TritonAMDGPUCoalesceAsyncCopyPass
     : public impl::TritonAMDGPUCoalesceAsyncCopyBase<
           TritonAMDGPUCoalesceAsyncCopyPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonAMDGPUCoalesceAsyncCopyPass)
   using Base::Base;
 
   void runOnOperation() override {

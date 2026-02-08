@@ -24,6 +24,7 @@ namespace mlir::triton::gluon {
 
 namespace {
 struct Canonicalize : public gluon::impl::GluonCanonicalizeBase<Canonicalize> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(Canonicalize)
   void runOnOperation() override;
 };
 } // namespace

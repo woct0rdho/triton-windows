@@ -239,6 +239,9 @@ namespace {
 class TritonGPUOptimizeThreadLocalityPass
     : public impl::TritonGPUOptimizeThreadLocalityBase<
           TritonGPUOptimizeThreadLocalityPass> {
+public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonGPUOptimizeThreadLocalityPass)
   void runOnOperation() override {
     ModuleOp mod = getOperation();
 

@@ -13,6 +13,7 @@ namespace mlir::triton::proton::gpu {
 
 struct ScheduleBufferStorePass
     : public impl::ScheduleBufferStorePassBase<ScheduleBufferStorePass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ScheduleBufferStorePass)
 
   using impl::ScheduleBufferStorePassBase<
       ScheduleBufferStorePass>::ScheduleBufferStorePassBase;

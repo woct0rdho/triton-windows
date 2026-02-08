@@ -18,6 +18,7 @@ namespace {
 struct AllocateAMDGPUSharedMemory
     : public mlir::triton::impl::AllocateAMDGPUSharedMemoryBase<
           AllocateAMDGPUSharedMemory> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(AllocateAMDGPUSharedMemory)
   void runOnOperation() override {
     ModuleOp mod = getOperation();
     ModuleAllocation allocation(mod, AMDAllocationAnalysisScratchSizeFn);

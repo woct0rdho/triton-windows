@@ -326,6 +326,7 @@ class TritonGPUOptimizeDotOperandsPass
     : public impl::TritonGPUOptimizeDotOperandsBase<
           TritonGPUOptimizeDotOperandsPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(TritonGPUOptimizeDotOperandsPass)
   using impl::TritonGPUOptimizeDotOperandsBase<
       TritonGPUOptimizeDotOperandsPass>::TritonGPUOptimizeDotOperandsBase;
 

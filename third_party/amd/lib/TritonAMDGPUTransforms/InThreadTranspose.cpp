@@ -786,6 +786,8 @@ class TritonAMDGPUInThreadTransposePass
           TritonAMDGPUInThreadTransposePass> {
 
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonAMDGPUInThreadTransposePass)
   void runOnOperation() override {
     tt::FuncOp f = getOperation();
 

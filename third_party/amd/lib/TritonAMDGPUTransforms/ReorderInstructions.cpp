@@ -304,6 +304,8 @@ static void sinkSecondLoad(scf::ForOp forOp) {
 struct TritonAMDGPUReorderInstructionsPass
     : public impl::TritonAMDGPUReorderInstructionsBase<
           TritonAMDGPUReorderInstructionsPass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonAMDGPUReorderInstructionsPass)
   void runOnOperation() override {
     ModuleOp m = getOperation();
     for (auto funcOp : m.getOps<triton::FuncOp>()) {

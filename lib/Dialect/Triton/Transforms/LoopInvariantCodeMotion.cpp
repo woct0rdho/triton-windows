@@ -16,6 +16,8 @@ namespace mlir::triton {
 class LoopInvariantCodeMotionPass
     : public impl::TritonLoopInvariantCodeMotionBase<
           LoopInvariantCodeMotionPass> {
+public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(LoopInvariantCodeMotionPass)
 
   DenseMap<LoopLikeOpInterface, bool> isLoopMemoryEffectFreeOrOnlyRead;
 

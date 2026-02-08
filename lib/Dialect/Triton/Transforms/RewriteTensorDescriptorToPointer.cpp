@@ -470,6 +470,9 @@ struct RewriteReducePattern : OpConversionPattern<triton::DescriptorReduceOp> {
 class TritonRewriteTensorDescriptorToPointerPass
     : public impl::TritonRewriteTensorDescriptorToPointerBase<
           TritonRewriteTensorDescriptorToPointerPass> {
+public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonRewriteTensorDescriptorToPointerPass)
   void runOnOperation() override {
     auto op = getOperation();
 

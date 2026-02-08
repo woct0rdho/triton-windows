@@ -258,6 +258,8 @@ bool trySinkOp(Operation *op, Value buffer) {
 struct TritonNvidiaGPUInterleaveTMemPass
     : public impl::TritonNvidiaGPUInterleaveTMemPassBase<
           TritonNvidiaGPUInterleaveTMemPass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonNvidiaGPUInterleaveTMemPass)
   using impl::TritonNvidiaGPUInterleaveTMemPassBase<
       TritonNvidiaGPUInterleaveTMemPass>::TritonNvidiaGPUInterleaveTMemPassBase;
 

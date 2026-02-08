@@ -23,6 +23,7 @@ namespace {
 struct AddSchedBarriers
     : public mlir::triton::proton::gpu::impl::AddSchedBarriersBase<
           AddSchedBarriers> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(AddSchedBarriers)
 
   void runOnOperation() override {
     ModuleOp mod = getOperation();

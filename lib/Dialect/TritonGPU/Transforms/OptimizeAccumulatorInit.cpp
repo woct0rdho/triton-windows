@@ -189,6 +189,7 @@ class OptimizeAccumulatorInitPass
     : public impl::TritonGPUOptimizeAccumulatorInitBase<
           OptimizeAccumulatorInitPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(OptimizeAccumulatorInitPass)
   void runOnOperation() override {
     ModuleOp m = getOperation();
     SmallVector<Operation *> mmaOps;

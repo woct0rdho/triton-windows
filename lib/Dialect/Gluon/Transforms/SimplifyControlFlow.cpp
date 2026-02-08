@@ -20,6 +20,7 @@ namespace mlir::triton::gluon {
 namespace {
 struct SimplifyControlFlow
     : public gluon::impl::GluonSimplifyControlFlowBase<SimplifyControlFlow> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(SimplifyControlFlow)
   void runOnOperation() override;
 };
 } // namespace

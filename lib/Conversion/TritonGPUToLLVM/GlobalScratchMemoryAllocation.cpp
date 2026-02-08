@@ -75,6 +75,8 @@ class TritonGPUGlobalScratchAllocationPass
     : public mlir::triton::gpu::impl::TritonGPUGlobalScratchAllocationPassBase<
           TritonGPUGlobalScratchAllocationPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonGPUGlobalScratchAllocationPass)
   void runOnOperation() override {
     ModuleOp mod = getOperation();
 

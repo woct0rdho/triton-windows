@@ -253,6 +253,7 @@ class OptimizeAMDLDSUsage
   }
 
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(OptimizeAMDLDSUsage)
   OptimizeAMDLDSUsage(StringRef targetArch, int customLDSLimit)
       : OptimizeAMDLDSUsageBase<OptimizeAMDLDSUsage>() {
     this->targetArch = targetArch.str();

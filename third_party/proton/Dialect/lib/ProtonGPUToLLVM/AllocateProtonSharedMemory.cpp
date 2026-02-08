@@ -13,6 +13,7 @@ namespace mlir::triton::proton::gpu {
 struct AllocateProtonSharedMemoryPass
     : public impl::AllocateProtonSharedMemoryPassBase<
           AllocateProtonSharedMemoryPass> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(AllocateProtonSharedMemoryPass)
   void runOnOperation() override {
     ModuleOp mod = getOperation();
     MLIRContext *ctx = &getContext();

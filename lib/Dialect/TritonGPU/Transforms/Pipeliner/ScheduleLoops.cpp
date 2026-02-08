@@ -403,6 +403,7 @@ void scheduleLoops(ModuleOp moduleOp) {
 #include "triton/Dialect/TritonGPU/Transforms/Passes.h.inc"
 
 struct ScheduleLoops : public impl::TritonGPUScheduleLoopsBase<ScheduleLoops> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ScheduleLoops)
   using TritonGPUScheduleLoopsBase::TritonGPUScheduleLoopsBase;
 
   void runOnOperation() override { scheduleLoops(getOperation()); }

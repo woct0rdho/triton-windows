@@ -797,6 +797,7 @@ class ConvertTritonToTritonGPU
     : public triton::impl::ConvertTritonToTritonGPUBase<
           ConvertTritonToTritonGPU> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ConvertTritonToTritonGPU)
   using ConvertTritonToTritonGPUBase::ConvertTritonToTritonGPUBase;
 
   void runOnOperation() override {

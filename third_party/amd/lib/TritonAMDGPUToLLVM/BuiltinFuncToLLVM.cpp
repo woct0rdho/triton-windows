@@ -166,6 +166,7 @@ private:
 struct ConvertBuiltinFuncToLLVM
     : public triton::impl::ConvertBuiltinFuncToLLVMBase<
           ConvertBuiltinFuncToLLVM> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ConvertBuiltinFuncToLLVM)
   explicit ConvertBuiltinFuncToLLVM(bool ftz) { this->ftz = ftz; }
 
   void runOnOperation() override {

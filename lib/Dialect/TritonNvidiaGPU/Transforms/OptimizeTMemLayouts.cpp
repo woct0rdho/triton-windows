@@ -426,6 +426,8 @@ class TritonNvidiaGPUOptimizeTMemLayoutsPass
     : public impl::TritonNvidiaGPUOptimizeTMemLayoutsPassBase<
           TritonNvidiaGPUOptimizeTMemLayoutsPass> {
 public:
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(
+      TritonNvidiaGPUOptimizeTMemLayoutsPass)
   using BaseT = TritonNvidiaGPUOptimizeTMemLayoutsPassBase<
       TritonNvidiaGPUOptimizeTMemLayoutsPass>;
   using BaseT::BaseT;
