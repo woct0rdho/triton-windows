@@ -94,7 +94,8 @@ lowerKernelBarriers(LLVM::LLVMFuncOp func,
   for (WarpSpecializeOp op : wsOps) {
     for (auto [idx, partition] : llvm::enumerate(op.getPartitionRegions())) {
       unsigned numWarps = op.getPartitionNumWarps()[idx];
-      WalkResult result = partition->walk([&, idx = idx](Operation *op) {
+      WalkResult result = partition->walk([&, idx = static_cast<unsigned>(idx)](
+                                              Operation *op) {
         if (barrierHelper.isBarrierOp(op)) {
           return WalkResult(lowerBarrier(op, numWarps, idx, barrierHelper));
         }
@@ -246,7 +247,8 @@ void mlir::triton::convertOpTypes(Operation *op,
   for (auto [i, result, type] :
        llvm::enumerate(newOp->getResults(), op->getResultTypes())) {
     auto cast = UnrealizedConversionCastOp::create(b, type, result);
-    op->getResult(i).replaceAllUsesWith(cast.getResult(0));
+    op->getResult(static_cast<unsigned>(i))
+        .replaceAllUsesWith(cast.getResult(0));
   }
   op->erase();
 }
