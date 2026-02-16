@@ -504,8 +504,9 @@ bool TargetInfo::warpReduce(RewriterBase &rewriter, Location loc,
       // For partitioned reduction we need to calculate the mask so that
       // each group of threads has the correct mask.
       Value laneId = getLaneId(rewriter, loc);
-      mask = b.shl(b.i32_val(reduceLaneIdMask),
-                   b.and_(laneId, b.i32_val(~reduceLaneIdMask)));
+      mask = b.shl(
+          b.i32_val(reduceLaneIdMask),
+          b.and_(laneId, b.i32_val(static_cast<int32_t>(~reduceLaneIdMask))));
     }
     for (unsigned i = 0; i < acc.size(); ++i) {
       unsigned bitwidth = acc[i].getType().getIntOrFloatBitWidth();
