@@ -1,13 +1,8 @@
 # [Triton](https://github.com/triton-lang/triton) fork for Windows support
 
+**Announcement**: The development has moved to https://github.com/triton-lang/triton-windows . Users are not affected by this change, and you can continue to install triton-windows using pip. Currently the maintainers of the new repo are [@woct0rdho](https://github.com/woct0rdho) and [@jammm](https://github.com/jammm).
+
 Based on [andreigh](https://github.com/andreigh/triton/tree/windows), [wkpark](https://github.com/wkpark/triton/tree/windows-fix), [mantaionut](https://github.com/mantaionut/triton/tree/windows_support), [eaplatanios](https://github.com/eaplatanios/triton/tree/windows-fix), [anmyachev](https://github.com/triton-lang/triton/issues?q=author%3Aanmyachev), and more development in the community. Thank you all!
-
-## Why?
-
-* Free software should run on non-free platforms, as per Richard Stallman
-* This is required by `torch.compile`, and torchao, SageAttention, Unsloth, and more packages
-* Memory/disk swap on WSL is hard
-* Local AI matters
 
 ## What's supported
 
